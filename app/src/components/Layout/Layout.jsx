@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Text, Flex, Box, Burger, Menu, AppShell, Title } from '@mantine/core'
+import { Container, Text, Flex, Box, Burger, Menu, AppShell, Title, NavLink } from '@mantine/core'
 import { Helmet } from 'react-helmet';
 import styles from './Layout.module.css';
 import { useDisclosure } from '@mantine/hooks';
+import { IconDashboard, IconSettings } from '@tabler/icons-react';
+import { Link } from 'react-router-dom';
 
 const Layout = ({ children, title, description, date, noindex, image }) => {
   const ogImage = image || '/og-image.jpg';
@@ -33,7 +35,7 @@ const Layout = ({ children, title, description, date, noindex, image }) => {
     <AppShell
       header={{ height: 60 }}
       navbar={{
-        width: 300,
+        width: 250,
         breakpoint: 'sm',
         collapsed: { mobile: !opened },
       }}
@@ -51,7 +53,22 @@ const Layout = ({ children, title, description, date, noindex, image }) => {
         </Flex>
       </AppShell.Header>
 
-      <AppShell.Navbar p="md">Navbar</AppShell.Navbar>
+      <AppShell.Navbar p="md">
+        <NavLink
+          to="/"
+          label="Dashboard"
+          leftSection={<IconDashboard size={16} stroke={1.5} />}
+          active={window.location.pathname === '/'}
+          component={Link}
+        />
+        <NavLink
+          to="/settings"
+          label="Settings"
+          leftSection={<IconSettings size={16} stroke={1.5} />}
+          active={window.location.pathname === '/settings'}
+          component={Link}
+        />
+      </AppShell.Navbar>
 
       <AppShell.Main>{children}</AppShell.Main>
     </AppShell>
