@@ -3,7 +3,7 @@ import { Container, Text, Flex, Box, Burger, Menu, AppShell, Title, NavLink } fr
 import { Helmet } from 'react-helmet';
 import styles from './Layout.module.css';
 import { useDisclosure } from '@mantine/hooks';
-import { IconDashboard, IconSettings } from '@tabler/icons-react';
+import { IconDashboard, IconHeartbeat, IconSettings } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 
 const Layout = ({ children, title, description, date, noindex, image }) => {
@@ -49,7 +49,11 @@ const Layout = ({ children, title, description, date, noindex, image }) => {
             hiddenFrom="sm"
             size="sm"
           />
-          <Title order={1} size="h3">{import.meta.env.VITE_WEBSITE_NAME}</Title>
+          <Flex gap="xs" align="center">
+            <IconHeartbeat size={26} stroke={0.8} />
+            <Text size="xl" fw={200}>{import.meta.env.VITE_WEBSITE_NAME}</Text>
+          </Flex>
+
         </Flex>
       </AppShell.Header>
 
@@ -61,13 +65,15 @@ const Layout = ({ children, title, description, date, noindex, image }) => {
           active={window.location.pathname === '/'}
           component={Link}
         />
-        <NavLink
+        {/* <NavLink
           to="/settings"
           label="Settings"
           leftSection={<IconSettings size={16} stroke={1.5} />}
           active={window.location.pathname === '/settings'}
           component={Link}
-        />
+        /> */}
+        {/* Manual Tests */}
+        {/* Alerts */}
       </AppShell.Navbar>
 
       <AppShell.Main>{children}</AppShell.Main>
