@@ -30,10 +30,13 @@ const mockData = {
 const Chart = ({ type }) => {
   return (
     <Flex gap="2px">
+      {mockData.status.length < 30 ? Array.from({ length: 30 - mockData.status.length }).map((_, index) => (
+        <Card key={index} h={20} w={10} p="0" bg="white" withBorder></Card>
+      )) : <></>}
       {
         mockData.status.map((item, index) => (
           <Tooltip key={index} label={new Date(item.time).toLocaleString()}>
-            <Card h={20} w={2} bg={!item.failed.includes(type) ? 'green' : 'red'}></Card>
+            <Card h={20} w={10} p="0" bg={!item.failed.includes(type) ? 'green' : 'red'}></Card>
           </Tooltip>
         ))
       }
@@ -49,9 +52,12 @@ function Dashboard() {
       <Box mb="xl">
         {/* todo time filter */}
         <Flex mb="xs" gap="3px">
+          {mockData.status.length < 60 ? Array.from({ length: 60 - mockData.status.length }).map((_, index) => (
+            <Card key={index} h={100} w={20} p="0" bg="white" withBorder></Card>
+          )) : <></>}
           {mockData.status.map((item, index) => (
             <Tooltip key={index} label={new Date(item.time).toLocaleString()}>
-              <Card h={100} w={10} bg={item.failed.length === 0 ? 'green' : 'red'}></Card>
+              <Card h={100} w={20} p="0" bg={item.failed.length === 0 ? 'green' : 'red'}></Card>
             </Tooltip>
           ))}
         </Flex>

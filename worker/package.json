@@ -1,0 +1,22 @@
+{
+  "name": "www-onlogist-status-check",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node cron.js",
+    "dev": "node index.js",
+    "deploy": "sh deploy.sh"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@axe-core/playwright": "^4.10.1",
+    "dotenv": "^17.2.0",
+    "mongodb": "^6.17.0",
+    "node-cron": "^3.0.3",
+    "playwright": "^1.45.3"
+  }
+}
