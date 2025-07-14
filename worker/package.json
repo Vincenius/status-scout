@@ -8,15 +8,22 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node cron.js",
     "dev": "node index.js",
+    "api": "nodemon api.js",
     "deploy": "sh deploy.sh"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@axe-core/playwright": "^4.10.1",
+    "chrome-launcher": "^1.2.0",
     "dotenv": "^17.2.0",
+    "fastify": "^5.4.0",
+    "lighthouse": "^12.8.0",
     "mongodb": "^6.17.0",
-    "node-cron": "^3.0.3",
+    "node-cron": "^4.2.1",
     "playwright": "^1.45.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
   }
 }

@@ -1,6 +1,9 @@
 import 'dotenv/config'
 import { connectDB, disconnectDB } from './db.js'
-import { runSecurityCheck } from './checks/security-check.js'
+import { runFuzzCheck } from './checks/fuzz.js'
+import { runHeaderCheck } from './checks/headers.js'
+import { lighthouseCheck } from './checks/lighthouse.js'
+import { performanceCheck } from './checks/performance.js'
 
 try {
   const db = await connectDB()
@@ -11,18 +14,22 @@ try {
     console.log(createdAt, 'run status check for', user.domain)
     await db.collection('users').updateOne(
       { _id: user._id },
-      { $push: { checks: { created_at: createdAt } } }
+      { $push: { checks: { created_at: createdAt, status: 'running' } } }
     );
-    await runSecurityCheck({ uri: user.domain, db, userId: user._id, createdAt })
+
+    // await runFuzzCheck({ uri: user.domain, db, userId: user._id, createdAt })
+    // await runHeaderCheck({ uri: user.domain, db, userId: user._id, createdAt })
+    // await lighthouseCheck({ uri: user.domain, db, userId: user._id, createdAt })
+    await performanceCheck({ uri: user.domain, db, userId: user._id, createdAt })
+
     // run other checks
-    // audit: https://github.com/GoogleChrome/lighthouse
-    // https://github.com/GoogleChrome/lighthouse/blob/main/docs/readme.md#using-programmatically
-      // seo score
-      // performance score
-      // accessibility score
     // SSL https://www.npmjs.com/package/node-ssllabs
 
-
+    await db.collection('users').updateOne(
+      { _id: user._id },
+      { $set: { 'checks.$[elem].status': 'done' } },
+      { arrayFilters: [{ 'elem.created_at': createdAt }] }
+    );
     console.log('finished all checks')
   }
 } catch (e) {
