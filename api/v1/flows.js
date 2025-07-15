@@ -8,10 +8,10 @@ export default async function flowRoutes(fastify, opts) {
     try {
       const flows = await db
         .collection('flows')
-        .find({ domain: 'https://www.onlogist.com' })
+        .find({ })
         .toArray();
 
-      return flows;
+      return flows[0];
     } catch (e) {
       console.error(e);
       reply.code(500).send({ error: 'Internal server error' });
