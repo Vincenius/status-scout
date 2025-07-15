@@ -28,7 +28,7 @@ export default async function flowRoutes(fastify, opts) {
     try {
       const db = await connectDB()
 
-      const checks = await db.collection('checks').find({ userId: new ObjectId('6870ad94c49ffd667b661fca') }).toArray()
+      const checks = await db.collection('checks').find({ domain: 'https://www.onlogist.com' }).toArray()
 
       return checks
     } catch (e) {

@@ -8,7 +8,7 @@ export default async function flowRoutes(fastify, opts) {
     try {
       const flows = await db
         .collection('flows')
-        .find({ userId: new ObjectId('6870ad94c49ffd667b661fca') })
+        .find({ domain: 'https://www.onlogist.com' })
         .toArray();
 
       return flows;
