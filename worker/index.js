@@ -7,6 +7,9 @@ import { runLighthouseCheck } from './checks/lighthouse.js'
 import { runPerformanceCheck } from './checks/performance.js'
 import { runCustomChecks } from './checks/custom.js'
 
+
+console.log('INIT', process.env.MONGODB_URI)
+
 export const run = async () => {
   try {
     const db = await connectDB()

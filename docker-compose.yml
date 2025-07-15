@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   mongodb:
     image: mongo:7
@@ -23,12 +21,7 @@ services:
       - mongodb
 
   frontend:
-    build:
-      context: ./frontend
-      args:
-        VITE_WEBSITE_NAME: ${WEBSITE_NAME}
-        VITE_BASE_URL: ${FRONTEND_URL}
-        VITE_API_URL: ${API_URL}
+    build: ./frontend
     container_name: frontend
     restart: always
     ports:
