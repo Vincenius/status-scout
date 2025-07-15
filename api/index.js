@@ -25,7 +25,7 @@ fastify.addHook('onClose', async (instance, done) => {
 
 
 try {
-  await fastify.listen({ port: 3000 })
+  await fastify.listen({ port: 3000, host: '0.0.0.0' })
 } catch (err) {
   fastify.log.error(err)
   process.exit(1)
