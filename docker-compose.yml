@@ -23,11 +23,12 @@ services:
       - mongodb
 
   frontend:
-    build: ./frontend
-    args:
-      VITE_WEBSITE_NAME: ${WEBSITE_NAME}
-      VITE_BASE_URL: ${FRONTEND_URL}
-      VITE_API_URL: ${API_URL}
+    build:
+      context: ./frontend
+      args:
+        VITE_WEBSITE_NAME: ${WEBSITE_NAME}
+        VITE_BASE_URL: ${FRONTEND_URL}
+        VITE_API_URL: ${API_URL}
     container_name: frontend
     restart: always
     ports:
