@@ -1,6 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-import { updateCheck } from '../db.js'
+import { createCheckResult } from '../db.js'
 
 function splitIntoBatches(arr, batchSize) {
   let result = [];
@@ -40,5 +40,5 @@ export const runFuzzCheck = async ({ uri, db, userId, createdAt }) => {
     }, 
   }
 
-  await updateCheck({ db, userId, createdAt, check: 'fuzz', result })
+  await createCheckResult({ db, userId, createdAt, check: 'fuzz', result })
 }

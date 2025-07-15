@@ -3,7 +3,7 @@ import { Container, Text, Flex, Box, Burger, Menu, AppShell, Title, NavLink } fr
 import { Helmet } from 'react-helmet';
 import styles from './Layout.module.css';
 import { useDisclosure } from '@mantine/hooks';
-import { IconDashboard, IconHeartbeat, IconSettings } from '@tabler/icons-react';
+import { IconDashboard, IconHeartbeat, IconReorder, IconSettings } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 
 const Layout = ({ children, title, description, date, noindex, image }) => {
@@ -66,10 +66,10 @@ const Layout = ({ children, title, description, date, noindex, image }) => {
           component={Link}
         />
         {/* <NavLink
-          to="/settings"
-          label="Settings"
-          leftSection={<IconSettings size={16} stroke={1.5} />}
-          active={window.location.pathname === '/settings'}
+          to="/custom-flows"
+          label="Custom Test Flows"
+          leftSection={<IconReorder size={16} stroke={1.5} />}
+          active={window.location.pathname === '/custom-flows'}
           component={Link}
         /> */}
         {/* Manual Tests */}

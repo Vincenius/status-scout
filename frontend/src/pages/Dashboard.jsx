@@ -1,42 +1,20 @@
 import Layout from '@/components/Layout/Layout'
-import { Box, Card, Flex, SimpleGrid, Table, Text, ThemeIcon, Title, Tooltip } from '@mantine/core'
-import { IconAccessible, IconChartBar, IconCode, IconShieldLock } from '@tabler/icons-react'
+import useSWR from 'swr'
+import { Box, Card, Flex, SimpleGrid, Table, Text, ThemeIcon, Title, Tooltip, LoadingOverlay } from '@mantine/core'
+import { IconAccessible, IconBrandSpeedtest, IconChartBar, IconShieldLock, IconZoomCode } from '@tabler/icons-react'
+import fetcher from '@/utils/fetcher'
 
-const mockData = {
-  status: [{
-    time: '2023-02-11 12:34:56',
-    failed: [],
-  }, {
-    time: '2023-02-11 13:34:56',
-    failed: []
-  }, {
-    time: '2023-02-11 14:34:56',
-    failed: ['security']
-  }, {
-    time: '2023-02-11 15:34:56',
-    failed: []
-  }],
-  logs: [{
-    time: '2023-02-11 15:34:56',
-    status: 'fix',
-    message: 'All issues have been resolved'
-  }, {
-    time: '2023-02-11 14:34:56',
-    status: 'fail',
-    message: 'Security Check Failed: package.json file exposed to public'
-  }]
-}
-
-const Chart = ({ type }) => {
+const Chart = ({ data = [] }) => {
+  console.log(data)
   return (
     <Flex gap="2px">
-      {mockData.status.length < 30 ? Array.from({ length: 30 - mockData.status.length }).map((_, index) => (
+      {data.length < 30 ? Array.from({ length: 30 - data.length }).map((_, index) => (
         <Card key={index} h={20} w={10} p="0" bg="white" withBorder></Card>
       )) : <></>}
       {
-        mockData.status.map((item, index) => (
-          <Tooltip key={index} label={new Date(item.time).toLocaleString()}>
-            <Card h={20} w={10} p="0" bg={!item.failed.includes(type) ? 'green' : 'red'}></Card>
+        data.map((item, index) => (
+          <Tooltip key={index} label={new Date(item.createdAt).toLocaleString()}>
+            <Card h={20} w={10} p="0" bg={item.result.status === 'success' ? 'green' : 'red'}></Card>
           </Tooltip>
         ))
       }
@@ -45,12 +23,26 @@ const Chart = ({ type }) => {
 }
 
 function Dashboard() {
+  const { data = [], error, isLoading } = useSWR(`${import.meta.env.VITE_API_URL}/v1/user`, fetcher)
+  const { data: flows = [], isLoading: isLoadingFlows } = useSWR(`${import.meta.env.VITE_API_URL}/v1/flows`, fetcher)
+
+  if (isLoading || isLoadingFlows) {
+    return (
+      <Layout title="Dashboard">
+        <Title mb="xl" order={1} fw="normal">Dashboard</Title>
+        <LoadingOverlay visible={true} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
+      </Layout>
+    )
+  }
+
+  console.log(data, flows)
+
   return (
     <Layout title="Dashboard">
       <Title mb="xl" order={1} fw="normal">Dashboard</Title>
 
-      <Box mb="xl">
-        {/* todo time filter */}
+      {/* todo time filter */}
+      {/* <Box mb="xl">
         <Flex mb="xs" gap="3px">
           {mockData.status.length < 60 ? Array.from({ length: 60 - mockData.status.length }).map((_, index) => (
             <Card key={index} h={100} w={20} p="0" bg="white" withBorder></Card>
@@ -61,7 +53,7 @@ function Dashboard() {
             </Tooltip>
           ))}
         </Flex>
-      </Box>
+      </Box> */}
 
       <SimpleGrid cols={{ xs: 1, sm: 2 }} mb="md">
         <Card withBorder shadow="md">
@@ -77,7 +69,7 @@ function Dashboard() {
                     <Text>Uptime</Text>
                   </Flex>
                 </Table.Td>
-                <Table.Td><Chart type="uptime" /></Table.Td>
+                <Table.Td><Chart data={data.filter(d => d.check === 'uptime')} /></Table.Td>
               </Table.Tr>
               <Table.Tr>
                 <Table.Td>
@@ -88,7 +80,7 @@ function Dashboard() {
                     <Text>Security</Text>
                   </Flex>
                 </Table.Td>
-                <Table.Td><Chart type="security" /></Table.Td>
+                <Table.Td><Chart data={data.filter(d => d.check === 'fuzz')} /></Table.Td>
               </Table.Tr>
               <Table.Tr>
                 <Table.Td>
@@ -99,47 +91,54 @@ function Dashboard() {
                     <Text>Accessibility</Text>
                   </Flex>
                 </Table.Td>
-                <Table.Td><Chart type="a11y" /></Table.Td>
+                <Table.Td><Chart data={data.filter(d => d.check === 'a11y')} /></Table.Td>
               </Table.Tr>
               <Table.Tr>
                 <Table.Td>
                   <Flex gap="xs" align="center">
                     <ThemeIcon variant="default" size="sm">
-                      <IconCode style={{ width: '70%', height: '70%' }} />
+                      <IconZoomCode style={{ width: '70%', height: '70%' }} />
                     </ThemeIcon>
-                    <Text>Embedded</Text>
+                    <Text>SEO</Text>
                   </Flex>
                 </Table.Td>
-                <Table.Td><Chart type="embedded" /></Table.Td>
+                <Table.Td><Chart data={data.filter(d => d.check === 'seo')} /></Table.Td>
+              </Table.Tr>
+              <Table.Tr>
+                <Table.Td>
+                  <Flex gap="xs" align="center">
+                    <ThemeIcon variant="default" size="sm">
+                      <IconBrandSpeedtest style={{ width: '70%', height: '70%' }} />
+                    </ThemeIcon>
+                    <Text>Performance</Text>
+                  </Flex>
+                </Table.Td>
+                <Table.Td><Chart data={data.filter(d => d.check === 'performance')} /></Table.Td>
               </Table.Tr>
             </Table.Tbody>
           </Table>
         </Card>
         <Card withBorder shadow="md">
-          <Title mb="md" order={2} size="h4" fw="normal">Custom Tests</Title>
+          <Title mb="md" order={2} size="h4" fw="normal">Custom Flows</Title>
           <Table>
             <Table.Tbody>
-              <Table.Tr>
-                <Table.Td>
-                  <Flex gap="xs" align="center">
-                    <Text>Signup Flow</Text>
-                  </Flex>
-                </Table.Td>
-                <Table.Td><Chart type="signupFlow" /></Table.Td>
-              </Table.Tr>
-              <Table.Tr>
-                <Table.Td>
-                  <Flex gap="xs" align="center">
-                    <Text>robots.txt set correctly</Text>
-                  </Flex>
-                </Table.Td>
-                <Table.Td><Chart type="robots" /></Table.Td>
-              </Table.Tr>
+              {flows.map((item, index) => (
+                <Table.Tr key={index}>
+                  <Table.Td>
+                    <Flex gap="xs" align="center">
+                      <Text>{item.name}</Text>
+                    </Flex>
+                  </Table.Td>
+                  <Table.Td>
+                    <Chart data={data.filter(d => d.check === 'custom').map(c => c.result.find(r => r.name === item.name))} />
+                  </Table.Td>
+                </Table.Tr>
+              ))}
             </Table.Tbody>
           </Table>
         </Card>
       </SimpleGrid>
-      <Card withBorder shadow="md">
+      {/* <Card withBorder shadow="md">
         <Title mb="md" order={2} size="h4" fw="normal">Logs</Title>
 
         <Table>
@@ -158,7 +157,7 @@ function Dashboard() {
             ))}
           </Table.Tbody>
         </Table>
-      </Card>
+      </Card> */}
     </Layout>
   )
 }

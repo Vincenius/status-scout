@@ -24,22 +24,13 @@ export async function disconnectDB() {
   }
 }
 
-export const updateCheck = async ({ db, userId, createdAt, check, result }) => {
-  const updateKey = `checks.$[elem].${check}`;
-
-  await db.collection('users').updateOne(
-    { _id: userId },
-    {
-      $set: {
-        [updateKey]: result
-      }
-    },
-    {
-      arrayFilters: [
-        { 'elem.created_at': createdAt }
-      ]
-    }
-  );
+export const createCheckResult = async ({ db, userId, createdAt, check, result }) => {
+  await db.collection('checks').insertOne({
+    userId,
+    check,
+    result,
+    createdAt
+  });
 };
 
 export { db };

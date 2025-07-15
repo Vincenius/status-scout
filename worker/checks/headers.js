@@ -1,4 +1,4 @@
-import { updateCheck } from '../db.js'
+import { createCheckResult } from '../db.js'
 
 // https://chatgpt.com/c/6870d745-5aa8-8013-bc17-69fa16456d9a
 export const runHeaderCheck = async ({ uri, db, userId, createdAt }) => {
@@ -37,7 +37,7 @@ export const runHeaderCheck = async ({ uri, db, userId, createdAt }) => {
         missingHeaders
       },
     }
-    await updateCheck({ db, userId, createdAt, check: 'headers', result })
+    await createCheckResult({ db, userId, createdAt, check: 'headers', result })
   } catch (err) {
     console.error(`Error fetching ${uri}:`, err.message);
   }

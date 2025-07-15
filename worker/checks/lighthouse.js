@@ -1,6 +1,6 @@
 import lighthouse from 'lighthouse';
 import * as chromeLauncher from 'chrome-launcher';
-import { updateCheck } from '../db.js'
+import { createCheckResult } from '../db.js'
 
 // todo use pagespeed insighst for performance & lighthouse for seo and a11y
 // https://developers.google.com/speed/docs/insights/v5/get-started -> use this instead
@@ -19,7 +19,7 @@ function parseAuditItem(item, index) {
   }
 }
 
-export const lighthouseCheck = async ({ uri, db, userId, createdAt }) => {
+export const runLighthouseCheck = async ({ uri, db, userId, createdAt }) => {
   const chrome = await chromeLauncher.launch({ chromeFlags: ['--headless'] });
 
   try {
@@ -39,8 +39,11 @@ export const lighthouseCheck = async ({ uri, db, userId, createdAt }) => {
     const report = runnerResult.lhr;
     const seoAudits = report.categories.seo;
     const seoResult = {
-      score: seoAudits.score * 100,
-      details: []
+      status: (seoAudits.score * 100) > 90 ? 'success' : 'fail',
+      details: {
+        score: seoAudits.score * 100,
+        items: []
+      }
     }
 
     for (const auditRef of seoAudits.auditRefs) {
@@ -59,14 +62,17 @@ export const lighthouseCheck = async ({ uri, db, userId, createdAt }) => {
         auditElem.items.push(parseAuditItem(item, i));
       });
 
-      seoResult.details.push(auditElem);
+      seoResult.details.items.push(auditElem);
     }
 
     const a11yCategory = report.categories.accessibility;
 
     const a11yResult = {
-      score: a11yCategory.score * 100,
-      details: []
+      status: (a11yCategory.score * 100) > 90 ? 'success' : 'fail',
+      details: {
+        score: a11yCategory.score * 100,
+        items: []
+      }
     }
 
     const a11yAudits = runnerResult.lhr.audits;
@@ -89,12 +95,12 @@ export const lighthouseCheck = async ({ uri, db, userId, createdAt }) => {
         auditElem.items.push(parseAuditItem(item, i));
       });
 
-      a11yResult.details.push(auditElem);
+      a11yResult.details.items.push(auditElem);
     });
 
     await Promise.all([
-      updateCheck({ db, userId, createdAt, check: 'seo', result: seoResult }),
-      updateCheck({ db, userId, createdAt, check: 'a11y', result: a11yResult }),
+      createCheckResult({ db, userId, createdAt, check: 'seo', result: seoResult }),
+      createCheckResult({ db, userId, createdAt, check: 'a11y', result: a11yResult }),
     ])
     console.debug(`Finished lighthouse check for ${uri}`);
   } catch (err) {

@@ -1,4 +1,4 @@
-import { updateCheck } from "../db.js";
+import { createCheckResult } from "../db.js";
 
 const fetchPageSpeedData = (url) => new Promise((resolve, reject) => {
   fetch(url)
@@ -19,7 +19,7 @@ const fetchPageSpeedData = (url) => new Promise((resolve, reject) => {
     });
 })
 
-export const performanceCheck = async ({ uri, db, userId, createdAt }) => {
+export const runPerformanceCheck = async ({ uri, db, userId, createdAt }) => {
   const mobileUrl = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${uri}&strategy=mobile&key=${process.env.GOOGLE_PAGESPEED_API_KEY}`;
   const desktopUrl = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${uri}&strategy=desktop&key=${process.env.GOOGLE_PAGESPEED_API_KEY}`;
 
@@ -38,5 +38,5 @@ export const performanceCheck = async ({ uri, db, userId, createdAt }) => {
     },
   }
 
-  await updateCheck({ db, userId, createdAt, check: 'performance', result })
+  await createCheckResult({ db, userId, createdAt, check: 'performance', result })
 }
