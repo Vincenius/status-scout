@@ -4,17 +4,7 @@ import { createCheckResult } from '../db.js'
 
 // https://chatgpt.com/c/6870d745-5aa8-8013-bc17-69fa16456d9a
 export const runCustomChecks = async ({ uri, db, userId, createdAt }) => {
-  // tmp
-  await db.collection('flows').updateMany(
-    { userId: new ObjectId("6870ad94c49ffd667b661fca") },
-    { $set: { userId: new ObjectId("68766d00f4448410de717731") } }
-  )
-
-
   const checks = await db.collection('flows').find({ userId }).toArray()
-  console.log({ checks, userId })
-
-  // migrate all userIds with 6870ad94c49ffd667b661fca -> 68766d00f4448410de717731
 
   if (checks.length) {
     const browser = await playwright.chromium.launch()

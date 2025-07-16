@@ -11,7 +11,7 @@ export default async function flowRoutes(fastify, opts) {
         .find({ })
         .toArray();
 
-      return flows[0];
+      return flows;
     } catch (e) {
       console.error(e);
       reply.code(500).send({ error: 'Internal server error' });
