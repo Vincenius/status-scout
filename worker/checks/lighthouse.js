@@ -1,5 +1,5 @@
 import lighthouse from 'lighthouse';
-import { chromium } from 'playwright';
+import playwright from 'playwright'
 import { createCheckResult } from '../db.js'
 
 // todo use pagespeed insighst for performance & lighthouse for seo and a11y
@@ -20,7 +20,7 @@ function parseAuditItem(item, index) {
 }
 
 export const runLighthouseCheck = async ({ uri, db, userId, createdAt }) => {
-  const browser = await chromium.launch({
+  const browser = await playwright.chromium.launch({
     args: ['--remote-debugging-port=9222']
   });
 
