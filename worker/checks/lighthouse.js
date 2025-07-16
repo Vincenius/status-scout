@@ -1,4 +1,5 @@
 import lighthouse from 'lighthouse';
+import { chromium } from 'playwright';
 import * as chromeLauncher from 'chrome-launcher';
 import { createCheckResult } from '../db.js'
 
@@ -20,7 +21,10 @@ function parseAuditItem(item, index) {
 }
 
 export const runLighthouseCheck = async ({ uri, db, userId, createdAt }) => {
+  const chromePath = chromium.executablePath();
+
   const chrome = await chromeLauncher.launch({
+    chromePath,
     chromeFlags: [
       '--headless',
       '--no-sandbox',
