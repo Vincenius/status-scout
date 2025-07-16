@@ -34,3 +34,5 @@ export const run = async () => {
     await disconnectDB()
   }
 }
+
+run()
