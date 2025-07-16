@@ -28,7 +28,7 @@ export const runLighthouseCheck = async ({ uri, db, userId, createdAt }) => {
     const debuggingPort = 9222;
 
     const options = {
-      logLevel: 'info',
+      logLevel: 'error',
       output: 'html',
       port: debuggingPort,
       onlyCategories: ['seo', 'accessibility'],
