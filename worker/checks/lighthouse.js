@@ -26,9 +26,6 @@ export const runLighthouseCheck = async ({ uri, db, userId, createdAt }) => {
 
   try {
     const debuggingPort = 9222;
-    const context = await browser.newContext();
-    const page = await context.newPage();
-    await page.goto(uri);
 
     const options = {
       logLevel: 'info',
