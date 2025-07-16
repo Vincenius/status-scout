@@ -15,7 +15,6 @@
   "license": "ISC",
   "dependencies": {
     "@axe-core/playwright": "^4.10.1",
-    "chrome-launcher": "^1.2.0",
     "dotenv": "^17.2.0",
     "fastify": "^5.4.0",
     "lighthouse": "^12.8.0",

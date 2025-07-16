@@ -1,6 +1,5 @@
 import lighthouse from 'lighthouse';
 import { chromium } from 'playwright';
-import * as chromeLauncher from 'chrome-launcher';
 import { createCheckResult } from '../db.js'
 
 // todo use pagespeed insighst for performance & lighthouse for seo and a11y
@@ -21,18 +20,21 @@ function parseAuditItem(item, index) {
 }
 
 export const runLighthouseCheck = async ({ uri, db, userId, createdAt }) => {
-  const chromePath = chromium.executablePath();
-
-  console.log({ chromePath })
-
-  const chrome = await chromeLauncher.launch({
-    chromePath,
-    chromeFlags: ['--headless', '--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
+  const browser = await chromium.launch({
+    args: ['--remote-debugging-port=9222']
   });
 
   try {
+    const debuggingPort = 9222;
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    await page.goto(uri);
+
     const options = {
-      logLevel: 'info', output: 'html', port: chrome.port, onlyCategories: ['seo', 'accessibility'],
+      logLevel: 'info',
+      output: 'html',
+      port: debuggingPort,
+      onlyCategories: ['seo', 'accessibility'],
       settings: {
         throttlingMethod: 'provided', // disables network & CPU throttling
         disableNetworkThrottling: true,
@@ -114,6 +116,6 @@ export const runLighthouseCheck = async ({ uri, db, userId, createdAt }) => {
   } catch (err) {
     console.error(err);
   } finally {
-    chrome.kill();
+    await browser.close()
   }
 }
