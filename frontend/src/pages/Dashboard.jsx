@@ -130,7 +130,12 @@ function Dashboard() {
                     </Flex>
                   </Table.Td>
                   <Table.Td>
-                    <Chart data={(data.filter(d => d.check === 'custom') || []).map(c => c.result.find(r => r.name === item.name))} />
+                    <Chart
+                      data={data
+                        .filter(d => d.check === 'custom')
+                        .map(c => c.result.find(r => r.name === item.name))
+                        .filter(Boolean)}
+                    />
                   </Table.Td>
                 </Table.Tr>
               ))}
