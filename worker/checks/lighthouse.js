@@ -23,14 +23,11 @@ function parseAuditItem(item, index) {
 export const runLighthouseCheck = async ({ uri, db, userId, createdAt }) => {
   const chromePath = chromium.executablePath();
 
+  console.log({ chromePath })
+
   const chrome = await chromeLauncher.launch({
     chromePath,
-    chromeFlags: [
-      '--headless',
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-dev-shm-usage',
-    ]
+    chromeFlags: ['--headless', '--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
   });
 
   try {
