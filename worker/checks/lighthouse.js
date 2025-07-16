@@ -20,7 +20,14 @@ function parseAuditItem(item, index) {
 }
 
 export const runLighthouseCheck = async ({ uri, db, userId, createdAt }) => {
-  const chrome = await chromeLauncher.launch({ chromeFlags: ['--headless'] });
+  const chrome = await chromeLauncher.launch({
+    chromeFlags: [
+      '--headless',
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+    ]
+  });
 
   try {
     const options = {

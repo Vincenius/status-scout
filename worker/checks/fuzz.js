@@ -25,7 +25,7 @@ export const runFuzzCheck = async ({ uri, db, userId, createdAt }) => {
       try {
         const filename = file.startsWith('/') ? file.slice(1) : file;
         const res = await fetch(`${uri}/${filename}`, { method: 'head' });
-      return { status: res.status, file };
+        return { status: res.status, file };
       } catch (err) {
         console.log('fetch error', file, err)
         return { status: 500, file };
