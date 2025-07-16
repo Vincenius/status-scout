@@ -17,7 +17,7 @@ export const runFuzzCheck = async ({ uri, db, userId, createdAt }) => {
   const fuzzFile = fs.readFileSync(fuzzPath).toString() // https://github.com/Bo0oM/fuzz.txt
   const files = fuzzFile.split('\n')
   // split into batches
-  const batches = splitIntoBatches(files, 30);
+  const batches = splitIntoBatches(files, 20);
   const statusCodes = []
   let i = 0;
   for (const batch of batches) {
