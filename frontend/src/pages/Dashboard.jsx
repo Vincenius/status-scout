@@ -26,7 +26,7 @@ function Dashboard() {
   const { data = [], error, isLoading } = useSWR(`${import.meta.env.VITE_API_URL}/v1/user`, fetcher)
   const { data: flows = [], isLoading: isLoadingFlows } = useSWR(`${import.meta.env.VITE_API_URL}/v1/flows`, fetcher)
 
-  if (isLoading || isLoadingFlows) {
+  if (isLoading || isLoadingFlows || data.length === 0) {
     return (
       <Layout title="Dashboard">
         <Title mb="xl" order={1} fw="normal">Dashboard</Title>
