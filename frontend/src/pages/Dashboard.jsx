@@ -26,7 +26,7 @@ function Dashboard() {
   const { data = [], error, isLoading } = useSWR(`${import.meta.env.VITE_API_URL}/v1/user`, fetcher)
   const { data: flows = [], isLoading: isLoadingFlows } = useSWR(`${import.meta.env.VITE_API_URL}/v1/flows`, fetcher)
 
-  if (isLoading || isLoadingFlows || data.length === 0) {
+  if (isLoading || isLoadingFlows) {
     return (
       <Layout title="Dashboard">
         <Title mb="xl" order={1} fw="normal">Dashboard</Title>
@@ -130,7 +130,7 @@ function Dashboard() {
                     </Flex>
                   </Table.Td>
                   <Table.Td>
-                    <Chart data={data.filter(d => d.check === 'custom').map(c => c.result.find(r => r.name === item.name))} />
+                    <Chart data={(data.filter(d => d.check === 'custom') || []).map(c => c.result.find(r => r.name === item.name))} />
                   </Table.Td>
                 </Table.Tr>
               ))}

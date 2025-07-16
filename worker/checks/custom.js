@@ -6,8 +6,8 @@ import { createCheckResult } from '../db.js'
 export const runCustomChecks = async ({ uri, db, userId, createdAt }) => {
   // tmp
   await db.collection('flows').updateMany(
-    { userId: ObjectId("6870ad94c49ffd667b661fca") },
-    { $set: { userId: ObjectId("68766d00f4448410de717731") } }
+    { userId: new ObjectId("6870ad94c49ffd667b661fca") },
+    { $set: { userId: new ObjectId("68766d00f4448410de717731") } }
   )
 
 
