@@ -16,10 +16,10 @@ export const run = async () => {
       const createdAt = new Date().toISOString()
       console.log(createdAt, 'run status check for', user.domain)
 
-      await runLighthouseCheck({ uri: user.domain, db, userId: user._id, createdAt })
       await runUptimeCheck({ uri: user.domain, db, userId: user._id, createdAt })
       await runFuzzCheck({ uri: user.domain, db, userId: user._id, createdAt })
       await runHeaderCheck({ uri: user.domain, db, userId: user._id, createdAt })
+      await runLighthouseCheck({ uri: user.domain, db, userId: user._id, createdAt })
       await runPerformanceCheck({ uri: user.domain, db, userId: user._id, createdAt })
       await runCustomChecks({ uri: user.domain, db, userId: user._id, createdAt })
 
