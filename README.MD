@@ -15,3 +15,9 @@ A background runner to do the status checks
 ## database
 
 As a database Mongodb is used
+
+## todos
+
+[] custom cron timing for different checks
+[] notifications
+[] error logs 

@@ -38,13 +38,13 @@ const Chart = ({ data = [] }) => {
       cols={visibleCount}
     >
       {paddedData.map((item, index) =>
-        item ? (
+        (item && item.result) ? (
           <Tooltip key={index} label={new Date(item.createdAt).toLocaleString()}>
             <Card
               h={40}
               w={10}
               p="0"
-              bg={item.result.status === 'success' ? 'green' : 'red'}
+              bg={item.result?.status === 'success' ? 'green' : 'red'}
             />
           </Tooltip>
         ) : (
