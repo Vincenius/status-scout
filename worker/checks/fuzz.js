@@ -13,9 +13,10 @@ function splitIntoBatches(arr, batchSize) {
   return result;
 }
 
-export const runFuzzCheck = async ({ uri, db, userId, createdAt }) => {
-  const fuzzPath = path.join(process.cwd(), 'checks/fuzz_base.txt') // TODO _all
-  const fuzzFile = fs.readFileSync(fuzzPath).toString() // https://github.com/Bo0oM/fuzz.txt
+export const runFuzzCheck = async ({ uri, db, userId, createdAt, type }) => {
+  const file = type === 'full' ? 'fuzz_all.txt' : 'fuzz_base.txt' // https://github.com/Bo0oM/fuzz.txt
+  const fuzzPath = path.join(process.cwd(), `checks/${file}`)
+  const fuzzFile = fs.readFileSync(fuzzPath).toString()
   const files = fuzzFile.split('\n')
   // split into batches
 

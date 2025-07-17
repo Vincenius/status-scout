@@ -12,7 +12,6 @@ const Chart = ({ data = [] }) => {
   const isSm = useMediaQuery('(max-width: 48em)');
   const isMd = useMediaQuery('(max-width: 62em)');
   const isLg = useMediaQuery('(max-width: 75em)');
-  const isXl = useMediaQuery('(max-width: 88em)');
 
   let visibleCount = 40;
   if (isXxs) visibleCount = 20;
@@ -167,7 +166,7 @@ function Dashboard() {
             <Table.Tbody>
               {flows.map((item, index) => (
                 <Box key={index}>
-                  <Box pb="xs">
+                  <Box>
                     <Flex gap="xs" align="center" mb="xs">
                       <ThemeIcon variant="white" size="md">
                         <IconListCheck style={{ width: '70%', height: '70%' }} />
