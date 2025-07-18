@@ -16,7 +16,6 @@
     "@fastify/passport": "^3.0.2",
     "@fastify/secure-session": "^8.2.0",
     "dotenv": "^17.2.0",
-    "express-session": "^1.18.1",
     "fastify": "^5.4.0",
     "mongodb": "^6.17.0",
     "passport": "^0.7.0",

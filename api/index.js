@@ -2,8 +2,6 @@ import 'dotenv/config'
 import Fastify from 'fastify'
 import cors from '@fastify/cors'
 import middie from '@fastify/middie';
-// import session from 'express-session';
-// import passport from 'passport';
 import fastifySecureSession from '@fastify/secure-session';
 import { Strategy as LocalStrategy } from 'passport-local';
 import fastifyPassport from '@fastify/passport';
@@ -24,15 +22,6 @@ await fastify.register(cors, {
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true
 })
-
-// fastify.use(session({
-//   secret: process.env.SESSION_SECRET,
-//   resave: false,
-//   saveUninitialized: false
-// }));
-
-// fastify.use(passport.initialize());
-// fastify.use(passport.session());
 
 await fastify.register(fastifySecureSession, {
   secret: process.env.SESSION_SECRET,
