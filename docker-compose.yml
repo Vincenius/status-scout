@@ -19,6 +19,7 @@ services:
       - MONGODB_URI=${MONGODB_URI}
       - ADMIN_USER=${ADMIN_USER}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - SESSION_SECRET=${SESSION_SECRET}
     depends_on:
       - mongodb
 
