@@ -1,4 +1,5 @@
 import { ObjectId } from 'mongodb'
+import fastifyPassport from '@fastify/passport';
 import { connectDB } from '../db.js'
 
 export default async function flowRoutes(fastify, opts) {
@@ -8,7 +9,7 @@ export default async function flowRoutes(fastify, opts) {
     try {
       const flows = await db
         .collection('flows')
-        .find({ })
+        .find({})
         .toArray();
 
       return flows;
@@ -18,25 +19,27 @@ export default async function flowRoutes(fastify, opts) {
     }
   });
 
-  fastify.post('/flows', async (request, reply) => {
-    const body = request.body
+  fastify.post('/flows',
+    { preValidation: fastifyPassport.authenticate('session', { failureRedirect: '/login' }) },
+    async (request, reply) => {
+      const body = request.body
 
-    // todo validate body
+      // todo validate body
 
-    const db = await connectDB()
+      const db = await connectDB()
 
-    try {
-      await db.collection('flows').insertOne({
-        userId: new ObjectId('6870ad94c49ffd667b661fca'),
-        createdAt: new Date(),
-        name: body[0].name,
-        steps: body[0].steps,
-      });
+      try {
+        await db.collection('flows').insertOne({
+          userId: new ObjectId('6870ad94c49ffd667b661fca'),
+          createdAt: new Date(),
+          name: body[0].name,
+          steps: body[0].steps,
+        });
 
-      return { message: 'Flow created', data: body }
-    } catch (e) {
-      console.error(e)
-      reply.code(500).send({ error: 'Internal server error' });
-    }
-  })
+        return { message: 'Flow created', data: body }
+      } catch (e) {
+        console.error(e)
+        reply.code(500).send({ error: 'Internal server error' });
+      }
+    })
 }

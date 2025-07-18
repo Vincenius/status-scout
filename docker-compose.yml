@@ -17,6 +17,8 @@ services:
     environment:
       - FRONTEND_URL=${FRONTEND_URL}
       - MONGODB_URI=${MONGODB_URI}
+      - ADMIN_USER=${ADMIN_USER}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
     depends_on:
       - mongodb
 

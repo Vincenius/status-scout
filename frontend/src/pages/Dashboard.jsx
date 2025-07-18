@@ -1,9 +1,8 @@
 import Layout from '@/components/Layout/Layout'
-import useSWR from 'swr'
 import { Box, Card, Flex, SimpleGrid, Table, Text, ThemeIcon, Title, Tooltip, LoadingOverlay, Divider } from '@mantine/core'
 import { IconAccessible, IconBrandSpeedtest, IconChartBar, IconListCheck, IconShieldLock, IconZoomCode } from '@tabler/icons-react'
-import fetcher from '@/utils/fetcher'
 import { useMediaQuery } from '@mantine/hooks'
+import { useAuthSWR } from '@/utils/useAuthSWR'
 
 const Chart = ({ data = [] }) => {
   // figure out current screen size
@@ -19,8 +18,6 @@ const Chart = ({ data = [] }) => {
   else if (isSm) visibleCount = 40;
   else if (isMd) visibleCount = 20;
   else if (isLg) visibleCount = 30;
-
-  console.log(visibleCount)
 
   // take only last N items
   const visibleData = data.slice(-visibleCount);
@@ -62,8 +59,8 @@ const Chart = ({ data = [] }) => {
 };
 
 function Dashboard() {
-  const { data = [], error, isLoading } = useSWR(`${import.meta.env.VITE_API_URL}/v1/user`, fetcher)
-  const { data: flows = [], isLoading: isLoadingFlows } = useSWR(`${import.meta.env.VITE_API_URL}/v1/flows`, fetcher)
+  const { data = [], error, isLoading } = useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/user`)
+  const { data: flows = [], isLoading: isLoadingFlows } = useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/flows`)
 
   if (isLoading || isLoadingFlows) {
     return (
@@ -162,35 +159,32 @@ function Dashboard() {
         </Card>
         <Card withBorder shadow="md" maw={720}>
           <Title mb="md" order={2} size="h4" fw="normal">Custom Flows</Title>
-          <Table>
-            <Table.Tbody>
-              {flows.map((item, index) => (
-                <Box key={index}>
-                  <Box>
-                    <Flex gap="xs" align="center" mb="xs">
-                      <ThemeIcon variant="white" size="md">
-                        <IconListCheck style={{ width: '70%', height: '70%' }} />
-                      </ThemeIcon>
-                      <Text size="sm">{item.name}</Text>
-                    </Flex>
+
+          {flows.map((item, index) => (
+            <Box key={index}>
+              <Box>
+                <Flex gap="xs" align="center" mb="xs">
+                  <ThemeIcon variant="white" size="md">
+                    <IconListCheck style={{ width: '70%', height: '70%' }} />
+                  </ThemeIcon>
+                  <Text size="sm">{item.name}</Text>
+                </Flex>
 
 
-                    <Chart
-                      data={data
-                        .filter(d => d.check === 'custom')
-                        .map(c => ({
-                          createdAt: c.createdAt,
-                          ...c.result.find(r => r.name === item.name),
-                        }))
-                        .filter(Boolean)}
-                    />
-                  </Box>
+                <Chart
+                  data={data
+                    .filter(d => d.check === 'custom')
+                    .map(c => ({
+                      createdAt: c.createdAt,
+                      ...c.result.find(r => r.name === item.name),
+                    }))
+                    .filter(Boolean)}
+                />
+              </Box>
 
-                  {index !== flows.length - 1 && <Divider my="sm" />}
-                </Box>
-              ))}
-            </Table.Tbody>
-          </Table>
+              {index !== flows.length - 1 && <Divider my="sm" />}
+            </Box>
+          ))}
         </Card>
       </SimpleGrid>
       {/* <Card withBorder shadow="md">

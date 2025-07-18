@@ -18,4 +18,5 @@ As a database Mongodb is used
 
 ## todos
 
-[] error logs 
+[] login logic https://www.passportjs.org/docs/
+[] error logs

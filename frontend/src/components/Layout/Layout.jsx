@@ -3,13 +3,14 @@ import { Container, Text, Flex, Box, Burger, Menu, AppShell, Title, NavLink } fr
 import { Helmet } from 'react-helmet';
 import styles from './Layout.module.css';
 import { useDisclosure } from '@mantine/hooks';
-import { IconDashboard, IconHeartbeat, IconReorder, IconSettings } from '@tabler/icons-react';
-import { Link } from 'react-router-dom';
+import { IconDashboard, IconHeartbeat, IconLogout, IconReorder, IconSettings } from '@tabler/icons-react';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Layout = ({ children, title, description, date, noindex, image }) => {
   const ogImage = image || '/og-image.jpg';
   const setNoIndex = noindex || import.meta.env.VITE_NOINDEX === 'true';
   const [opened, { toggle }] = useDisclosure();
+  const navigate = useNavigate();
 
   return <>
     <Helmet>
@@ -59,11 +60,18 @@ const Layout = ({ children, title, description, date, noindex, image }) => {
 
       <AppShell.Navbar p="md">
         <NavLink
-          to="/"
           label="Dashboard"
           leftSection={<IconDashboard size={16} stroke={1.5} />}
           active={window.location.pathname === '/'}
           component={Link}
+        />
+        <NavLink
+          label="Logout"
+          leftSection={<IconLogout size={16} stroke={1.5} />}
+          onClick={async () => {
+            await fetch(`${import.meta.env.VITE_API_URL}/v1/logout`, { credentials: 'include' })
+            navigate('/login')
+          }}
         />
         {/* <NavLink
           to="/custom-flows"
