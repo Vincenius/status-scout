@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { Container, Text, Flex, Box, Burger, Menu, AppShell, Title, NavLink } from '@mantine/core'
+import { Text, Flex, Burger, AppShell, NavLink } from '@mantine/core'
 import { Helmet } from 'react-helmet';
-import styles from './Layout.module.css';
 import { useDisclosure } from '@mantine/hooks';
-import { IconDashboard, IconHeartbeat, IconLogout, IconReorder, IconSettings } from '@tabler/icons-react';
+import { IconDashboard, IconHeartbeat, IconLogout } from '@tabler/icons-react';
 import { Link, useNavigate } from 'react-router-dom';
+import styles from './Layout.module.css';
+import ColorSchemeToggle from './ColorSchemeToggle.jsx';
 
 const Layout = ({ children, title, description, date, noindex, image }) => {
   const ogImage = image || '/og-image.jpg';
@@ -50,11 +50,15 @@ const Layout = ({ children, title, description, date, noindex, image }) => {
             hiddenFrom="sm"
             size="sm"
           />
-          <Flex gap="xs" align="center">
-            <IconHeartbeat size={26} stroke={0.8} />
-            <Text size="xl" fw={200}>{import.meta.env.VITE_WEBSITE_NAME}</Text>
-          </Flex>
+          <Flex justify="space-between" w="100%" px="md">
+            <Flex gap="xs" align="center">
+              <IconHeartbeat size={26} stroke={0.8} />
+              <Text size="xl" fw={200}>{import.meta.env.VITE_WEBSITE_NAME}</Text>
+            </Flex>
 
+
+            <ColorSchemeToggle />
+          </Flex>
         </Flex>
       </AppShell.Header>
 

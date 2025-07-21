@@ -1,8 +1,86 @@
 import Layout from '@/components/Layout/Layout'
-import { Box, Card, Flex, SimpleGrid, Table, Text, ThemeIcon, Title, Tooltip, LoadingOverlay, Divider } from '@mantine/core'
+import { Box, Card, Flex, SimpleGrid, Text, ThemeIcon, Title, Tooltip, LoadingOverlay, Divider } from '@mantine/core'
 import { IconAccessible, IconBrandSpeedtest, IconChartBar, IconListCheck, IconShieldLock, IconZoomCode } from '@tabler/icons-react'
+import { RadarChart } from '@mantine/charts';
 import { useMediaQuery } from '@mantine/hooks'
 import { useAuthSWR } from '@/utils/useAuthSWR'
+
+function calcFuzzScore(count, maxAmount) {
+  if (count <= 0) return 100;
+  if (count >= maxAmount) return 0;
+
+  // Quadratic decay
+  const s = 100 * Math.pow(1 - count / maxAmount, 2);
+  return Math.round(s);
+}
+
+const OverviewChart = ({ data = [], flows = [] }) => {
+  const uptimes = data.filter(d => d.check === 'uptime')
+  const recentFuzz = data.filter(d => d.check === 'fuzz').sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
+  const recentHeaders = data.filter(d => d.check === 'headers').sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
+  const recentA11yCheck = data.filter(d => d.check === 'a11y').sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
+  const recentSeoCheck = data.filter(d => d.check === 'seo').sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
+  const recentPerformance = data.filter(d => d.check === 'performance').sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
+  const recentCustomChecks = data.filter(d => d.check === 'custom').sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
+
+  const performanceScores = Object.values(recentPerformance.result.details)
+    .map(device => Object.values(device))
+    .flat()
+    .filter(m => m?.category !== 'NONE') // TODO handle missing pagespeed insights
+    .map(metric => metric?.category === 'FAST' ? 100 : metric?.category === 'AVERAGE' ? 50 : 0)
+  const performanceValue = Math.round((performanceScores.filter(u => u === 100).length / performanceScores.length) * 100)
+
+  const fuzzScore = calcFuzzScore(recentFuzz.result.details.files.length, 20)
+  const headersScore = calcFuzzScore(recentHeaders.result.details.missingHeaders.length, 10) // todo allow config to change headers (filter here)
+  const securityScore = Math.round(fuzzScore * 0.7 + headersScore * 0.3);
+  const customScore = (flows.length > 0 && recentCustomChecks?.result.length > 0)
+    ? recentCustomChecks.result
+      .map(r => r.result.status === 'success' ? 100 : 0)
+      .reduce((p, c) => p + c, 0) / recentCustomChecks.result.length
+    : null
+
+  const chartData = [{
+    name: 'Uptime',
+    Score: Math.round((uptimes.filter(u => u.result.status === 'success').length / uptimes.length) * 100)
+  }, {
+    name: 'Security',
+    Score: securityScore
+  }, {
+    name: 'Accessibility',
+    Score: recentA11yCheck.result.details.score
+  }, {
+    name: 'SEO',
+    Score: recentSeoCheck.result.details.score
+  }, {
+    name: 'Performance',
+    Score: performanceValue
+  }, customScore !== null ? {
+    name: 'Custom Flows',
+    Score: customScore
+  } : null].filter(Boolean)
+
+  const totalScore = chartData.reduce((p, c) => p + c.Score, 0) / chartData.length
+
+  return <>
+    <Text ta="center" mb="xs">Website Health Score:</Text>
+    <Text
+      order={2} mb="0" ta="center" size="2em" lh="1em" fw="bold" td="underline"
+      c={totalScore < 50 ? 'red' : totalScore < 80 ? 'yellow' : 'green'}
+    >
+      {totalScore.toFixed(0)}       {/* todo count up animation */}
+    </Text>
+    <RadarChart
+      h={{ base: 200, xs: 300, md: 400 }}
+      w={{ base: 320, xs: 400, md: 500 }}
+      data={chartData}
+      dataKey="name"
+      withPolarRadiusAxis
+      series={[{ name: 'Score', color: 'indigo.4', opacity: 0.2 }]}
+      withTooltip
+      withDots
+    />
+  </>
+}
 
 const Chart = ({ data = [] }) => {
   // figure out current screen size
@@ -49,7 +127,7 @@ const Chart = ({ data = [] }) => {
             h={40}
             w={10}
             p="0"
-            bg="white"
+            // bg="white"
             withBorder
           />
         )
@@ -62,7 +140,7 @@ function Dashboard() {
   const { data = [], error, isLoading } = useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/user`)
   const { data: flows = [], isLoading: isLoadingFlows } = useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/flows`)
 
-  if (isLoading || isLoadingFlows) {
+  if (isLoading || isLoadingFlows || !data.length) {
     return (
       <Layout title="Dashboard">
         <Title mb="xl" order={1} fw="normal">Dashboard</Title>
@@ -70,6 +148,8 @@ function Dashboard() {
       </Layout>
     )
   }
+
+  // todo empty state?
 
   return (
     <Layout title="Dashboard">
@@ -89,13 +169,19 @@ function Dashboard() {
         </Flex>
       </Box> */}
 
-      <SimpleGrid cols={{ xs: 1, sm: 2 }} mb="md">
+      <Flex mb="xl">
+        <Card withBorder shadow="md">
+          <OverviewChart data={data} flows={flows} />
+        </Card>
+      </Flex>
+
+      <SimpleGrid cols={{ xs: 1, sm: 2 }} mb="md" maw={1600}>
         <Card withBorder shadow="md" maw={720}>
           <Title mb="md" order={2} size="h4" fw="normal">Status Checks</Title>
 
           <Box>
             <Flex gap="xs" align="center" mb="xs">
-              <ThemeIcon variant="white" size="md">
+              <ThemeIcon variant="default" size="md">
                 <IconChartBar style={{ width: '70%', height: '70%' }} />
               </ThemeIcon>
               <Text size="sm">Uptime</Text>
@@ -108,7 +194,7 @@ function Dashboard() {
 
           <Box>
             <Flex gap="xs" align="center" mb="xs">
-              <ThemeIcon variant="white" size="md">
+              <ThemeIcon variant="default" size="md">
                 <IconShieldLock style={{ width: '70%', height: '70%' }} />
               </ThemeIcon>
               <Text size="sm">Security</Text>
@@ -121,7 +207,7 @@ function Dashboard() {
 
           <Box>
             <Flex gap="xs" align="center" mb="xs">
-              <ThemeIcon variant="white" size="md">
+              <ThemeIcon variant="default" size="md">
                 <IconAccessible style={{ width: '70%', height: '70%' }} />
               </ThemeIcon>
               <Text size="sm">Accessibility</Text>
@@ -134,7 +220,7 @@ function Dashboard() {
 
           <Box>
             <Flex gap="xs" align="center" mb="xs">
-              <ThemeIcon variant="white" size="md">
+              <ThemeIcon variant="default" size="md">
                 <IconZoomCode style={{ width: '70%', height: '70%' }} />
               </ThemeIcon>
               <Text size="sm">SEO</Text>
@@ -148,7 +234,7 @@ function Dashboard() {
 
           <Box>
             <Flex gap="xs" align="center" mb="xs">
-              <ThemeIcon variant="white" size="md">
+              <ThemeIcon variant="default" size="md">
                 <IconBrandSpeedtest style={{ width: '70%', height: '70%' }} />
               </ThemeIcon>
               <Text size="sm">Performance</Text>
@@ -164,7 +250,7 @@ function Dashboard() {
             <Box key={index}>
               <Box>
                 <Flex gap="xs" align="center" mb="xs">
-                  <ThemeIcon variant="white" size="md">
+                  <ThemeIcon variant="default" size="md">
                     <IconListCheck style={{ width: '70%', height: '70%' }} />
                   </ThemeIcon>
                   <Text size="sm">{item.name}</Text>

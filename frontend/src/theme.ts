@@ -1,5 +1,6 @@
 import { createTheme } from "@mantine/core";
 
 export const theme = createTheme({
-  /* Put your mantine theme override here */
+  primaryColor: 'indigo',
+  primaryShade: { dark: 6, light: 9 },
 });
