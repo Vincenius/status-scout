@@ -14,12 +14,22 @@ function splitIntoBatches(arr, batchSize) {
 }
 
 export const runFuzzCheck = async ({ uri, db, userId, createdAt, type }) => {
+  const [prevCheck] = await db.collection('checks')
+    .find({ check: 'fuzz' })
+    .sort({ createdAt: -1 })
+    .limit(1)
+    .toArray();
+
+  console.log(prevCheck)
+  const prevFiles = prevCheck?.result?.details?.files || []
+
   const file = type === 'full' ? 'fuzz_all.txt' : 'fuzz_base.txt' // https://github.com/Bo0oM/fuzz.txt
   const fuzzPath = path.join(process.cwd(), `checks/${file}`)
   const fuzzFile = fs.readFileSync(fuzzPath).toString()
-  const files = fuzzFile.split('\n')
-  // split into batches
+  const fuzzFiles = fuzzFile.split('\n')
+  const files = [...new Set([...fuzzFiles, ...prevFiles])]
 
+  // split into batches
   const limit = pLimit(20); // max 10 concurrent requests
   const promises = files.map(file =>
     limit(async () => {

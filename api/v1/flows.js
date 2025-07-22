@@ -3,21 +3,23 @@ import fastifyPassport from '@fastify/passport';
 import { connectDB } from '../db.js'
 
 export default async function flowRoutes(fastify, opts) {
-  fastify.get('/flows', async (request, reply) => {
-    const db = await connectDB();
+  fastify.get('/flows',
+    { preValidation: fastifyPassport.authenticate('session', { failureRedirect: '/login' }) },
+    async (request, reply) => {
+      const db = await connectDB();
 
-    try {
-      const flows = await db
-        .collection('flows')
-        .find({})
-        .toArray();
+      try {
+        const flows = await db
+          .collection('flows')
+          .find({})
+          .toArray();
 
-      return flows;
-    } catch (e) {
-      console.error(e);
-      reply.code(500).send({ error: 'Internal server error' });
-    }
-  });
+        return flows;
+      } catch (e) {
+        console.error(e);
+        reply.code(500).send({ error: 'Internal server error' });
+      }
+    });
 
   fastify.post('/flows',
     { preValidation: fastifyPassport.authenticate('session', { failureRedirect: '/login' }) },

@@ -3,6 +3,7 @@ import { connectDB, disconnectDB } from './db.js'
 import { runUptimeCheck } from './checks/uptime.js'
 import { runFuzzCheck } from './checks/fuzz.js'
 import { runHeaderCheck } from './checks/headers.js'
+import { runSslCheck } from './checks/ssl.js'
 import { runLighthouseCheck } from './checks/lighthouse.js'
 import { runPerformanceCheck } from './checks/performance.js'
 import { runCustomChecks } from './checks/custom.js'
@@ -19,6 +20,7 @@ export const run = async ({ type = 'quick' }) => {
 
       await runUptimeCheck({ uri: user.domain, db, userId: user._id, createdAt })
       await runHeaderCheck({ uri: user.domain, db, userId: user._id, createdAt })
+      await runSslCheck({ uri: user.domain, db, userId: user._id, createdAt })
 
       if (type === 'extended' || type === 'full') {
         await runFuzzCheck({ uri: user.domain, db, userId: user._id, createdAt, type })
@@ -29,9 +31,6 @@ export const run = async ({ type = 'quick' }) => {
         await runPerformanceCheck({ uri: user.domain, db, userId: user._id, createdAt })
       }
 
-      // todo extend with more checks
-      // SSL https://www.npmjs.com/package/node-ssllabs
-
       const newChecks = await db
         .collection('checks')
         .find({ userId: user._id, createdAt })
@@ -40,13 +39,13 @@ export const run = async ({ type = 'quick' }) => {
       const failedChecks = newChecks.filter(c => c.result.status === 'fail');
 
       // tmp - can be removed when proper user creation is in place
-      if (!user.failedChecks) {
-        await db.collection('users').updateOne(
-          { _id: user._id },
-          { $set: { failedChecks: [] } }
-        );
-        user.failedChecks = [];
-      }
+      // if (!user.failedChecks) {
+      //   await db.collection('users').updateOne(
+      //     { _id: user._id },
+      //     { $set: { failedChecks: [] } }
+      //   );
+      //   user.failedChecks = [];
+      // }
       // tmp end
 
       const failedMap = new Map(user.failedChecks.map(fc => [fc.check, fc]));
