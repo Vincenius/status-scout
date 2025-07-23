@@ -5,17 +5,17 @@ import { createCheckResult } from '../db.js'
 // todo use pagespeed insighst for performance & lighthouse for seo and a11y
 // https://developers.google.com/speed/docs/insights/v5/get-started -> use this instead
 
-function parseAuditItem(item, index) {
+function parseAuditItem(item) {
   if (item.node) {
     const snippet = item.node.snippet || '(no snippet)';
     const selector = item.node.selector || item.node.path || '';
-    return `${index + 1}. ${snippet} ${selector ? `(${selector})` : ''}`;
+    return `${snippet} ${selector ? `(${selector})` : ''}`;
   } else {
     // Fallback for generic key-value objects
     const entry = Object.entries(item)
       .map(([k, v]) => `${k}: ${v}`)
       .join(', ');
-    return `${index + 1}. ${entry}`;
+    return entry;
   }
 }
 
@@ -65,8 +65,8 @@ export const runLighthouseCheck = async ({ uri, db, userId, createdAt }) => {
 
       const items = audit.details?.items || [];
 
-      items.forEach((item, i) => {
-        auditElem.items.push(parseAuditItem(item, i));
+      items.forEach((item) => {
+        auditElem.items.push(parseAuditItem(item));
       });
 
       seoResult.details.items.push(auditElem);
@@ -98,8 +98,8 @@ export const runLighthouseCheck = async ({ uri, db, userId, createdAt }) => {
 
       const items = audit.details?.items || [];
 
-      items.forEach((item, i) => {
-        auditElem.items.push(parseAuditItem(item, i));
+      items.forEach((item) => {
+        auditElem.items.push(parseAuditItem(item));
       });
 
       a11yResult.details.items.push(auditElem);

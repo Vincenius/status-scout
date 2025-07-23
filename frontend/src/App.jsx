@@ -1,5 +1,6 @@
 import "@mantine/core/styles.css";
 import '@mantine/charts/styles.css';
+import "./global.css";
 
 import { MantineProvider } from "@mantine/core";
 import Layout from '@/components/Layout/Layout';

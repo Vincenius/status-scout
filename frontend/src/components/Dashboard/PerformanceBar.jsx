@@ -39,8 +39,6 @@ const PerformanceBar = ({ title, metric, unit, mb = '0' }) => {
     containerWidth
   );
 
-  console.log(metric)
-
   return (
     <Box mb={mb}>
       <Group justify="space-between" mb="2px">

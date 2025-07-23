@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Layout from '@/components/Layout/Layout'
-import { Box, Card, Flex, SimpleGrid, Text, ThemeIcon, Title, LoadingOverlay, Divider, Modal, List, Blockquote, Tabs, ActionIcon } from '@mantine/core'
+import { Box, Card, Flex, SimpleGrid, Text, ThemeIcon, Title, LoadingOverlay, Divider, ActionIcon, Avatar } from '@mantine/core'
 import { IconAccessible, IconBrandSpeedtest, IconChartBar, IconCheck, IconDeviceDesktop, IconDeviceMobile, IconExclamationMark, IconListCheck, IconShieldLock, IconX, IconZoomCode } from '@tabler/icons-react'
 import { DonutChart } from '@mantine/charts';
 import { useAuthSWR } from '@/utils/useAuthSWR'
@@ -34,11 +34,37 @@ function Dashboard() {
   const recentFuzz = checks.filter(d => d.check === 'fuzz').sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
   const recentHeaders = checks.filter(d => d.check === 'headers').sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
   const recentSSL = checks.filter(d => d.check === 'ssl').sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
+  const recentA11y = checks.filter(d => d.check === 'a11y').sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
+  const recentSeo = checks.filter(d => d.check === 'seo').sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
+  const recentCustomChecks = checks.filter(d => d.check === 'custom').sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
+
+  const securityChecks = checks.filter(d => d.check === 'fuzz' || d.check === 'headers' || d.check === 'ssl')
+  const groupedSecurityChecks = securityChecks.reduce((acc, item) => {
+    acc[item.createdAt] = acc[item.createdAt] || [];
+    acc[item.createdAt].push(item);
+    return acc;
+  }, {});
+  const mappedSecurityChecks = Object.values(groupedSecurityChecks)
+    .map(d => ({
+      result: {
+        status: d.every(d => d.result.status === 'success') ? 'success' : 'fail',
+        details: d.filter(d => d.result.status !== 'success')
+      },
+      createdAt: d[0].createdAt
+    }))
+
+  const customScore = (flows.length > 0 && recentCustomChecks?.result.length > 0)
+    ? recentCustomChecks.result
+      .map(r => r.result.status === 'success' ? 100 : 0)
+      .reduce((p, c) => p + c, 0) / recentCustomChecks.result.length
+    : null
 
   const openModal = (e, m) => {
     e.preventDefault()
     setModal(m)
   }
+
+  console.log(recentCustomChecks)
 
   return (
     <Layout title="Dashboard">
@@ -170,31 +196,122 @@ function Dashboard() {
               </Box>}
             </Card>
             <Card withBorder shadow="md">
-              <Flex gap="xs" align="center" mb="lg" >
-                <ThemeIcon variant="default" size="md">
-                  <IconAccessible style={{ width: '70%', height: '70%' }} />
+              <Flex justify="space-between">
+                <Box>
+                  <Flex gap="xs" align="center">
+                    <ThemeIcon variant="default" size="md">
+                      <IconAccessible style={{ width: '70%', height: '70%' }} />
+                    </ThemeIcon>
+
+                    <Title order={2} size="h4" fw="normal">Accessibility</Title>
+                  </Flex>
+                  <Text size="xs" mb="lg">from {new Date(recentA11y.createdAt).toLocaleDateString()}</Text>
+                </Box>
+
+                <Avatar
+                  radius="xl"
+                  color={recentA11y.result.details.score > 90 ? 'green' : recentA11y.result.details.score > 50 ? 'yellow' : 'red'}
+                >
+                  {recentA11y.result.details.score}
+                </Avatar>
+              </Flex>
+
+              <Flex gap="xs" align="center">
+                <ThemeIcon size="sm" color={recentA11y.result.details.items.length === 0 ? 'green' : 'yellow'}>
+                  {recentA11y.result.details.items.length === 0
+                    ? <IconCheck style={{ width: '70%', height: '70%' }} />
+                    : <IconExclamationMark style={{ width: '70%', height: '70%' }} />
+                  }
                 </ThemeIcon>
-                <Title order={2} size="h4" fw="normal">Accessibility</Title>
+                <Box>
+                  {recentA11y.result.details.items.length === 0 && <Text fa="right">No accessibility violations found</Text>}
+                  {recentA11y.result.details.items.length > 0 && <Text fa="right">
+                    <a href="#open-modal" onClick={e => openModal(e, 'a11y')}>
+                      {recentA11y.result.details.items.length} accessibility violations found
+                    </a>
+                  </Text>}
+                </Box>
               </Flex>
             </Card>
             <Card withBorder shadow="md">
-              <Flex gap="xs" align="center" mb="lg">
-                <ThemeIcon variant="default" size="md">
-                  <IconZoomCode style={{ width: '70%', height: '70%' }} />
+              <Flex justify="space-between">
+                <Box>
+                  <Flex gap="xs" align="center">
+                    <ThemeIcon variant="default" size="md">
+                      <IconZoomCode style={{ width: '70%', height: '70%' }} />
+                    </ThemeIcon>
+
+                    <Title order={2} size="h4" fw="normal">SEO</Title>
+                  </Flex>
+                  <Text size="xs" mb="lg">from {new Date(recentSeo.createdAt).toLocaleDateString()}</Text>
+                </Box>
+
+                <Avatar
+                  radius="xl"
+                  color={recentSeo.result.details.score > 90 ? 'green' : recentSeo.result.details.score > 50 ? 'yellow' : 'red'}
+                >
+                  {recentSeo.result.details.score}
+                </Avatar>
+              </Flex>
+
+              <Flex gap="xs" align="center">
+                <ThemeIcon size="sm" color={recentSeo.result.details.items.length === 0 ? 'green' : 'yellow'}>
+                  {recentSeo.result.details.items.length === 0
+                    ? <IconCheck style={{ width: '70%', height: '70%' }} />
+                    : <IconExclamationMark style={{ width: '70%', height: '70%' }} />
+                  }
                 </ThemeIcon>
-                <Title order={2} size="h4" fw="normal">SEO</Title>
+                <Box>
+                  {recentSeo.result.details.items.length === 0 && <Text fa="right">No SEO issues found</Text>}
+                  {recentSeo.result.details.items.length > 0 && <Text fa="right">
+                    <a href="#open-modal" onClick={e => openModal(e, 'seo')}>
+                      {recentSeo.result.details.items.length} SEO issues found
+                    </a>
+                  </Text>}
+                </Box>
               </Flex>
             </Card>
             <Card withBorder shadow="md">
-              <Flex gap="xs" align="center" mb="lg" >
-                <ThemeIcon variant="default" size="md">
-                  <IconChartBar style={{ width: '70%', height: '70%' }} />
+              <Flex justify="space-between">
+                <Box>
+                  <Flex gap="xs" align="center">
+                    <ThemeIcon variant="default" size="md">
+                      <IconChartBar style={{ width: '70%', height: '70%' }} />
+                    </ThemeIcon>
+
+                    <Title order={2} size="h4" fw="normal">Custom Flows</Title>
+                  </Flex>
+                  <Text size="xs" mb="lg">from {new Date(recentCustomChecks.createdAt).toLocaleDateString()}</Text>
+                </Box>
+
+                <Avatar
+                  radius="xl"
+                  color={customScore === 100 ? 'green' : customScore > 75 ? 'yellow' : 'red'}
+                >
+                  {customScore}
+                </Avatar>
+              </Flex>
+
+              <Flex gap="xs" align="center">
+                <ThemeIcon size="sm" color={customScore === 100 ? 'green' : 'yellow'}>
+                  {customScore === 100
+                    ? <IconCheck style={{ width: '70%', height: '70%' }} />
+                    : <IconExclamationMark style={{ width: '70%', height: '70%' }} />
+                  }
                 </ThemeIcon>
-                <Title order={2} size="h4" fw="normal">Custom Flows</Title>
+                <Box>
+                  {customScore === 100 && <Text fa="right">Passed all custom checks</Text>}
+                  {customScore !== 100 && <Text fa="right">
+                    Passed {recentCustomChecks.result.filter(r => r.result.status === 'success').length} of {recentCustomChecks.result.length} checks<br/>
+                    <a href="#open-modal" onClick={e => openModal(e, 'custom')}>
+                      Show details
+                    </a>
+                  </Text>}
+                </Box>
               </Flex>
             </Card>
           </SimpleGrid>
-        </Flex>
+        </Flex >
 
         <Flex mb="md" gap={spacing}>
           <Card withBorder shadow="md" w="100%">
@@ -221,7 +338,7 @@ function Dashboard() {
                 <Text size="sm">Security</Text>
               </Flex>
 
-              <HistoryChart data={checks.filter(d => d.check === 'fuzz')} />
+              <HistoryChart data={mappedSecurityChecks} />
             </Box>
 
             <Divider my="sm" />
@@ -294,36 +411,18 @@ function Dashboard() {
             ))}
           </Card>
         </Flex>
-      </Box>
-      {/* <Card withBorder shadow="md">
-        <Title mb="md" order={2} size="h4" fw="normal">Logs</Title>
-
-        <Table>
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>Date</Table.Th>
-              <Table.Th>Message</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {mockData.logs.map((item, index) => (
-              <Table.Tr key={index} bg={item.status === 'fail' ? 'red.0' : 'green.0'}>
-                <Table.Td>{new Date(item.time).toLocaleString()}</Table.Td>
-                <Table.Td>{item.message}</Table.Td>
-              </Table.Tr>
-            ))}
-          </Table.Tbody>
-        </Table>
-      </Card> */}
+      </Box >
 
       <DetailsModal
         modal={modal}
         setModal={setModal}
         recentHeaders={recentHeaders}
         recentFuzz={recentFuzz}
+        recentA11y={recentA11y}
+        recentSeo={recentSeo}
         user={user}
       />
-    </Layout>
+    </Layout >
   )
 }
 
