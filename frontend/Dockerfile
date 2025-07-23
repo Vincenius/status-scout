@@ -2,8 +2,13 @@ FROM node:20-alpine AS build
 
 WORKDIR /app
 
+# Install corepack to enable Yarn 4
+RUN corepack enable
+
+# Copy only package.json and yarn.lock and install dependencies
 COPY package*.json ./
-RUN yarn
+COPY yarn.lock ./
+RUN yarn install --immutable
 
 COPY . .
 
