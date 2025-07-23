@@ -8,6 +8,10 @@ RUN corepack enable
 # Copy only package.json and yarn.lock and install dependencies
 COPY package*.json ./
 COPY yarn.lock ./
+
+# Force node_modules mode
+RUN yarn config set nodeLinker node-modules
+
 RUN yarn
 
 COPY . .
