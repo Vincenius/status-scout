@@ -31,7 +31,25 @@ export default async function userRoutes(fastify, opts) {
         const db = await connectDB()
 
         const [user] = await db.collection('users').find({}).toArray()
-        const checks = await db.collection('checks').find({ userId: user._id }).toArray()
+        const checks = await db.collection('checks').aggregate([
+          { $match: { userId: user._id } },
+          { $sort: { check: 1, createdAt: -1 } },
+          {
+            $group: {
+              _id: "$check",
+              entries: { $push: "$$ROOT" }
+            }
+          },
+          {
+            $project: {
+              _id: 0,
+              check: "$_id",
+              entries: { $slice: ["$entries", 40] }
+            }
+          },
+          { $unwind: "$entries" },
+          { $replaceRoot: { newRoot: "$entries" } }
+        ]).toArray(); // todo improve query to limit checks to 30 of each type
 
         return {
           user,
