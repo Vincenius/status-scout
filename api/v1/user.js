@@ -49,7 +49,7 @@ export default async function userRoutes(fastify, opts) {
           },
           { $unwind: "$entries" },
           { $replaceRoot: { newRoot: "$entries" } }
-        ]).toArray(); // todo improve query to limit checks to 30 of each type
+        ]).toArray();
 
         return {
           user,
