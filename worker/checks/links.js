@@ -7,6 +7,7 @@ let crawlCount = 0;
 const crawlLimit = 5000 // todo dynamic
 
 export const runBrokenLinkCheck = async ({ uri, db, userId, createdAt }) => {
+  console.log(`Running broken link check for ${uri}`)
   const url = new URL(uri);
   const baseUrl = url.origin;
   const checker = new LinkChecker();

@@ -1,6 +1,7 @@
 import { createCheckResult } from '../db.js'
 
 export const runUptimeCheck = async ({ uri, db, userId, createdAt }) => {
+  console.log(`Running uptime check for ${uri}`)
   const result = {
     status: '', // success or fail
     details: {},

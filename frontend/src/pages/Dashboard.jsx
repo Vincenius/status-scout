@@ -50,14 +50,14 @@ function Dashboard() {
     acc[item.createdAt].push(item);
     return acc;
   }, {});
-  const mappedSecurityChecks = Object.values(groupedSecurityChecks)
-    .map(d => ({
+  const mappedSecurityChecks = Object.entries(groupedSecurityChecks)
+    .map(([key, val]) => ({
       result: {
-        status: d.every(d => d.result.status === 'success') ? 'success' : 'fail',
-        details: d.filter(d => d.result.status !== 'success')
+        status: val.every(d => d.result.status === 'success') ? 'success' : 'fail',
+        details: val.filter(d => d.result.status !== 'success')
       },
-      createdAt: d[0].createdAt
-    }))
+      createdAt: key
+    })).sort((d1, d2) => new Date(d1.createdAt) - new Date(d2.createdAt))
 
   const customScore = (flows.length > 0 && recentCustomChecks?.result.length > 0)
     ? recentCustomChecks.result
@@ -364,7 +364,7 @@ function Dashboard() {
                 <Text size="sm">Uptime</Text>
               </Flex>
 
-              <HistoryChart data={checks.filter(d => d.check === 'uptime')} />
+              <HistoryChart data={checks.filter(d => d.check === 'uptime').sort((d1, d2) => new Date(d1.createdAt) - new Date(d2.createdAt))} />
             </Box>
 
             <Divider my="sm" />
@@ -390,7 +390,7 @@ function Dashboard() {
                 <Text size="sm">Accessibility</Text>
               </Flex>
 
-              <HistoryChart data={checks.filter(d => d.check === 'a11y')} />
+              <HistoryChart data={checks.filter(d => d.check === 'a11y').sort((d1, d2) => new Date(d1.createdAt) - new Date(d2.createdAt))} />
             </Box>
 
             <Divider my="sm" />
@@ -403,7 +403,7 @@ function Dashboard() {
                 <Text size="sm">SEO</Text>
               </Flex>
 
-              <HistoryChart data={checks.filter(d => d.check === 'seo')} />
+              <HistoryChart data={checks.filter(d => d.check === 'seo').sort((d1, d2) => new Date(d1.createdAt) - new Date(d2.createdAt))} />
             </Box>
 
 
@@ -417,7 +417,7 @@ function Dashboard() {
                 <Text size="sm">Performance</Text>
               </Flex>
 
-              <HistoryChart data={checks.filter(d => d.check === 'performance')} />
+              <HistoryChart data={checks.filter(d => d.check === 'performance').sort((d1, d2) => new Date(d1.createdAt) - new Date(d2.createdAt))} />
             </Box>
           </Card>
           <Card withBorder shadow="md" w="100%">
@@ -441,7 +441,9 @@ function Dashboard() {
                         createdAt: c.createdAt,
                         ...c.result.find(r => r.name === item.name),
                       }))
-                      .filter(Boolean)}
+                      .filter(Boolean)
+                      .sort((d1, d2) => new Date(d1.createdAt) - new Date(d2.createdAt))
+                    }
                   />
                 </Box>
 

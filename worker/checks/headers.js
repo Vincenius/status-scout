@@ -2,6 +2,7 @@ import { createCheckResult } from '../db.js'
 
 // https://chatgpt.com/c/6870d745-5aa8-8013-bc17-69fa16456d9a
 export const runHeaderCheck = async ({ uri, db, userId, createdAt }) => {
+  console.log(`Running header check for ${uri}`)
   const recommendedHeaders = [
     'content-security-policy',
     'strict-transport-security',

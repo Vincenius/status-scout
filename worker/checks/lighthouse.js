@@ -20,6 +20,7 @@ function parseAuditItem(item) {
 }
 
 export const runLighthouseCheck = async ({ uri, db, userId, createdAt }) => {
+  console.log(`Running lighthouse check for ${uri}`)
   const browser = await playwright.chromium.launch({
     args: ['--remote-debugging-port=9222']
   });
@@ -109,7 +110,6 @@ export const runLighthouseCheck = async ({ uri, db, userId, createdAt }) => {
       createCheckResult({ db, userId, createdAt, check: 'seo', result: seoResult }),
       createCheckResult({ db, userId, createdAt, check: 'a11y', result: a11yResult }),
     ])
-    console.debug(`Finished lighthouse check for ${uri}`);
   } catch (err) {
     console.error(err);
   } finally {

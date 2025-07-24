@@ -4,6 +4,7 @@ import { createCheckResult } from '../db.js'
 
 // https://chatgpt.com/c/6870d745-5aa8-8013-bc17-69fa16456d9a
 export const runCustomChecks = async ({ uri, db, userId, createdAt }) => {
+  console.log(`Running custom checks for ${uri}`)
   const checks = await db.collection('flows').find({ userId }).toArray()
 
   if (checks.length) {
@@ -18,37 +19,37 @@ export const runCustomChecks = async ({ uri, db, userId, createdAt }) => {
         for (const step of check.steps) {
           switch (step.type) {
             case 'goto':
-              console.debug(`Navigating to ${step.url}`)
+              // console.debug(`Navigating to ${step.url}`)
               await page.goto(step.url, { waitUntil: step.waitUntil || 'load' })
               break
 
             case 'click':
-              console.debug(`Clicking ${step.selector}`)
+              // console.debug(`Clicking ${step.selector}`)
               await page.click(step.selector, step.options || {})
               break
 
             case 'fill':
-              console.debug(`Filling ${step.selector} with ${step.value}`)
+              // console.debug(`Filling ${step.selector} with ${step.value}`)
               await page.fill(step.selector, step.value)
               break
 
             case 'type':
-              console.debug(`Typing ${step.value} into ${step.selector}`)
+              // console.debug(`Typing ${step.value} into ${step.selector}`)
               await page.type(step.selector, step.value, step.options || {})
               break
 
             case 'waitForSelector':
-              console.debug(`Waiting for ${step.selector}`)
+              // console.debug(`Waiting for ${step.selector}`)
               await page.waitForSelector(step.selector, step.options || {})
               break
 
             case 'waitForTimeout':
-              console.debug(`Waiting for ${step.timeout}ms`)
+              // console.debug(`Waiting for ${step.timeout}ms`)
               await page.waitForTimeout(step.timeout)
               break
 
             case 'url': {
-              console.debug(`Asserting URL ${step.url}`)
+              // console.debug(`Asserting URL ${step.url}`)
               const currentUrl = page.url()
               if (currentUrl !== step.url) {
                 errorMsg = `Expected URL "${step.url}" but got "${currentUrl}"`
@@ -57,7 +58,7 @@ export const runCustomChecks = async ({ uri, db, userId, createdAt }) => {
             }
 
             case 'expect': {
-              console.debug(`Asserting ${step.selector}`)
+              // console.debug(`Asserting ${step.selector}`)
               // Basic assertion on selector content or visibility
               const elementHandle = await page.$(step.selector)
               if (!elementHandle) {
@@ -78,7 +79,7 @@ export const runCustomChecks = async ({ uri, db, userId, createdAt }) => {
             }
 
             case 'evaluate': {
-              console.debug(`Evaluating ${step.script}`)
+              // console.debug(`Evaluating ${step.script}`)
               // Safer: allow only strings or predefined functions
               if (typeof step.script === 'string') {
                 const result = await page.evaluate(step.script)

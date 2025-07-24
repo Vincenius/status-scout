@@ -12,6 +12,7 @@ const getHostFromUrl = (urlString) => {
 };
 
 export const runSslCheck = async ({ uri, db, userId, createdAt }) => {
+  console.log(`Running SSL check for ${uri}`)
   const sslResult = await sslChecker(getHostFromUrl(uri), { method: 'GET', port: 443 });
   const result = {
     status: sslResult.valid ? 'success' : 'fail',
