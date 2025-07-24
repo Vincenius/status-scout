@@ -1,13 +1,5 @@
 import { RadarChart } from "@mantine/charts"
-
-const calcFuzzScore = (count, maxAmount) => {
-  if (count <= 0) return 100;
-  if (count >= maxAmount) return 0;
-
-  // Quadratic decay
-  const s = 100 * Math.pow(1 - count / maxAmount, 2);
-  return Math.round(s);
-}
+import calcScore from '@/utils/calcScore'
 
 const OverviewChart = ({ data = [], flows = [] }) => {
   const uptimes = data.filter(d => d.check === 'uptime')
@@ -16,6 +8,7 @@ const OverviewChart = ({ data = [], flows = [] }) => {
   const recentSSL = data.filter(d => d.check === 'ssl').sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
   const recentA11yCheck = data.filter(d => d.check === 'a11y').sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
   const recentSeoCheck = data.filter(d => d.check === 'seo').sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
+  const recentLinks = data.filter(d => d.check === 'links').sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
   const recentPerformance = data.filter(d => d.check === 'performance').sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
   const recentCustomChecks = data.filter(d => d.check === 'custom').sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
 
@@ -26,10 +19,12 @@ const OverviewChart = ({ data = [], flows = [] }) => {
     .map(metric => metric?.category === 'FAST' ? 100 : metric?.category === 'AVERAGE' ? 50 : 0)
   const performanceValue = Math.round((performanceScores.filter(u => u === 100).length / performanceScores.length) * 100)
 
-  const fuzzScore = calcFuzzScore(recentFuzz.result.details.files.length, 20)
-  const headersScore = calcFuzzScore(recentHeaders.result.details.missingHeaders.length, 10) // todo allow config to change headers (filter here)
+  const fuzzScore = calcScore(recentFuzz.result.details.files.length, 20)
+  const headersScore = calcScore(recentHeaders.result.details.missingHeaders.length, 10) // todo allow config to change headers (filter here)
   const sslScore = recentSSL.result.status === 'success' ? 0 : 100
   const securityScore = Math.max(Math.round(fuzzScore * 0.7 + headersScore * 0.3) - (sslScore / 2), 0);
+  const linkScore = calcScore(recentLinks.result.details.length, 20)
+  const seoScore = Math.max(Math.round(recentSeoCheck.result.details.score * 0.9 + linkScore * 0.1), 0);
   const customScore = (flows.length > 0 && recentCustomChecks?.result.length > 0)
     ? recentCustomChecks.result
       .map(r => r.result.status === 'success' ? 100 : 0)
@@ -47,7 +42,7 @@ const OverviewChart = ({ data = [], flows = [] }) => {
     Score: recentA11yCheck.result.details.score
   }, {
     name: 'SEO',
-    Score: recentSeoCheck.result.details.score
+    Score: seoScore
   }, {
     name: 'Performance',
     Score: performanceValue
@@ -55,8 +50,6 @@ const OverviewChart = ({ data = [], flows = [] }) => {
     name: 'Custom Flows',
     Score: customScore
   } : null].filter(Boolean)
-
-  // const totalScore = chartData.reduce((p, c) => p + c.Score, 0) / chartData.length
 
   return <>
     <RadarChart

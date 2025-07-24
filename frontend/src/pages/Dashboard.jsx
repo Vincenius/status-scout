@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import Layout from '@/components/Layout/Layout'
 import { Box, Card, Flex, SimpleGrid, Text, ThemeIcon, Title, LoadingOverlay, Divider, ActionIcon, Avatar } from '@mantine/core'
-import { IconAccessible, IconBrandSpeedtest, IconChartBar, IconCheck, IconDeviceDesktop, IconDeviceMobile, IconExclamationMark, IconListCheck, IconShieldLock, IconX, IconZoomCode } from '@tabler/icons-react'
-import { DonutChart } from '@mantine/charts';
+import { IconAccessible, IconBrandSpeedtest, IconChartBar, IconCheck, IconDeviceDesktop, IconDeviceMobile, IconExclamationMark, IconGlobe, IconInfoCircle, IconInfoSmall, IconListCheck, IconShieldLock, IconWorld, IconX, IconZoomCode } from '@tabler/icons-react'
 import { useAuthSWR } from '@/utils/useAuthSWR'
 import OverviewChart from '@/components/Dashboard/OverviewChart';
 import PerformanceBar from '@/components/Dashboard/PerformanceBar';
 import HistoryChart from '@/components/Dashboard/HistoryChart';
 import DetailsModal from '@/components/Dashboard/DetailsModal';
+import calcScore from '@/utils/calcScore'
 
 function Dashboard() {
   const [modal, setModal] = useState(null);
@@ -27,16 +27,22 @@ function Dashboard() {
     )
   }
 
-  // todo empty & loading state?
+  // todo empty & loading & error state?
 
   const spacing = { base: 'md', md: 'xl' }
+  const url = data.user.domain && new URL(data.user.domain);
+  const recentCheck = checks.sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
   const recentPerformance = checks.filter(d => d.check === 'performance').sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
   const recentFuzz = checks.filter(d => d.check === 'fuzz').sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
   const recentHeaders = checks.filter(d => d.check === 'headers').sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
   const recentSSL = checks.filter(d => d.check === 'ssl').sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
   const recentA11y = checks.filter(d => d.check === 'a11y').sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
   const recentSeo = checks.filter(d => d.check === 'seo').sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
+  const recentLinks = checks.filter(d => d.check === 'links').sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
   const recentCustomChecks = checks.filter(d => d.check === 'custom').sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
+
+  const linkScore = calcScore(recentLinks.result.details.length, 20)
+  const seoScore = Math.max(Math.round(recentSeo.result.details.score * 0.9 + linkScore * 0.1), 0);
 
   const securityChecks = checks.filter(d => d.check === 'fuzz' || d.check === 'headers' || d.check === 'ssl')
   const groupedSecurityChecks = securityChecks.reduce((acc, item) => {
@@ -64,8 +70,6 @@ function Dashboard() {
     setModal(m)
   }
 
-  console.log(recentCustomChecks)
-
   return (
     <Layout title="Dashboard">
       <Title mb="xl" order={1} fw="normal">Dashboard</Title>
@@ -78,29 +82,43 @@ function Dashboard() {
             <Card withBorder shadow="md" style={{ overflow: 'visible' }}>
               <Flex gap="xs" align="center">
                 <ThemeIcon variant="default" size="md">
+                  <IconInfoCircle style={{ width: '70%', height: '70%' }} />
+                </ThemeIcon>
+                <Title order={2} size="h4" fw="normal">Overview</Title>
+              </Flex>
+              <Text size="xs" mb="lg">Last check: {new Date(recentCheck.createdAt).toLocaleString()}</Text>
+
+              <Flex gap="xs" mb="md">
+                <ThemeIcon mt="5px" size="md" variant="light">
+                  <IconWorld style={{ width: '70%', height: '70%' }} />
+                </ThemeIcon>
+                <Box>
+                  <Text fw="normal" size="sm">
+                    Website:
+                  </Text>
+                  <Text size="sm">
+                    <a href={data.user.domain} target="_blank" rel="noopener noreferrer">
+                      {url?.host}
+                    </a>
+                  </Text>
+                </Box>
+              </Flex>
+
+              <Flex gap="xs" mb="sm">
+                <ThemeIcon mt="5px" size="md" variant="light">
                   <IconChartBar style={{ width: '70%', height: '70%' }} />
                 </ThemeIcon>
-                <Title order={2} size="h4" fw="normal">Uptime</Title>
+                <Box>
+                  <Text fw="normal" size="sm">
+                    Uptime:
+                  </Text>
+                  <Text size="sm">
+                    {(uptime.count / (uptime.count - uptime.failedCount) * 100).toFixed(0)}% within the last {uptime.dateDiff} days
+                  </Text>
+                </Box>
               </Flex>
-              <Text size="xs" mb="lg">within the last {uptime.dateDiff} days</Text>
-
-              {isLoadingUptime
-                ? <LoadingOverlay visible={true} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
-                : <Flex h="100%" direction="column" justify="center" align="center">
-                  <DonutChart
-                    h={100}
-                    w={100}
-                    withTooltip={false}
-                    chartLabel={`${uptime.count / (uptime.count - uptime.failedCount) * 100}%`}
-                    mx="auto"
-                    data={[
-                      { name: 'Uptime', value: uptime.count, color: 'green' },
-                      { name: 'Downtime', value: uptime.failedCount, color: 'red' },
-                    ]}
-                  />
-                </Flex>
-              }
             </Card>
+
             <Card withBorder shadow="md">
               <Flex gap="xs" align="center">
                 <ThemeIcon variant="default" size="md">
@@ -163,6 +181,7 @@ function Dashboard() {
                 </Flex>
               </Flex>
             </Card>
+
             <Card withBorder shadow="md">
               <Flex justify="space-between">
                 <Flex gap="xs" align="center" >
@@ -195,6 +214,63 @@ function Dashboard() {
                 <PerformanceBar title="Cumulative Layout Shift" metric={recentPerformance.result.details.mobileResult.CLS} unit="ms" />
               </Box>}
             </Card>
+
+            <Card withBorder shadow="md">
+              <Flex justify="space-between">
+                <Box>
+                  <Flex gap="xs" align="center">
+                    <ThemeIcon variant="default" size="md">
+                      <IconZoomCode style={{ width: '70%', height: '70%' }} />
+                    </ThemeIcon>
+
+                    <Title order={2} size="h4" fw="normal">SEO</Title>
+                  </Flex>
+                  <Text size="xs" mb="lg">from {new Date(recentSeo.createdAt).toLocaleDateString()}</Text>
+                </Box>
+
+                <Avatar
+                  radius="xl"
+                  color={seoScore > 90 ? 'green' : seoScore > 50 ? 'yellow' : 'red'}
+                >
+                  {seoScore}
+                </Avatar>
+              </Flex>
+
+              <Flex gap="xs" align="center" mb="md">
+                <ThemeIcon size="sm" color={recentSeo.result.details.items.length === 0 ? 'green' : 'yellow'}>
+                  {recentSeo.result.details.items.length === 0
+                    ? <IconCheck style={{ width: '70%', height: '70%' }} />
+                    : <IconExclamationMark style={{ width: '70%', height: '70%' }} />
+                  }
+                </ThemeIcon>
+                <Box>
+                  {recentSeo.result.details.items.length === 0 && <Text fa="right">No SEO issues found</Text>}
+                  {recentSeo.result.details.items.length > 0 && <Text fa="right">
+                    <a href="#open-modal" onClick={e => openModal(e, 'seo')}>
+                      {recentSeo.result.details.items.length} SEO {recentSeo.result.details.items.length === 1 ? 'issue' : 'issues'} found
+                    </a>
+                  </Text>}
+                </Box>
+              </Flex>
+
+              <Flex gap="xs" align="center">
+                <ThemeIcon size="sm" color={recentLinks.result.details.length === 0 ? 'green' : 'yellow'}>
+                  {recentLinks.result.details.length === 0
+                    ? <IconCheck style={{ width: '70%', height: '70%' }} />
+                    : <IconExclamationMark style={{ width: '70%', height: '70%' }} />
+                  }
+                </ThemeIcon>
+                <Box>
+                  {recentLinks.result.details.length === 0 && <Text fa="right">No broken links found</Text>}
+                  {recentLinks.result.details.length > 0 && <Text fa="right">
+                    <a href="#open-modal" onClick={e => openModal(e, 'links')}>
+                      {recentLinks.result.details.length} broken {recentLinks.result.details.length === 1 ? 'link' : 'links'} found
+                    </a>
+                  </Text>}
+                </Box>
+              </Flex>
+            </Card>
+
             <Card withBorder shadow="md">
               <Flex justify="space-between">
                 <Box>
@@ -227,50 +303,13 @@ function Dashboard() {
                   {recentA11y.result.details.items.length === 0 && <Text fa="right">No accessibility violations found</Text>}
                   {recentA11y.result.details.items.length > 0 && <Text fa="right">
                     <a href="#open-modal" onClick={e => openModal(e, 'a11y')}>
-                      {recentA11y.result.details.items.length} accessibility violations found
+                      {recentA11y.result.details.items.length} accessibility {recentA11y.result.details.items.length === 1 ? 'violation' : 'violations'} found
                     </a>
                   </Text>}
                 </Box>
               </Flex>
             </Card>
-            <Card withBorder shadow="md">
-              <Flex justify="space-between">
-                <Box>
-                  <Flex gap="xs" align="center">
-                    <ThemeIcon variant="default" size="md">
-                      <IconZoomCode style={{ width: '70%', height: '70%' }} />
-                    </ThemeIcon>
 
-                    <Title order={2} size="h4" fw="normal">SEO</Title>
-                  </Flex>
-                  <Text size="xs" mb="lg">from {new Date(recentSeo.createdAt).toLocaleDateString()}</Text>
-                </Box>
-
-                <Avatar
-                  radius="xl"
-                  color={recentSeo.result.details.score > 90 ? 'green' : recentSeo.result.details.score > 50 ? 'yellow' : 'red'}
-                >
-                  {recentSeo.result.details.score}
-                </Avatar>
-              </Flex>
-
-              <Flex gap="xs" align="center">
-                <ThemeIcon size="sm" color={recentSeo.result.details.items.length === 0 ? 'green' : 'yellow'}>
-                  {recentSeo.result.details.items.length === 0
-                    ? <IconCheck style={{ width: '70%', height: '70%' }} />
-                    : <IconExclamationMark style={{ width: '70%', height: '70%' }} />
-                  }
-                </ThemeIcon>
-                <Box>
-                  {recentSeo.result.details.items.length === 0 && <Text fa="right">No SEO issues found</Text>}
-                  {recentSeo.result.details.items.length > 0 && <Text fa="right">
-                    <a href="#open-modal" onClick={e => openModal(e, 'seo')}>
-                      {recentSeo.result.details.items.length} SEO issues found
-                    </a>
-                  </Text>}
-                </Box>
-              </Flex>
-            </Card>
             <Card withBorder shadow="md">
               <Flex justify="space-between">
                 <Box>
@@ -302,7 +341,7 @@ function Dashboard() {
                 <Box>
                   {customScore === 100 && <Text fa="right">Passed all custom checks</Text>}
                   {customScore !== 100 && <Text fa="right">
-                    Passed {recentCustomChecks.result.filter(r => r.result.status === 'success').length} of {recentCustomChecks.result.length} checks<br/>
+                    Passed {recentCustomChecks.result.filter(r => r.result.status === 'success').length} of {recentCustomChecks.result.length} checks<br />
                     <a href="#open-modal" onClick={e => openModal(e, 'custom')}>
                       Show details
                     </a>
@@ -420,6 +459,7 @@ function Dashboard() {
         recentFuzz={recentFuzz}
         recentA11y={recentA11y}
         recentSeo={recentSeo}
+        recentLinks={recentLinks}
         user={user}
       />
     </Layout >

@@ -7,6 +7,7 @@ import { runSslCheck } from './checks/ssl.js'
 import { runLighthouseCheck } from './checks/lighthouse.js'
 import { runPerformanceCheck } from './checks/performance.js'
 import { runCustomChecks } from './checks/custom.js'
+import { runBrokenLinkCheck } from './checks/links.js'
 
 export const run = async ({ type = 'quick' }) => {
   // type (of check) -> quick, extended, full
@@ -29,6 +30,7 @@ export const run = async ({ type = 'quick' }) => {
       if (type === 'full') {
         await runLighthouseCheck({ uri: user.domain, db, userId: user._id, createdAt })
         await runPerformanceCheck({ uri: user.domain, db, userId: user._id, createdAt })
+        await runBrokenLinkCheck({ uri: user.domain, db, userId: user._id, createdAt })
       }
 
       const newChecks = await db
@@ -37,17 +39,6 @@ export const run = async ({ type = 'quick' }) => {
         .toArray();
 
       const failedChecks = newChecks.filter(c => c.result.status === 'fail');
-
-      // tmp - can be removed when proper user creation is in place
-      // if (!user.failedChecks) {
-      //   await db.collection('users').updateOne(
-      //     { _id: user._id },
-      //     { $set: { failedChecks: [] } }
-      //   );
-      //   user.failedChecks = [];
-      // }
-      // tmp end
-
       const failedMap = new Map(user.failedChecks.map(fc => [fc.check, fc]));
       const notifications = []
 

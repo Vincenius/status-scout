@@ -1,4 +1,4 @@
-import { Blockquote, List, Modal, Popover, Spoiler, Table, Text, ThemeIcon, Accordion } from "@mantine/core"
+import { Blockquote, List, Modal, Popover, Spoiler, Table, Text, ThemeIcon, Accordion, Badge, Flex } from "@mantine/core"
 import recommendedHeaders from '@/utils/headers'
 import { IconQuestionMark } from "@tabler/icons-react"
 import Markdown from 'react-markdown'
@@ -10,7 +10,8 @@ const modalTitleMap = {
   'lighthouse': 'Lighthouse',
   'a11y': 'Accessibility Report',
   'seo': 'SEO Report',
-  'custom': 'Custom Flows'
+  'custom': 'Custom Flows',
+  'links': 'Broken Links',
 }
 
 const MarkdownElem = ({ children }) => {
@@ -29,7 +30,7 @@ const MarkdownElem = ({ children }) => {
   }}>{children}</Markdown>
 }
 
-const DetailsModal = ({ modal, setModal, recentHeaders, recentFuzz, recentA11y, recentSeo, user }) => {
+const DetailsModal = ({ modal, setModal, recentHeaders, recentFuzz, recentA11y, recentSeo, recentLinks, user }) => {
   // todo ignore list for headers & fuzz 
   return (
     <Modal opened={!!modal} onClose={() => setModal(null)} title={modalTitleMap[modal]} size="lg">
@@ -47,10 +48,10 @@ const DetailsModal = ({ modal, setModal, recentHeaders, recentFuzz, recentA11y, 
         </List>
       </>}
       {modal === 'fuzz' && <>
+        <Blockquote color="indigo" mb="md" p="sm">
+          We’ve detected publicly accessible files that may expose sensitive information. These files should never be exposed to the web, as they can reveal secrets, internal configurations, or dependencies that attackers could exploit. Please restrict access or remove them from public view.
+        </Blockquote>
         <List>
-          <Blockquote color="indigo" mb="md" p="sm">
-            We’ve detected publicly accessible files that may expose sensitive information. These files should never be exposed to the web, as they can reveal secrets, internal configurations, or dependencies that attackers could exploit. Please restrict access or remove them from public view.
-          </Blockquote>
           {recentFuzz.result.details.files.map((item, index) => (
             <List.Item key={index} mb="sm">
               <Text>
@@ -73,10 +74,12 @@ const DetailsModal = ({ modal, setModal, recentHeaders, recentFuzz, recentA11y, 
               <Accordion.Panel>
                 <Blockquote p="xs" mb="sm" color="gray"><MarkdownElem>{item.description}</MarkdownElem></Blockquote>
                 <Table striped withTableBorder>
-                  {item.items.map((item, index2) => <Table.Tr key={`a11y-${index1}-${index2}`}>
-                    <Table.Td w={40}>{index2 + 1}</Table.Td>
-                    <Table.Td>{item}</Table.Td>
-                  </Table.Tr>)}
+                  <Table.Tbody>
+                    {item.items.map((item, index2) => <Table.Tr key={`a11y-${index1}-${index2}`}>
+                      <Table.Td w={40}>{index2 + 1}</Table.Td>
+                      <Table.Td>{item}</Table.Td>
+                    </Table.Tr>)}
+                  </Table.Tbody>
                 </Table>
               </Accordion.Panel>
             </Accordion.Item>
@@ -94,15 +97,41 @@ const DetailsModal = ({ modal, setModal, recentHeaders, recentFuzz, recentA11y, 
               <Accordion.Panel>
                 <Blockquote p="xs" mb="sm" color="gray"><MarkdownElem>{item.description}</MarkdownElem></Blockquote>
                 <Table striped withTableBorder>
-                  {item.items.map((item, index2) => <Table.Tr key={`a11y-${index1}-${index2}`}>
-                    <Table.Td w={40}>{index2 + 1}</Table.Td>
-                    <Table.Td>{item}</Table.Td>
-                  </Table.Tr>)}
+                  <Table.Tbody>
+                    {item.items.map((item, index2) => <Table.Tr key={`a11y-${index1}-${index2}`}>
+                      <Table.Td w={40}>{index2 + 1}</Table.Td>
+                      <Table.Td>{item}</Table.Td>
+                    </Table.Tr>)}
+                  </Table.Tbody>
                 </Table>
               </Accordion.Panel>
             </Accordion.Item>
           ))}
         </Accordion>
+      </>}
+      {modal === 'links' && <>
+        <Blockquote color="indigo" mb="md" p="sm">
+          We’ve detected broken links on your website that lead to missing or unavailable pages. These links can hurt user experience and negatively impact SEO.
+        </Blockquote>
+        <List>
+
+          <Table striped withTableBorder>
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Td>Status</Table.Td>
+                <Table.Td>Broken Link</Table.Td>
+                <Table.Td>Parent</Table.Td>
+              </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>
+              {recentLinks.result.details.map((item, index) => <Table.Tr key={`links-${index}`}>
+                <Table.Td w={70}><Badge color={item.status === 404 ? 'orange' : 'red'}>{item.status}</Badge></Table.Td>
+                <Table.Td>{item.url}</Table.Td>
+                <Table.Td><a href={item.parent} target="_blank" rel="noopener noreferrer">{item.parent}</a></Table.Td>
+              </Table.Tr>)}
+            </Table.Tbody>
+          </Table>
+        </List>
       </>}
       {modal === 'custom' && <>
         TODO
