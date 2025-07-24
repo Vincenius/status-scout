@@ -78,4 +78,4 @@ export const run = async ({ type = 'quick' }) => {
   }
 }
 
-run({ type: 'quick' })
+run({ type: 'full' })
