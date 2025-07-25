@@ -8,15 +8,17 @@ import PerformanceBar from '@/components/Dashboard/PerformanceBar';
 import HistoryChart from '@/components/Dashboard/HistoryChart';
 import DetailsModal from '@/components/Dashboard/DetailsModal';
 import calcScore from '@/utils/calcScore'
+import { linkMock } from '@/utils/mockData'
 
 function Dashboard() {
   const [modal, setModal] = useState(null);
   const [performanceTab, setPerformanceTab] = useState('desktop');
   const { data = {}, error, isLoading } = useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/user`)
   const { data: flows = [], isLoading: isLoadingFlows } = useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/flows`)
-  const { data: uptime = {}, isLoading: isLoadingUptime } = useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/uptime`)
+  const { data: uptime = {}, isLoading: isLoadingUptime } = useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/user/uptime`)
 
   const { user, checks } = data
+  const { ignore = [] } = user
 
   if (isLoading || isLoadingFlows || !user || !checks.length) {
     return (
@@ -29,6 +31,9 @@ function Dashboard() {
 
   // todo empty & loading & error state?
 
+  // todo remove mock
+  // data.checks.push(linkMock)
+
   const spacing = { base: 'md', md: 'xl' }
   const url = data.user.domain && new URL(data.user.domain);
   const recentCheck = checks.sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
@@ -40,8 +45,9 @@ function Dashboard() {
   const recentSeo = checks.filter(d => d.check === 'seo').sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
   const recentLinks = checks.filter(d => d.check === 'links').sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
   const recentCustomChecks = checks.filter(d => d.check === 'custom').sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
+  const brokenLinks = recentLinks.result.details.filter(link => !ignore.filter(i => i.type === 'links').map(i => i.item).includes(link.url))
 
-  const linkScore = calcScore(recentLinks.result.details.length, 20)
+  const linkScore = calcScore(brokenLinks.length, 20)
   const seoScore = Math.max(Math.round(recentSeo.result.details.score * 0.9 + linkScore * 0.1), 0);
 
   const securityChecks = checks.filter(d => d.check === 'fuzz' || d.check === 'headers' || d.check === 'ssl')
@@ -254,17 +260,17 @@ function Dashboard() {
               </Flex>
 
               <Flex gap="xs" align="center">
-                <ThemeIcon size="sm" color={recentLinks.result.details.length === 0 ? 'green' : 'yellow'}>
-                  {recentLinks.result.details.length === 0
+                <ThemeIcon size="sm" color={brokenLinks.length === 0 ? 'green' : 'yellow'}>
+                  {brokenLinks.length === 0
                     ? <IconCheck style={{ width: '70%', height: '70%' }} />
                     : <IconExclamationMark style={{ width: '70%', height: '70%' }} />
                   }
                 </ThemeIcon>
                 <Box>
-                  {recentLinks.result.details.length === 0 && <Text fa="right">No broken links found</Text>}
-                  {recentLinks.result.details.length > 0 && <Text fa="right">
+                  {brokenLinks.length === 0 && <Text fa="right">No broken links found</Text>}
+                  {brokenLinks.length > 0 && <Text fa="right">
                     <a href="#open-modal" onClick={e => openModal(e, 'links')}>
-                      {recentLinks.result.details.length} broken {recentLinks.result.details.length === 1 ? 'link' : 'links'} found
+                      {brokenLinks.length} broken {brokenLinks.length === 1 ? 'link' : 'links'} found
                     </a>
                   </Text>}
                 </Box>

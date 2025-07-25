@@ -68,7 +68,7 @@ fastify.addHook('preHandler', async (request, reply) => {
 
 fastify.register(authRoutes, { prefix: '/v1' })
 fastify.register(flowsRoutes, { prefix: '/v1' })
-fastify.register(userRoutes, { prefix: '/v1' })
+fastify.register(userRoutes, { prefix: '/v1/user' })
 
 fastify.addHook('onClose', async (instance, done) => {
   console.log('Close db connection');

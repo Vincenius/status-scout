@@ -1,4 +1,5 @@
 import fastifyPassport from '@fastify/passport';
+import { ObjectId } from 'mongodb'
 import { connectDB, disconnectDB } from '../db.js'
 
 export default async function userRoutes(fastify, opts) {
@@ -24,7 +25,7 @@ export default async function userRoutes(fastify, opts) {
   //     }
   //   })
 
-  fastify.get('/user',
+  fastify.get('/',
     { preValidation: fastifyPassport.authenticate('session', { failureRedirect: '/login' }) },
     async (request, reply) => {
       try {
@@ -100,5 +101,35 @@ export default async function userRoutes(fastify, opts) {
         console.error(e)
         reply.code(500).send({ error: 'Internal server error' });
       }
+    })
+
+  fastify.post('/ignore',
+    { preValidation: fastifyPassport.authenticate('session', { failureRedirect: '/login' }) },
+    async (request, reply) => {
+      const body = request.body
+      // request.user // todo use logged in user
+
+      const db = await connectDB()
+
+      try {
+        if (body.action === 'add') {
+          await db.collection('users').updateOne(
+            { _id: new ObjectId(process.env.TMP_USER_ID) },
+            { $addToSet: { ignore: { item: body.item, type: body.type } } }
+          )
+        } else if (body.action === 'remove') {
+          await db.collection('users').updateOne(
+            { _id: new ObjectId(process.env.TMP_USER_ID) },
+            { $pull: { ignore: { item: body.item, type: body.type } } }
+          )
+        }
+
+        return {}
+      } catch (e) {
+        console.error(e)
+        reply.code(500).send({ error: 'Internal server error' });
+      }
+
+      return {}
     })
 }

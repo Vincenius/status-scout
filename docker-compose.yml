@@ -20,6 +20,7 @@ services:
       - ADMIN_USER=${ADMIN_USER}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
       - SESSION_SECRET=${SESSION_SECRET}
+      - TMP_USER_ID=${TMP_USER_ID}
     depends_on:
       - mongodb
 

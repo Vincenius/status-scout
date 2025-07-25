@@ -51,6 +51,8 @@ export const run = async ({ type = 'quick' }) => {
         }
       }
 
+      // TODO remove old failed checks that succeeded now
+
       // Save updated failed checks
       const updatedFailedChecks = Array.from(failedMap.values());
 

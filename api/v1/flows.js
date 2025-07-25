@@ -32,7 +32,7 @@ export default async function flowRoutes(fastify, opts) {
 
       try {
         await db.collection('flows').insertOne({
-          userId: new ObjectId('6870ad94c49ffd667b661fca'),
+          userId: new ObjectId(process.env.TMP_USER_ID),
           createdAt: new Date(),
           name: body[0].name,
           steps: body[0].steps,

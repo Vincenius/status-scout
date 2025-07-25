@@ -1,7 +1,9 @@
-import { Blockquote, List, Modal, Popover, Spoiler, Table, Text, ThemeIcon, Accordion, Badge, Flex } from "@mantine/core"
+import { Blockquote, List, Modal, Table, Text, Accordion, Badge, ActionIcon, Button } from "@mantine/core"
 import recommendedHeaders from '@/utils/headers'
-import { IconQuestionMark } from "@tabler/icons-react"
+import { IconBell, IconBellOff } from "@tabler/icons-react"
 import Markdown from 'react-markdown'
+import { useState } from "react"
+import { useSWRConfig } from 'swr'
 
 const modalTitleMap = {
   'performance': 'Performance',
@@ -30,10 +32,79 @@ const MarkdownElem = ({ children }) => {
   }}>{children}</Markdown>
 }
 
-const DetailsModal = ({ modal, setModal, recentHeaders, recentFuzz, recentA11y, recentSeo, recentLinks, user }) => {
-  // todo ignore list for headers & fuzz 
+const LinksTable = ({ items, updateIgnoreList, loading, ignoreAction }) => {
+  if (!items.length) {
+    return <Text fs="italic" ta="center" my="xl">No broken links found</Text>
+  }
+
+  return <Table striped withTableBorder>
+    <Table.Thead>
+      <Table.Tr>
+        <Table.Td>Status</Table.Td>
+        <Table.Td>Broken Link</Table.Td>
+        <Table.Td>Parent</Table.Td>
+        <Table.Td>{ignoreAction === 'add' ? 'Ignore' : 'Unignore'}</Table.Td>
+      </Table.Tr>
+    </Table.Thead>
+    <Table.Tbody>
+      {items.map((item, index) => <Table.Tr key={`links-${index}`}>
+        <Table.Td w={70}><Badge color={item.status === 404 ? 'orange' : 'red'}>{item.status}</Badge></Table.Td>
+        <Table.Td><a href={item.url} target="_blank" rel="noopener noreferrer">{item.url}</a></Table.Td>
+        <Table.Td><a href={item.parent} target="_blank" rel="noopener noreferrer">{item.parent}</a></Table.Td>
+        <Table.Td align="center">
+          <ActionIcon
+            variant="outline"
+            aria-label="Ignore Item"
+            onClick={() => updateIgnoreList({ item, type: 'links', action: ignoreAction })}
+            loading={loading === item.url}
+            disabled={loading && loading !== item.url}
+          >
+            {ignoreAction === 'add'
+              ? <IconBellOff style={{ width: '70%', height: '70%' }} stroke={1.5} />
+              : <IconBell style={{ width: '70%', height: '70%' }} stroke={1.5} />}
+          </ActionIcon>
+        </Table.Td>
+      </Table.Tr>)}
+    </Table.Tbody>
+  </Table>
+}
+
+const DetailsModal = ({
+  modal,
+  setModal,
+  recentHeaders,
+  recentFuzz,
+  recentA11y,
+  recentSeo,
+  recentLinks,
+  user
+}) => {
+  const [loading, setLoading] = useState(null)
+  const [showIgnored, setShowIgnored] = useState(false)
+  const { mutate } = useSWRConfig()
+  const { ignore = [] } = user
+
+  // todo ignore list for headers & fuzz
+
+  const updateIgnoreList = async ({ item, type, action }) => {
+    setLoading(item.url)
+
+    fetch(`${import.meta.env.VITE_API_URL}/v1/user/ignore`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ item: item.url, type, action }),
+    }).then(async res => {
+      mutate(`${import.meta.env.VITE_API_URL}/v1/user`)
+    }).finally(() => {
+      setLoading(null)
+    })
+  }
+
   return (
-    <Modal opened={!!modal} onClose={() => setModal(null)} title={modalTitleMap[modal]} size="lg">
+    <Modal opened={!!modal} onClose={() => setModal(null)} title={modalTitleMap[modal]} size="xl">
       {modal === 'headers' && <>
         <Blockquote color="indigo" mb="md" p="sm">
           For improved security, we recommend setting the following HTTP headers. These headers help protect your site against common web vulnerabilities and ensure better privacy and performance for your users.<br />The following headers are missing:
@@ -114,23 +185,31 @@ const DetailsModal = ({ modal, setModal, recentHeaders, recentFuzz, recentA11y, 
           We’ve detected broken links on your website that lead to missing or unavailable pages. These links can hurt user experience and negatively impact SEO.
         </Blockquote>
         <List>
+          <LinksTable
+            items={recentLinks.result.details.filter(item => !ignore.map(i => i.item).includes(item.url))}
+            updateIgnoreList={updateIgnoreList}
+            loading={loading}
+            ignoreAction="add"
+          />
 
-          <Table striped withTableBorder>
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Td>Status</Table.Td>
-                <Table.Td>Broken Link</Table.Td>
-                <Table.Td>Parent</Table.Td>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {recentLinks.result.details.map((item, index) => <Table.Tr key={`links-${index}`}>
-                <Table.Td w={70}><Badge color={item.status === 404 ? 'orange' : 'red'}>{item.status}</Badge></Table.Td>
-                <Table.Td>{item.url}</Table.Td>
-                <Table.Td><a href={item.parent} target="_blank" rel="noopener noreferrer">{item.parent}</a></Table.Td>
-              </Table.Tr>)}
-            </Table.Tbody>
-          </Table>
+          {ignore.length > 0 &&
+            <>
+              {!showIgnored && <Text mt="sm">
+                <a size="sm" mt="sm" variant="transparent" href="#show-ignored" onClick={e => { e.preventDefault(); setShowIgnored(true) }}>
+                  Show {ignore.length} filtered {ignore.length === 1 ? 'item' : 'items'}
+                </a>
+              </Text>}
+              {showIgnored && <>
+                <Text mt="sm" mb="xs" fw="bold">Filtered Items</Text>
+                <LinksTable
+                  items={ignore.map(i => recentLinks.result.details.find(item => item.url === i.item))}
+                  updateIgnoreList={updateIgnoreList}
+                  loading={loading}
+                  ignoreAction="remove"
+                />
+              </>}
+            </>
+          }
         </List>
       </>}
       {modal === 'custom' && <>
