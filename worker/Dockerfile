@@ -10,4 +10,4 @@ RUN npm install --production
 COPY . .
 
 # Run your script
-CMD ["node", "cron.js"]
+CMD ["npm", "start"]
