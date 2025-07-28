@@ -8,6 +8,13 @@ services:
     volumes:
       - mongo_data:/data/db
 
+  redis:
+    image: redis:7
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+
   api:
     build: ./api
     container_name: api
@@ -21,8 +28,23 @@ services:
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
       - SESSION_SECRET=${SESSION_SECRET}
       - TMP_USER_ID=${TMP_USER_ID}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
     depends_on:
       - mongodb
+      - redis
+
+  cron:
+    build: ./cron
+    container_name: cron
+    restart: always
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+    depends_on:
+      - mongodb
+      - redis
 
   frontend:
     build: ./frontend
@@ -38,8 +60,11 @@ services:
     environment:
       - MONGODB_URI=${MONGODB_URI}
       - GOOGLE_PAGESPEED_API_KEY=${GOOGLE_PAGESPEED_API_KEY} 
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
     depends_on:
       - mongodb
+      - redis
 
 volumes:
   mongo_data:

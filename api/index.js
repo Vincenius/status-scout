@@ -9,6 +9,7 @@ import fastifyPassport from '@fastify/passport';
 import authRoutes from './v1/auth.js'
 import flowsRoutes from './v1/flows.js'
 import userRoutes from './v1/user.js'
+import checkRoutes from './v1/check.js'
 import { disconnectDB } from './db.js'
 
 const fastify = Fastify({
@@ -69,6 +70,7 @@ fastify.addHook('preHandler', async (request, reply) => {
 fastify.register(authRoutes, { prefix: '/v1' })
 fastify.register(flowsRoutes, { prefix: '/v1' })
 fastify.register(userRoutes, { prefix: '/v1/user' })
+fastify.register(checkRoutes, { prefix: '/v1/check' })
 
 fastify.addHook('onClose', async (instance, done) => {
   console.log('Close db connection');
