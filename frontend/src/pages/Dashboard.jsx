@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Layout from '@/components/Layout/Layout'
-import { Box, Card, Flex, SimpleGrid, Text, ThemeIcon, Title, LoadingOverlay, Divider, ActionIcon, Avatar } from '@mantine/core'
+import { Box, Card, Flex, SimpleGrid, Text, ThemeIcon, Title, LoadingOverlay, Divider, ActionIcon, Avatar, Grid } from '@mantine/core'
 import { IconAccessible, IconBrandSpeedtest, IconChartBar, IconCheck, IconDeviceDesktop, IconDeviceMobile, IconExclamationMark, IconGlobe, IconInfoCircle, IconInfoSmall, IconListCheck, IconShieldLock, IconWorld, IconX, IconZoomCode } from '@tabler/icons-react'
 import { useAuthSWR } from '@/utils/useAuthSWR'
 import OverviewChart from '@/components/Dashboard/OverviewChart';
@@ -32,7 +32,8 @@ function Dashboard() {
 
   // todo empty & loading & error state?
 
-  const spacing = { base: 'md', md: 'xl' }
+  const spacing = { base: 'md', md: 'md' }
+  const grid = { base: 12, md: 12, xl: 4 }
   const url = data.user.domain && new URL(data.user.domain);
   const recentCheck = checks.sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
   const recentPerformance = checks.filter(d => d.check === 'performance').sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
@@ -90,289 +91,300 @@ function Dashboard() {
       <Title mb="xl" order={1} fw="normal">Dashboard</Title>
 
       <Box maw={1800} mx="auto">
-        <Flex mb={spacing} gap={spacing}>
-          <OverviewChart data={checks} flows={flows} />
-
-          <SimpleGrid cols={3} spacing={spacing} w="75%">
-            <Card withBorder shadow="md" style={{ overflow: 'visible' }}>
-              <Flex gap="xs" align="center">
-                <ThemeIcon variant="default" size="md">
-                  <IconInfoCircle style={{ width: '70%', height: '70%' }} />
-                </ThemeIcon>
-                <Title order={2} size="h4" fw="normal">Overview</Title>
-              </Flex>
-              <Text size="xs" mb="lg">Last check: {new Date(recentCheck.createdAt).toLocaleString()}</Text>
-
-              <Flex gap="xs" mb="md">
-                <ThemeIcon mt="5px" size="md" variant="light">
-                  <IconWorld style={{ width: '70%', height: '70%' }} />
-                </ThemeIcon>
-                <Box>
-                  <Text fw="normal" size="sm">
-                    Website:
-                  </Text>
-                  <Text size="sm">
-                    <a href={data.user.domain} target="_blank" rel="noopener noreferrer">
-                      {url?.host}
-                    </a>
-                  </Text>
-                </Box>
-              </Flex>
-
-              <Flex gap="xs" mb="sm">
-                <ThemeIcon mt="5px" size="md" variant="light">
-                  <IconChartBar style={{ width: '70%', height: '70%' }} />
-                </ThemeIcon>
-                <Box>
-                  <Text fw="normal" size="sm">
-                    Uptime:
-                  </Text>
-                  <Text size="sm">
-                    {(uptime.count / (uptime.count - uptime.failedCount) * 100).toFixed(0)}% within the last {uptime.dateDiff} days
-                  </Text>
-                </Box>
-              </Flex>
-
-              {/* todo */}
-              {/* <Text ta="center" mt="md">
-                <a href="#trigger-check" onClick={triggerCheck}>trigger new check</a>
-              </Text> */}
-            </Card>
-
-            <Card withBorder shadow="md">
-              <Flex gap="xs" align="center">
-                <ThemeIcon variant="default" size="md">
-                  <IconShieldLock style={{ width: '70%', height: '70%' }} />
-                </ThemeIcon>
-                <Title order={2} size="h4" fw="normal">Security</Title>
-              </Flex>
-              <Text size="xs" mb="lg">from {new Date(recentSSL.createdAt).toLocaleDateString()}</Text>
-
-              <Flex direction="column" gap="md">
-                <Flex gap="xs">
-                  <ThemeIcon mt="5px" size="sm" color={recentSSL.result.status === 'success' ? 'green' : 'red'}>
-                    {recentSSL.result.status === 'success'
-                      ? <IconCheck style={{ width: '70%', height: '70%' }} />
-                      : <IconX style={{ width: '70%', height: '70%' }} />
-                    }
+        <Grid cols={4} gutter={spacing} mb={spacing} h={{ base: '100%', md: 'auto' }}>
+          <Grid.Col span={grid}>
+            <Flex gap={spacing} h="100%" direction={{ base: 'column', md: 'row', xl: 'column' }}>
+              <Card withBorder shadow="md">
+                <Flex gap="xs" align="center">
+                  <ThemeIcon variant="default" size="md">
+                    <IconInfoCircle style={{ width: '70%', height: '70%' }} />
                   </ThemeIcon>
-                  <Box>
-                    <Text fw="normal">SSL Certificate</Text>
-                    {recentSSL.result.status === 'success' &&
-                      <Text size="xs" fa="right">Valid until {new Date(recentSSL.result.details.validTo).toLocaleDateString()}</Text>
-                    }
-                  </Box>
+                  <Title order={2} size="h4" fw="normal">Overview</Title>
                 </Flex>
+                <Text size="xs" mb="lg">Last check: {new Date(recentCheck.createdAt).toLocaleString()}</Text>
 
-                <Flex gap="xs">
-                  <ThemeIcon mt="5px" size="sm" color={recentFuzz.result.status === 'success' ? 'green' : 'red'}>
-                    {recentFuzz.result.status === 'success'
-                      ? <IconCheck style={{ width: '70%', height: '70%' }} />
-                      : <IconX style={{ width: '70%', height: '70%' }} />
-                    }
+                <Flex gap="xs" mb="md">
+                  <ThemeIcon mt="5px" size="md" variant="light">
+                    <IconWorld style={{ width: '70%', height: '70%' }} />
                   </ThemeIcon>
                   <Box>
-                    <Text fw="normal">Sensitive Files Check</Text>
-                    {recentFuzz.result.details.files.length === 0 && <Text size="xs" fa="right">No exposed files found</Text>}
-                    {recentFuzz.result.details.files.length > 0 && <Text size="xs" fa="right">
-                      <a href="#open-modal" onClick={e => openModal(e, 'fuzz')}>
-                        {recentFuzz.result.details.files.length} files found
+                    <Text fw="normal" size="sm">
+                      Website:
+                    </Text>
+                    <Text size="sm">
+                      <a href={data.user.domain} target="_blank" rel="noopener noreferrer">
+                        {url?.host}
                       </a>
-                    </Text>}
+                    </Text>
                   </Box>
                 </Flex>
 
-                <Flex gap="xs">
-                  <ThemeIcon mt="5px" size="sm" color={recentHeaders.result.status === 'success' ? 'green' : 'yellow'}>
-                    {recentHeaders.result.status === 'success'
+                <Flex gap="xs" mb="sm">
+                  <ThemeIcon mt="5px" size="md" variant="light">
+                    <IconChartBar style={{ width: '70%', height: '70%' }} />
+                  </ThemeIcon>
+                  <Box>
+                    <Text fw="normal" size="sm">
+                      Uptime:
+                    </Text>
+                    <Text size="sm">
+                      {((uptime.count - uptime.failedCount) / uptime.count * 100).toFixed(0)}% within the last {uptime.dateDiff} days
+                    </Text>
+                  </Box>
+                </Flex>
+              </Card>
+
+              <Card withBorder shadow="md" p="0" flex="1">
+                <Flex h="100%" align="center" justify="center">
+                  <OverviewChart data={checks} flows={flows} />
+                </Flex>
+              </Card>
+
+            </Flex>
+          </Grid.Col>
+
+          <Grid.Col span={grid} h={{ base: '100%', md: 'auto' }}>
+            <Flex gap={spacing} direction={{ base: 'column', md: 'row', xl: 'column' }} h="100%">
+              <Card withBorder shadow="md" flex="1">
+                <Flex gap="xs" align="center">
+                  <ThemeIcon variant="default" size="md">
+                    <IconShieldLock style={{ width: '70%', height: '70%' }} />
+                  </ThemeIcon>
+                  <Title order={2} size="h4" fw="normal">Security</Title>
+                </Flex>
+                <Text size="xs" mb="lg">from {new Date(recentSSL.createdAt).toLocaleDateString()}</Text>
+
+                <Flex direction="column" gap="md">
+                  <Flex gap="xs">
+                    <ThemeIcon mt="5px" size="sm" color={recentSSL.result.status === 'success' ? 'green' : 'red'}>
+                      {recentSSL.result.status === 'success'
+                        ? <IconCheck style={{ width: '70%', height: '70%' }} />
+                        : <IconX style={{ width: '70%', height: '70%' }} />
+                      }
+                    </ThemeIcon>
+                    <Box>
+                      <Text fw="normal">SSL Certificate</Text>
+                      {recentSSL.result.status === 'success' &&
+                        <Text size="xs" fa="right">Valid until {new Date(recentSSL.result.details.validTo).toLocaleDateString()}</Text>
+                      }
+                    </Box>
+                  </Flex>
+
+                  <Flex gap="xs">
+                    <ThemeIcon mt="5px" size="sm" color={recentFuzz.result.status === 'success' ? 'green' : 'red'}>
+                      {recentFuzz.result.status === 'success'
+                        ? <IconCheck style={{ width: '70%', height: '70%' }} />
+                        : <IconX style={{ width: '70%', height: '70%' }} />
+                      }
+                    </ThemeIcon>
+                    <Box>
+                      <Text fw="normal">Sensitive Files Check</Text>
+                      {recentFuzz.result.details.files.length === 0 && <Text size="xs" fa="right">No exposed files found</Text>}
+                      {recentFuzz.result.details.files.length > 0 && <Text size="xs" fa="right">
+                        <a href="#open-modal" onClick={e => openModal(e, 'fuzz')}>
+                          {recentFuzz.result.details.files.length} files found
+                        </a>
+                      </Text>}
+                    </Box>
+                  </Flex>
+
+                  <Flex gap="xs">
+                    <ThemeIcon mt="5px" size="sm" color={recentHeaders.result.status === 'success' ? 'green' : 'yellow'}>
+                      {recentHeaders.result.status === 'success'
+                        ? <IconCheck style={{ width: '70%', height: '70%' }} />
+                        : <IconExclamationMark style={{ width: '70%', height: '70%' }} />
+                      }
+                    </ThemeIcon>
+                    <Box>
+                      <Text fw="normal">HTTP Headers</Text>
+                      {recentHeaders.result.details.missingHeaders.length === 0 && <Text size="xs" fa="right">All security headers are set</Text>}
+                      {recentHeaders.result.details.missingHeaders.length > 0 && <Text size="xs" fa="right">
+                        <a href="#open-modal" onClick={e => openModal(e, 'headers')}>
+                          {recentHeaders.result.details.missingHeaders.length} missing security headers
+                        </a>
+                      </Text>}
+                    </Box>
+                  </Flex>
+                </Flex>
+              </Card>
+
+              <Card withBorder shadow="md" flex="1">
+                <Flex justify="space-between">
+                  <Flex gap="xs" align="center" >
+                    <ThemeIcon variant="default" size="md">
+                      <IconBrandSpeedtest style={{ width: '70%', height: '70%' }} />
+                    </ThemeIcon>
+                    <Title order={2} size="h4" fw="normal">Performance</Title>
+                  </Flex>
+                  <Flex gap="xs">
+                    <ActionIcon variant={performanceTab === 'desktop' ? 'filled' : 'outline'} aria-label="Desktop" onClick={() => setPerformanceTab('desktop')}>
+                      <IconDeviceDesktop style={{ width: '70%', height: '70%' }} stroke={1.5} />
+                    </ActionIcon>
+                    <ActionIcon variant={performanceTab === 'mobile' ? 'filled' : 'outline'} aria-label="Mobile" onClick={() => setPerformanceTab('mobile')}>
+                      <IconDeviceMobile style={{ width: '70%', height: '70%' }} stroke={1.5} />
+                    </ActionIcon>
+                  </Flex>
+                </Flex>
+
+                <Text size="xs" mb="md">from {new Date(recentPerformance.createdAt).toLocaleDateString()}</Text>
+
+                {performanceTab === 'desktop' && <Box>
+                  <PerformanceBar title="Largest Contentful Paint" metric={recentPerformance.result.details.desktopResult.LCP} unit="ms" mb="sm" />
+                  <PerformanceBar title="Interaction to Next Paint" metric={recentPerformance.result.details.desktopResult.INP} unit="ms" mb="sm" />
+                  <PerformanceBar title="Cumulative Layout Shift" metric={recentPerformance.result.details.desktopResult.CLS} unit="ms" />
+                </Box>}
+
+                {performanceTab === 'mobile' && <Box>
+                  <PerformanceBar title="Largest Contentful Paint" metric={recentPerformance.result.details.mobileResult.LCP} unit="ms" mb="sm" />
+                  <PerformanceBar title="Interaction to Next Paint" metric={recentPerformance.result.details.mobileResult.INP} unit="ms" mb="sm" />
+                  <PerformanceBar title="Cumulative Layout Shift" metric={recentPerformance.result.details.mobileResult.CLS} unit="ms" />
+                </Box>}
+              </Card>
+            </Flex>
+          </Grid.Col>
+
+          <Grid.Col span={grid} h={{ base: '100%', md: 'auto' }}>
+            <Flex direction={{ base: 'column', md: 'row', xl: 'column' }} gap={spacing} h="100%">
+
+              <Card withBorder shadow="md" flex="1">
+                <Flex justify="space-between">
+                  <Box>
+                    <Flex gap="xs" align="center">
+                      <ThemeIcon variant="default" size="md">
+                        <IconZoomCode style={{ width: '70%', height: '70%' }} />
+                      </ThemeIcon>
+
+                      <Title order={2} size="h4" fw="normal">SEO</Title>
+                    </Flex>
+                    <Text size="xs" mb="lg">from {new Date(recentSeo.createdAt).toLocaleDateString()}</Text>
+                  </Box>
+
+                  <Avatar
+                    radius="xl"
+                    color={seoScore > 90 ? 'green' : seoScore > 50 ? 'yellow' : 'red'}
+                  >
+                    {seoScore}
+                  </Avatar>
+                </Flex>
+
+                <Flex gap="xs" align="center" mb="md">
+                  <ThemeIcon size="sm" color={recentSeo.result.details.items.length === 0 ? 'green' : 'yellow'}>
+                    {recentSeo.result.details.items.length === 0
                       ? <IconCheck style={{ width: '70%', height: '70%' }} />
                       : <IconExclamationMark style={{ width: '70%', height: '70%' }} />
                     }
                   </ThemeIcon>
                   <Box>
-                    <Text fw="normal">HTTP Headers</Text>
-                    {recentHeaders.result.details.missingHeaders.length === 0 && <Text size="xs" fa="right">All security headers are set</Text>}
-                    {recentHeaders.result.details.missingHeaders.length > 0 && <Text size="xs" fa="right">
-                      <a href="#open-modal" onClick={e => openModal(e, 'headers')}>
-                        {recentHeaders.result.details.missingHeaders.length} missing security headers
+                    {recentSeo.result.details.items.length === 0 && <Text fa="right">No SEO issues found</Text>}
+                    {recentSeo.result.details.items.length > 0 && <Text fa="right">
+                      <a href="#open-modal" onClick={e => openModal(e, 'seo')}>
+                        {recentSeo.result.details.items.length} SEO {recentSeo.result.details.items.length === 1 ? 'issue' : 'issues'} found
                       </a>
                     </Text>}
                   </Box>
                 </Flex>
-              </Flex>
-            </Card>
 
-            <Card withBorder shadow="md">
-              <Flex justify="space-between">
-                <Flex gap="xs" align="center" >
-                  <ThemeIcon variant="default" size="md">
-                    <IconBrandSpeedtest style={{ width: '70%', height: '70%' }} />
+                <Flex gap="xs" align="center">
+                  <ThemeIcon size="sm" color={brokenLinks.length === 0 ? 'green' : 'yellow'}>
+                    {brokenLinks.length === 0
+                      ? <IconCheck style={{ width: '70%', height: '70%' }} />
+                      : <IconExclamationMark style={{ width: '70%', height: '70%' }} />
+                    }
                   </ThemeIcon>
-                  <Title order={2} size="h4" fw="normal">Performance</Title>
+                  <Box>
+                    {brokenLinks.length === 0 && <Text fa="right">No broken links found</Text>}
+                    {brokenLinks.length > 0 && <Text fa="right">
+                      <a href="#open-modal" onClick={e => openModal(e, 'links')}>
+                        {brokenLinks.length} broken {brokenLinks.length === 1 ? 'link' : 'links'} found
+                      </a>
+                    </Text>}
+                  </Box>
                 </Flex>
-                <Flex gap="xs">
-                  <ActionIcon variant={performanceTab === 'desktop' ? 'filled' : 'outline'} aria-label="Desktop" onClick={() => setPerformanceTab('desktop')}>
-                    <IconDeviceDesktop style={{ width: '70%', height: '70%' }} stroke={1.5} />
-                  </ActionIcon>
-                  <ActionIcon variant={performanceTab === 'mobile' ? 'filled' : 'outline'} aria-label="Mobile" onClick={() => setPerformanceTab('mobile')}>
-                    <IconDeviceMobile style={{ width: '70%', height: '70%' }} stroke={1.5} />
-                  </ActionIcon>
+              </Card>
+
+              <Card withBorder shadow="md" flex="1">
+                <Flex justify="space-between">
+                  <Box>
+                    <Flex gap="xs" align="center">
+                      <ThemeIcon variant="default" size="md">
+                        <IconAccessible style={{ width: '70%', height: '70%' }} />
+                      </ThemeIcon>
+
+                      <Title order={2} size="h4" fw="normal">Accessibility</Title>
+                    </Flex>
+                    <Text size="xs" mb="lg">from {new Date(recentA11y.createdAt).toLocaleDateString()}</Text>
+                  </Box>
+
+                  <Avatar
+                    radius="xl"
+                    color={recentA11y.result.details.score > 90 ? 'green' : recentA11y.result.details.score > 50 ? 'yellow' : 'red'}
+                  >
+                    {recentA11y.result.details.score}
+                  </Avatar>
                 </Flex>
-              </Flex>
 
-              <Text size="xs" mb="md">from {new Date(recentPerformance.createdAt).toLocaleDateString()}</Text>
+                <Flex gap="xs" align="center">
+                  <ThemeIcon size="sm" color={recentA11y.result.details.items.length === 0 ? 'green' : 'yellow'}>
+                    {recentA11y.result.details.items.length === 0
+                      ? <IconCheck style={{ width: '70%', height: '70%' }} />
+                      : <IconExclamationMark style={{ width: '70%', height: '70%' }} />
+                    }
+                  </ThemeIcon>
+                  <Box>
+                    {recentA11y.result.details.items.length === 0 && <Text fa="right">No accessibility violations found</Text>}
+                    {recentA11y.result.details.items.length > 0 && <Text fa="right">
+                      <a href="#open-modal" onClick={e => openModal(e, 'a11y')}>
+                        {recentA11y.result.details.items.length} accessibility {recentA11y.result.details.items.length === 1 ? 'violation' : 'violations'} found
+                      </a>
+                    </Text>}
+                  </Box>
+                </Flex>
+              </Card>
 
-              {performanceTab === 'desktop' && <Box>
-                <PerformanceBar title="Largest Contentful Paint" metric={recentPerformance.result.details.desktopResult.LCP} unit="ms" mb="sm" />
-                <PerformanceBar title="Interaction to Next Paint" metric={recentPerformance.result.details.desktopResult.INP} unit="ms" mb="sm" />
-                <PerformanceBar title="Cumulative Layout Shift" metric={recentPerformance.result.details.desktopResult.CLS} unit="ms" />
-              </Box>}
+              <Card withBorder shadow="md" flex="1">
+                <Flex justify="space-between">
+                  <Box>
+                    <Flex gap="xs" align="center">
+                      <ThemeIcon variant="default" size="md">
+                        <IconChartBar style={{ width: '70%', height: '70%' }} />
+                      </ThemeIcon>
 
-              {performanceTab === 'mobile' && <Box>
-                <PerformanceBar title="Largest Contentful Paint" metric={recentPerformance.result.details.mobileResult.LCP} unit="ms" mb="sm" />
-                <PerformanceBar title="Interaction to Next Paint" metric={recentPerformance.result.details.mobileResult.INP} unit="ms" mb="sm" />
-                <PerformanceBar title="Cumulative Layout Shift" metric={recentPerformance.result.details.mobileResult.CLS} unit="ms" />
-              </Box>}
-            </Card>
+                      <Title order={2} size="h4" fw="normal">Custom Flows</Title>
+                    </Flex>
+                    <Text size="xs" mb="lg">from {new Date(recentCustomChecks.createdAt).toLocaleDateString()}</Text>
+                  </Box>
 
-            <Card withBorder shadow="md">
-              <Flex justify="space-between">
-                <Box>
-                  <Flex gap="xs" align="center">
-                    <ThemeIcon variant="default" size="md">
-                      <IconZoomCode style={{ width: '70%', height: '70%' }} />
-                    </ThemeIcon>
+                  <Avatar
+                    radius="xl"
+                    color={customScore === 100 ? 'green' : customScore > 75 ? 'yellow' : 'red'}
+                  >
+                    {customScore}
+                  </Avatar>
+                </Flex>
 
-                    <Title order={2} size="h4" fw="normal">SEO</Title>
-                  </Flex>
-                  <Text size="xs" mb="lg">from {new Date(recentSeo.createdAt).toLocaleDateString()}</Text>
-                </Box>
+                <Flex gap="xs" align="center">
+                  <ThemeIcon size="sm" color={customScore === 100 ? 'green' : 'yellow'}>
+                    {customScore === 100
+                      ? <IconCheck style={{ width: '70%', height: '70%' }} />
+                      : <IconExclamationMark style={{ width: '70%', height: '70%' }} />
+                    }
+                  </ThemeIcon>
+                  <Box>
+                    {customScore === 100 && <Text fa="right">Passed all custom checks</Text>}
+                    {customScore !== 100 && <Text fa="right">
+                      Passed {recentCustomChecks.result.filter(r => r.result.status === 'success').length} of {recentCustomChecks.result.length} checks<br />
+                      <a href="#open-modal" onClick={e => openModal(e, 'custom')}>
+                        Show details
+                      </a>
+                    </Text>}
+                  </Box>
+                </Flex>
+              </Card>
+            </Flex>
+          </Grid.Col>
+        </Grid>
 
-                <Avatar
-                  radius="xl"
-                  color={seoScore > 90 ? 'green' : seoScore > 50 ? 'yellow' : 'red'}
-                >
-                  {seoScore}
-                </Avatar>
-              </Flex>
-
-              <Flex gap="xs" align="center" mb="md">
-                <ThemeIcon size="sm" color={recentSeo.result.details.items.length === 0 ? 'green' : 'yellow'}>
-                  {recentSeo.result.details.items.length === 0
-                    ? <IconCheck style={{ width: '70%', height: '70%' }} />
-                    : <IconExclamationMark style={{ width: '70%', height: '70%' }} />
-                  }
-                </ThemeIcon>
-                <Box>
-                  {recentSeo.result.details.items.length === 0 && <Text fa="right">No SEO issues found</Text>}
-                  {recentSeo.result.details.items.length > 0 && <Text fa="right">
-                    <a href="#open-modal" onClick={e => openModal(e, 'seo')}>
-                      {recentSeo.result.details.items.length} SEO {recentSeo.result.details.items.length === 1 ? 'issue' : 'issues'} found
-                    </a>
-                  </Text>}
-                </Box>
-              </Flex>
-
-              <Flex gap="xs" align="center">
-                <ThemeIcon size="sm" color={brokenLinks.length === 0 ? 'green' : 'yellow'}>
-                  {brokenLinks.length === 0
-                    ? <IconCheck style={{ width: '70%', height: '70%' }} />
-                    : <IconExclamationMark style={{ width: '70%', height: '70%' }} />
-                  }
-                </ThemeIcon>
-                <Box>
-                  {brokenLinks.length === 0 && <Text fa="right">No broken links found</Text>}
-                  {brokenLinks.length > 0 && <Text fa="right">
-                    <a href="#open-modal" onClick={e => openModal(e, 'links')}>
-                      {brokenLinks.length} broken {brokenLinks.length === 1 ? 'link' : 'links'} found
-                    </a>
-                  </Text>}
-                </Box>
-              </Flex>
-            </Card>
-
-            <Card withBorder shadow="md">
-              <Flex justify="space-between">
-                <Box>
-                  <Flex gap="xs" align="center">
-                    <ThemeIcon variant="default" size="md">
-                      <IconAccessible style={{ width: '70%', height: '70%' }} />
-                    </ThemeIcon>
-
-                    <Title order={2} size="h4" fw="normal">Accessibility</Title>
-                  </Flex>
-                  <Text size="xs" mb="lg">from {new Date(recentA11y.createdAt).toLocaleDateString()}</Text>
-                </Box>
-
-                <Avatar
-                  radius="xl"
-                  color={recentA11y.result.details.score > 90 ? 'green' : recentA11y.result.details.score > 50 ? 'yellow' : 'red'}
-                >
-                  {recentA11y.result.details.score}
-                </Avatar>
-              </Flex>
-
-              <Flex gap="xs" align="center">
-                <ThemeIcon size="sm" color={recentA11y.result.details.items.length === 0 ? 'green' : 'yellow'}>
-                  {recentA11y.result.details.items.length === 0
-                    ? <IconCheck style={{ width: '70%', height: '70%' }} />
-                    : <IconExclamationMark style={{ width: '70%', height: '70%' }} />
-                  }
-                </ThemeIcon>
-                <Box>
-                  {recentA11y.result.details.items.length === 0 && <Text fa="right">No accessibility violations found</Text>}
-                  {recentA11y.result.details.items.length > 0 && <Text fa="right">
-                    <a href="#open-modal" onClick={e => openModal(e, 'a11y')}>
-                      {recentA11y.result.details.items.length} accessibility {recentA11y.result.details.items.length === 1 ? 'violation' : 'violations'} found
-                    </a>
-                  </Text>}
-                </Box>
-              </Flex>
-            </Card>
-
-            <Card withBorder shadow="md">
-              <Flex justify="space-between">
-                <Box>
-                  <Flex gap="xs" align="center">
-                    <ThemeIcon variant="default" size="md">
-                      <IconChartBar style={{ width: '70%', height: '70%' }} />
-                    </ThemeIcon>
-
-                    <Title order={2} size="h4" fw="normal">Custom Flows</Title>
-                  </Flex>
-                  <Text size="xs" mb="lg">from {new Date(recentCustomChecks.createdAt).toLocaleDateString()}</Text>
-                </Box>
-
-                <Avatar
-                  radius="xl"
-                  color={customScore === 100 ? 'green' : customScore > 75 ? 'yellow' : 'red'}
-                >
-                  {customScore}
-                </Avatar>
-              </Flex>
-
-              <Flex gap="xs" align="center">
-                <ThemeIcon size="sm" color={customScore === 100 ? 'green' : 'yellow'}>
-                  {customScore === 100
-                    ? <IconCheck style={{ width: '70%', height: '70%' }} />
-                    : <IconExclamationMark style={{ width: '70%', height: '70%' }} />
-                  }
-                </ThemeIcon>
-                <Box>
-                  {customScore === 100 && <Text fa="right">Passed all custom checks</Text>}
-                  {customScore !== 100 && <Text fa="right">
-                    Passed {recentCustomChecks.result.filter(r => r.result.status === 'success').length} of {recentCustomChecks.result.length} checks<br />
-                    <a href="#open-modal" onClick={e => openModal(e, 'custom')}>
-                      Show details
-                    </a>
-                  </Text>}
-                </Box>
-              </Flex>
-            </Card>
-          </SimpleGrid>
-        </Flex >
-
-        <Flex mb="md" gap={spacing}>
+        <Flex mb="md" gap={spacing} direction={{ base: 'column', md: 'row' }}>
           <Card withBorder shadow="md" w="100%">
             <Title mb="md" order={2} size="h3" fw="normal">Status Checks</Title>
 

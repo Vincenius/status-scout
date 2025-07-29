@@ -53,8 +53,8 @@ const OverviewChart = ({ data = [], flows = [] }) => {
 
   return <>
     <RadarChart
-      h={{ base: 200, xs: 300, md: 400 }}
-      w={{ base: 320, xs: 400, md: 500 }}
+      h={{ base: 200, xs: 200, xl: 300 }}
+      w={{ base: 320, xs: 320, xl: 400 }}
       data={chartData}
       dataKey="name"
       withPolarRadiusAxis

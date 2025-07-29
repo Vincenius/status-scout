@@ -44,7 +44,7 @@ const PerformanceBar = ({ title, metric, unit, mb = '0' }) => {
       <Group justify="space-between" mb="2px">
         <Flex gap="4px" align="center">
           <Box w="8px" h="8px" bg={categoryMap[metric.category]} />
-          <Text fw={500}>{title}</Text>
+          <Text fw={500} size="sm">{title}</Text>
         </Flex>
         <Text size="sm" c="dimmed">
           {metric.percentile} {unit}

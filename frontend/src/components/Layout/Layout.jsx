@@ -62,7 +62,7 @@ const Layout = ({ children, title, description, date, noindex, image }) => {
         </Flex>
       </AppShell.Header>
 
-      <AppShell.Navbar p="md">
+      <AppShell.Navbar p="sm">
         <NavLink
           label="Dashboard"
           leftSection={<IconDashboard size={16} stroke={1.5} />}
