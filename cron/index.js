@@ -37,3 +37,5 @@ cron.schedule('10 0 */2 * * *', () => tryRun('extended'))
 cron.schedule('20 */10 * * * *', () => tryRun('quick'))
 
 tryRun('quick') // run once immediately
+
+// todo cron job to clear up the tmp user database

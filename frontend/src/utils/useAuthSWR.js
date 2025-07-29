@@ -1,7 +1,7 @@
 import useSWR from 'swr';
 import { useNavigate } from 'react-router-dom';
 
-const fetcher = async (url) => {
+export const fetcher = async (url) => {
   const res = await fetch(url, { credentials: 'include' });
 
   if (res.status === 401) {

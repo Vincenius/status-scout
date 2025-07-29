@@ -8,7 +8,7 @@ import PerformanceBar from '@/components/Dashboard/PerformanceBar';
 import HistoryChart from '@/components/Dashboard/HistoryChart';
 import DetailsModal from '@/components/Dashboard/DetailsModal';
 import calcScore from '@/utils/calcScore'
-import { linkMock } from '@/utils/mockData'
+// import { linkMock } from '@/utils/mockData'
 
 function Dashboard() {
   const [modal, setModal] = useState(null);
@@ -18,7 +18,6 @@ function Dashboard() {
   const { data: uptime = {}, isLoading: isLoadingUptime } = useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/user/uptime`)
 
   const { user, checks } = data
-  const { ignore = [] } = user
 
   if (isLoading || isLoadingFlows || !user || !checks.length) {
     return (
@@ -29,10 +28,9 @@ function Dashboard() {
     )
   }
 
-  // todo empty & loading & error state?
+  const { ignore = [] } = user
 
-  // todo remove mock
-  // data.checks.push(linkMock)
+  // todo empty & loading & error state?
 
   const spacing = { base: 'md', md: 'xl' }
   const url = data.user.domain && new URL(data.user.domain);
@@ -74,6 +72,17 @@ function Dashboard() {
   const openModal = (e, m) => {
     e.preventDefault()
     setModal(m)
+  }
+
+  const triggerCheck = async () => {
+    await fetch(`${import.meta.env.VITE_API_URL}/v1/check`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({}),
+    }).then(res => console.log(res))
   }
 
   return (
@@ -123,6 +132,11 @@ function Dashboard() {
                   </Text>
                 </Box>
               </Flex>
+
+              {/* todo */}
+              {/* <Text ta="center" mt="md">
+                <a href="#trigger-check" onClick={triggerCheck}>trigger new check</a>
+              </Text> */}
             </Card>
 
             <Card withBorder shadow="md">

@@ -30,18 +30,18 @@ export const run = async ({ type = 'quick', userId }) => {
       runSslCheck(baseParams)
     ]
 
-    if (type === 'extended' || type === 'full') {
+    if (type === 'extended' || type === 'full' || type === 'free') {
       checks.push(
         runFuzzCheck({ ...baseParams, type }),
         runCustomChecks(baseParams)
       )
     }
 
-    if (type === 'full') {
+    if (type === 'full' || type === 'free') {
       checks.push(
         runLighthouseCheck(baseParams),
         runPerformanceCheck(baseParams),
-        runBrokenLinkCheck(baseParams)
+        runBrokenLinkCheck({ ...baseParams, type })
       )
     }
 
