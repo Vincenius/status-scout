@@ -13,7 +13,7 @@ function splitIntoBatches(arr, batchSize) {
   return result;
 }
 
-export const runFuzzCheck = async ({ uri, db, userId, createdAt, type }) => {
+export const runFuzzCheck = async ({ uri, db, userId, createdAt, type, quickcheckId }) => {
   console.log(`Running fuzz check for ${uri}`)
   const [prevCheck] = await db.collection('checks')
     .find({ check: 'fuzz' })
@@ -21,8 +21,7 @@ export const runFuzzCheck = async ({ uri, db, userId, createdAt, type }) => {
     .limit(1)
     .toArray();
 
-  const prevFiles = prevCheck?.result?.details?.files || []
-
+  const prevFiles = (prevCheck?.result?.details?.files || []).map(f => f.file)
   const file = type === 'full' ? 'fuzz_all.txt' : 'fuzz_base.txt' // https://github.com/Bo0oM/fuzz.txt
   const fuzzPath = path.join(process.cwd(), `checks/${file}`)
   const fuzzFile = fs.readFileSync(fuzzPath).toString()
@@ -54,5 +53,5 @@ export const runFuzzCheck = async ({ uri, db, userId, createdAt, type }) => {
     },
   }
 
-  await createCheckResult({ db, userId, createdAt, check: 'fuzz', result })
+  await createCheckResult({ db, userId, createdAt, check: 'fuzz', result, quickcheckId })
 }

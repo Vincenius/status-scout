@@ -6,7 +6,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import styles from './Layout.module.css';
 import ColorSchemeToggle from './ColorSchemeToggle.jsx';
 
-const Layout = ({ children, title, description, date, noindex, image }) => {
+const Layout = ({ children, title, description, date, noindex, image, hideNav }) => {
   const ogImage = image || '/og-image.jpg';
   const setNoIndex = noindex || import.meta.env.VITE_NOINDEX === 'true';
   const [opened, { toggle }] = useDisclosure();
@@ -36,14 +36,14 @@ const Layout = ({ children, title, description, date, noindex, image }) => {
     <AppShell
       header={{ height: 60 }}
       navbar={{
-        width: 250,
+        width: hideNav ? 0 : 250,
         breakpoint: 'sm',
         collapsed: { mobile: !opened },
       }}
       padding="md"
     >
       <AppShell.Header>
-        <Flex align="center" ml="md" h="100%" gap="lg">
+        <Flex align="center" h="100%" gap="lg">
           <Burger
             opened={opened}
             onClick={toggle}
@@ -56,13 +56,12 @@ const Layout = ({ children, title, description, date, noindex, image }) => {
               <Text size="xl" fw={200}>{import.meta.env.VITE_WEBSITE_NAME}</Text>
             </Flex>
 
-
             <ColorSchemeToggle />
           </Flex>
         </Flex>
       </AppShell.Header>
 
-      <AppShell.Navbar p="sm">
+      {!hideNav && <AppShell.Navbar p="sm">
         <NavLink
           label="Dashboard"
           leftSection={<IconDashboard size={16} stroke={1.5} />}
@@ -86,7 +85,7 @@ const Layout = ({ children, title, description, date, noindex, image }) => {
         /> */}
         {/* Manual Tests */}
         {/* Alerts */}
-      </AppShell.Navbar>
+      </AppShell.Navbar>}
 
       <AppShell.Main>{children}</AppShell.Main>
     </AppShell>

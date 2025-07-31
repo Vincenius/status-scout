@@ -54,7 +54,7 @@ export default async function userRoutes(fastify, opts) {
 
         return {
           user,
-          checks
+          checks,
         }
       } catch (e) {
         console.error(e)

@@ -1,22 +1,17 @@
-# status monitor
+# StatusScout
 
-## app
-
-A react / vit frontend for displaying the status data
-
-## backend
+## api
 
 The API for getting the data for the App
 
 ## cron
 
-A background runner to do the status checks
+A cron job that triggers the worker
 
-## database
+## frontend
 
-As a database Mongodb is used
+A React frontend for displaying the status data
 
-## todos
+## worker
 
-[] login logic https://www.passportjs.org/docs/
-[] error logs
+A background worker job to execute the status checks

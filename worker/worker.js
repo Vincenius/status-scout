@@ -22,7 +22,9 @@ const worker = new Worker(
 
     await run({
       type: job.data.type,
-      userId: job.data.userId
+      userId: job.data.userId,
+      quickcheckId: job.data.quickcheckId,
+      url: job.data.url
     })
 
     return { status: 'done' }; // TODO

@@ -85,6 +85,7 @@ const DetailsModal = ({
   const { ignore = [] } = user
 
   // todo ignore list for headers & fuzz
+  console.log(recentFuzz)
 
   const updateIgnoreList = async ({ item, type, action }) => {
     setLoading(item.url)
@@ -126,8 +127,8 @@ const DetailsModal = ({
           {recentFuzz.result.details.files.map((item, index) => (
             <List.Item key={index} mb="sm">
               <Text>
-                <a href={`${user.domain}/${item}`} target="_blank" rel="noopener noreferrer">
-                  {user.domain}/{item}
+                <a href={`${user.domain}/${item.file}`} target="_blank" rel="noopener noreferrer">
+                  {user.domain}/{item.file}
                 </a>
               </Text>
             </List.Item>

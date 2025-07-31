@@ -9,6 +9,7 @@ import { Routes, Route } from 'react-router-dom';
 import LoginPage from '@/pages/Login';
 import DashboardPage from '@/pages/Dashboard';
 import SettingsPage from '@/pages/Settings';
+import QuickCheckPage from '@/pages/QuickCheck';
 import CustomFlowsPage from '@/pages/CustomFlows';
 
 export default function App() {
@@ -16,6 +17,7 @@ export default function App() {
     <Routes>
       <Route path="/" element={<DashboardPage />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/quickcheck" element={<QuickCheckPage />} />
       <Route path="/settings" element={<SettingsPage />} />
       <Route path="/custom-flows" element={<CustomFlowsPage />} />
     </Routes>

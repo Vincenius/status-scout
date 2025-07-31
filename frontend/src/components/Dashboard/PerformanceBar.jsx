@@ -9,7 +9,57 @@ const categoryMap = {
   'NONE': 'gray'
 }
 
+function calculateMarkerLeft(metric, containerWidth) {
+  const distributions = metric.distributions;
+  const value = metric.percentile;
+
+  let leftProportion = 0;
+  let segmentStart = 0;
+
+  for (let i = 0; i < distributions.length; i++) {
+    const { min, max, proportion } = distributions[i];
+
+    const segmentEnd = max !== undefined ? max : value; // For last bucket
+    if (value >= min && value <= segmentEnd) {
+      // Percentile is in this segment
+      const segmentRange = segmentEnd - min;
+      const valueWithinSegment = value - min;
+      const segmentFraction = segmentRange > 0 ? valueWithinSegment / segmentRange : 0;
+      leftProportion += segmentFraction * proportion;
+      break;
+    } else {
+      // Add full segment proportion
+      leftProportion += proportion;
+    }
+  }
+
+  // Scale proportion to container width
+  return Math.min(leftProportion * containerWidth, containerWidth);
+}
+
 const PerformanceBar = ({ title, metric, unit, mb = '0' }) => {
+  if (!metric) return <Box mb={mb}>
+    <Group justify="space-between" mb="2px">
+      <Flex gap="4px" align="center">
+        <Box w="8px" h="8px" bg="gray.5" />
+        <Text fw={500} size="sm">{title}</Text>
+      </Flex>
+      <Text size="sm" c="dimmed">
+        no data
+      </Text>
+    </Group>
+
+    <Box
+      bg="gray.5"
+      h={20}
+      w="100%"
+      style={{
+        transition: 'width 0.2s ease',
+        borderRadius: 4,
+      }}
+    />
+  </Box>;
+
   const containerRef = useRef(null);
   const [containerWidth, setContainerWidth] = useState(0);
 
@@ -30,14 +80,7 @@ const PerformanceBar = ({ title, metric, unit, mb = '0' }) => {
 
   const proportions = metric.distributions.map((d) => d.proportion);
   const segmentWidths = proportions.map((p) => p * containerWidth);
-
-  const last = metric.distributions[metric.distributions.length - 1];
-  const maxValue = last.max !== undefined ? last.max : 10000;
-
-  const markerLeft = Math.min(
-    (metric.percentile / maxValue) * containerWidth,
-    containerWidth
-  );
+  const markerLeft = calculateMarkerLeft(metric, containerWidth);
 
   return (
     <Box mb={mb}>

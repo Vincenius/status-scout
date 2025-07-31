@@ -10,19 +10,18 @@ import { runCustomChecks } from './checks/custom.js'
 import { runBrokenLinkCheck } from './checks/links.js'
 import { ObjectId } from 'mongodb'
 
-export const run = async ({ type = 'quick', userId }) => {
+export const run = async ({ type = 'quick', userId, quickcheckId, url }) => {
   // type (of check) -> quick, extended, full
   try {
     const db = await connectDB()
-    // todo either userId or temp domain check
-    const [user] = await db.collection('users').find({ _id: new ObjectId(userId) }).toArray()
+    const [user] = userId
+      ? await db.collection('users').find({ _id: new ObjectId(userId) }).toArray()
+      : [{ domain: url }] // quickcheck
 
-    // for (const user of users) {
     const createdAt = new Date().toISOString()
     console.log(createdAt, `run ${type} status check for`, user.domain)
 
-    // promise all
-    const baseParams = { uri: user.domain, db, userId: user._id, createdAt }
+    const baseParams = { uri: user.domain, db, userId: user._id, quickcheckId, createdAt }
 
     const checks = [
       runUptimeCheck(baseParams),
@@ -53,7 +52,7 @@ export const run = async ({ type = 'quick', userId }) => {
       .toArray();
 
     const failedChecks = newChecks.filter(c => c.result.status === 'fail');
-    const failedMap = new Map(user.failedChecks.map(fc => [fc.check, fc]));
+    const failedMap = new Map((user.failedChecks || []).map(fc => [fc.check, fc]));
     const notifications = []
 
     for (const failedCheck of failedChecks) {
@@ -86,10 +85,9 @@ export const run = async ({ type = 'quick', userId }) => {
     }
 
     console.log('finished all checks')
-    // }
   } catch (e) {
     console.error('unexpected error', e)
   } finally {
-    await disconnectDB()
+    await disconnectDB() // TODO improve db handling
   }
 }
