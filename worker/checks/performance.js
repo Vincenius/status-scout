@@ -6,9 +6,9 @@ const fetchPageSpeedData = (url) => new Promise((resolve, reject) => {
     .then(data => {
       const loadingExp = data.loadingExperience.metrics;
       const coreVitals = {
-        LCP: loadingExp.LARGEST_CONTENTFUL_PAINT_MS,
-        INP: loadingExp.INTERACTION_TO_NEXT_PAINT,
-        CLS: loadingExp.CUMULATIVE_LAYOUT_SHIFT_SCORE
+        LCP: loadingExp?.LARGEST_CONTENTFUL_PAINT_MS,
+        INP: loadingExp?.INTERACTION_TO_NEXT_PAINT,
+        CLS: loadingExp?.CUMULATIVE_LAYOUT_SHIFT_SCORE
       };
 
       resolve(coreVitals);

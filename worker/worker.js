@@ -1,7 +1,10 @@
 import 'dotenv/config'
+import { fork } from 'child_process';
+import path from 'path';
 import { Worker, QueueEvents, Job } from 'bullmq';
 import IORedis from 'ioredis';
 import { run } from './index.js'
+import { disconnectDB } from './db.js';
 
 const CONCURRENT_RUNS = process.env.CONCURRENT_RUNS
   ? parseInt(process.env.CONCURRENT_RUNS) : 2
@@ -13,25 +16,41 @@ const connection = new IORedis({
 
 const QUEUE_NAME = 'checks';
 
-console.log('Initialize worker')
+console.log('Initialize worker with', CONCURRENT_RUNS, 'concurrent runs')
 
 const worker = new Worker(
   QUEUE_NAME,
   async (job) => {
-    console.log(`Processing job ${job.id} with data:`, job.data);
+    return new Promise((resolve, reject) => {
+      const child = fork(path.resolve('./job-runner.js'), [], {
+        env: {
+          ...process.env,
+          JOB_DATA: JSON.stringify(job.data),
+        }
+      });
 
-    await run({
-      type: job.data.type,
-      userId: job.data.userId,
-      quickcheckId: job.data.quickcheckId,
-      url: job.data.url
-    })
+      child.on('message', (message) => {
+        if (message.status === 'done') {
+          resolve({ status: 'done' });
+        } else {
+          reject(new Error(message.error || 'Unknown error in child process'));
+        }
+      });
 
-    return { status: 'done' }; // TODO
+      child.on('exit', (code) => {
+        if (code !== 0) {
+          reject(new Error(`Child process exited with code ${code}`));
+        }
+      });
+
+      child.on('error', (err) => {
+        reject(err);
+      });
+    });
   },
   {
     connection,
-    concurrency: CONCURRENT_RUNS,
+    concurrency: CONCURRENT_RUNS
   }
 );
 
@@ -49,3 +68,14 @@ events.on('failed', ({ jobId, failedReason }) => {
 worker.on('error', (err) => {
   console.error('Worker error:', err);
 });
+
+const shutdown = async () => {
+  console.log('Shutting down gracefully...');
+  await worker.close();         // close BullMQ worker
+  await disconnectDB();         // close MongoDB connection
+  await connection.quit();      // close Redis connection
+  process.exit(0);
+};
+
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);

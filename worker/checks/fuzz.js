@@ -37,7 +37,6 @@ export const runFuzzCheck = async ({ uri, db, userId, createdAt, type, quickchec
         const res = await fetch(`${uri}/${filename}`, { method: 'head' });
         return { status: res.status, file };
       } catch (err) {
-        console.log('fetch error', file, err)
         return { status: 500, file };
       }
     })
@@ -45,7 +44,7 @@ export const runFuzzCheck = async ({ uri, db, userId, createdAt, type, quickchec
 
   const results = await Promise.all(promises);
 
-  const availableFiles = results.filter(sc => sc.status !== 404 && sc.status !== 403)
+  const availableFiles = results.filter(sc => sc.status === 200) // todo warn on other codes like [401, 403, 405, 301, 302];
   const result = {
     status: availableFiles.length === 0 ? 'success' : 'fail',
     details: {

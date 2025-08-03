@@ -5,12 +5,12 @@ const fileRegex = /\.[a-z0-9]+([?#].*)?$/i;
 const skipList = ['/error', '/presse', '/imprensa'] // todo dynamic
 let crawlCount = 0;
 
-export const runBrokenLinkCheck = async ({ uri, db, userId, createdAt, type, quickcheckId }) => {
+export const runBrokenLinkCheck = async ({ uri, userId, createdAt, type, quickcheckId }) => {
   console.log(`Running broken link check for ${uri}`)
   const url = new URL(uri);
   const baseUrl = url.origin;
   const checker = new LinkChecker();
-  const crawlLimit = type === 'full' ? 2000 : 200;
+  const crawlLimit = type === 'full' ? 2000 : 200; // todo better limit
 
   const results = await checker.check({
     path: baseUrl,
@@ -36,5 +36,5 @@ export const runBrokenLinkCheck = async ({ uri, db, userId, createdAt, type, qui
     }))
   }
 
-  await createCheckResult({ db, userId, createdAt, check: 'links', result, quickcheckId })
+  await createCheckResult({ userId, createdAt, check: 'links', result, quickcheckId })
 }

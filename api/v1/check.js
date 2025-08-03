@@ -114,7 +114,6 @@ export default async function checkRoutes(fastify, opts) {
         await db.collection('quickchecks').find({ quickcheckId: id }).toArray(),
         await db.collection('checks').find({ quickcheckId: id }).toArray()
       ])
-      console.log({ quickcheck })
       const waitingIndex = await getQueueIndex(quickcheck.jobId)
 
       return {

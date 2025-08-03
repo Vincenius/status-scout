@@ -85,7 +85,6 @@ const DetailsModal = ({
   const { ignore = [] } = user
 
   // todo ignore list for headers & fuzz
-  console.log(recentFuzz)
 
   const updateIgnoreList = async ({ item, type, action }) => {
     setLoading(item.url)

@@ -1,9 +1,7 @@
 import lighthouse from 'lighthouse';
 import playwright from 'playwright'
+import getPort from 'get-port';
 import { createCheckResult } from '../db.js'
-
-// todo use pagespeed insighst for performance & lighthouse for seo and a11y
-// https://developers.google.com/speed/docs/insights/v5/get-started -> use this instead
 
 function parseAuditItem(item) {
   if (item.node) {
@@ -20,24 +18,22 @@ function parseAuditItem(item) {
 }
 
 export const runLighthouseCheck = async ({ uri, db, userId, createdAt, quickcheckId }) => {
-  console.log(`Running lighthouse check for ${uri}`)
+  const port = await getPort();
+  console.log(`Running lighthouse check for ${uri} on port ${port}`)
   const browser = await playwright.chromium.launch({
-    args: ['--remote-debugging-port=9222']
+    args: [`--remote-debugging-port=${port}`]
   });
 
   try {
-    const debuggingPort = 9222;
-
     const options = {
       logLevel: 'error',
       output: 'html',
-      port: debuggingPort,
+      port,
       onlyCategories: ['seo', 'accessibility'],
       settings: {
-        throttlingMethod: 'provided', // disables network & CPU throttling
+        throttlingMethod: 'provided',
         disableNetworkThrottling: true,
         disableCpuThrottling: true,
-        // optionally disable screenshots too
         disableScreenshots: true,
       },
     };

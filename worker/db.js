@@ -8,8 +8,10 @@ let db;
 
 export async function connectDB() {
   try {
-    await client.connect();
-    db = client.db('status-check');
+    if (!db) {
+      await client.connect();
+      db = client.db('status-check');
+    }
     return db;
   } catch (error) {
     console.error('Connection error:', error);
@@ -19,12 +21,14 @@ export async function connectDB() {
 export async function disconnectDB() {
   try {
     await client.close();
+    db = null;
   } catch (error) {
     console.error('Disconnection error:', error);
   }
 }
 
-export const createCheckResult = async ({ db, userId, createdAt, check, result, quickcheckId }) => {
+// todo check if it works without db as prop
+export const createCheckResult = async ({ userId, createdAt, check, result, quickcheckId }) => {
   await db.collection('checks').insertOne({
     userId,
     check,
@@ -35,4 +39,3 @@ export const createCheckResult = async ({ db, userId, createdAt, check, result, 
   console.log('finished check', check)
 };
 
-export { db };
