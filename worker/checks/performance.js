@@ -4,7 +4,7 @@ const fetchPageSpeedData = (url) => new Promise((resolve, reject) => {
   fetch(url)
     .then(res => res.json())
     .then(data => {
-      const loadingExp = data.loadingExperience.metrics;
+      const loadingExp = data?.loadingExperience?.metrics;
       const coreVitals = {
         LCP: loadingExp?.LARGEST_CONTENTFUL_PAINT_MS,
         INP: loadingExp?.INTERACTION_TO_NEXT_PAINT,
