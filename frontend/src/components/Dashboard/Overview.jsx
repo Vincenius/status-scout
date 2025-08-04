@@ -285,7 +285,7 @@ function Overview({ data, isLoading, flows = [], uptime, isQuickCheck }) {
                   radius="xl"
                   color={recentA11y.result.details.score > 90 ? 'green' : recentA11y.result.details.score > 50 ? 'yellow' : 'red'}
                 >
-                  {recentA11y.result.details.score}
+                  {Math.round(recentA11y.result.details.score)}
                 </Avatar>
               </Flex>
 
@@ -344,7 +344,7 @@ function Overview({ data, isLoading, flows = [], uptime, isQuickCheck }) {
                   radius="xl"
                   color={customScore === 100 ? 'green' : customScore > 75 ? 'yellow' : 'red'}
                 >
-                  {customScore}
+                  {Math.round(customScore)}
                 </Avatar>
               </Flex>
 
