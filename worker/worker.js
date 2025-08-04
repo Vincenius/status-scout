@@ -29,6 +29,11 @@ const worker = new Worker(
         }
       });
 
+      const timeout = setTimeout(() => {
+        child.kill();  // Forcefully kill the child process
+        reject(new Error('Job timed out'));
+      }, 1000 * 120); // 60 seconds timeout
+
       child.on('message', (message) => {
         if (message.status === 'done') {
           resolve({ status: 'done' });
@@ -50,7 +55,10 @@ const worker = new Worker(
   },
   {
     connection,
-    concurrency: CONCURRENT_RUNS
+    concurrency: CONCURRENT_RUNS,
+    settings: {
+      lockDuration: 1200000  // in ms; match your timeout
+    }
   }
 );
 
