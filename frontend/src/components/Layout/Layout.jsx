@@ -44,12 +44,12 @@ const Layout = ({ children, title, description, date, noindex, image, hideNav })
     >
       <AppShell.Header>
         <Flex align="center" h="100%" gap="lg">
-          <Burger
+          {!hideNav && <Burger
             opened={opened}
             onClick={toggle}
             hiddenFrom="sm"
             size="sm"
-          />
+          />}
           <Flex justify="space-between" w="100%" px="md">
             <Flex gap="xs" align="center">
               <IconHeartbeat size={26} stroke={0.8} />

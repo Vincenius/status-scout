@@ -1,4 +1,4 @@
-# StatusScout
+# Status Scout
 
 ## api
 

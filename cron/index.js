@@ -17,7 +17,7 @@ async function tryRun(type) {
     const users = await db.collection('users').find({}).toArray()
 
     for (const user of users) {
-      const job = await queue.add('api-triggered-job', { userId: user._id.toString(), type })
+      const job = await queue.add('cron-triggered-job', { userId: user._id.toString(), type })
       console.log(`Enqueued ${type} for domain ${user.domain}, job: ${job.id}`)
     }
   } catch (e) {

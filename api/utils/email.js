@@ -15,7 +15,7 @@ export const sendEmail = async ({ to, subject, html }) => {
   });
 
   const result = await transporter.sendMail({
-    from: `StatusScout <${process.env.SENDER_EMAIL}>`,
+    from: `Status Scout <${process.env.SENDER_EMAIL}>`,
     to: `${to} <${to}>`,
     subject,
     html,

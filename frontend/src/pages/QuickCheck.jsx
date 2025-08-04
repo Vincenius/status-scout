@@ -93,7 +93,7 @@ const UrlInput = ({ handleChange }) => {
 const getStatusIcon = ({ isLoading, isError, isSkipped }) => {
   const iconSize = { width: '70%', height: '70%' };
 
-  if (isLoading) return <Loader size="xs" type="bars" />;
+  if (isLoading && !isSkipped) return <Loader size="xs" type="bars" />;
   if (isError)
     return (
       <ThemeIcon color="red" size="xs">
@@ -204,6 +204,7 @@ function QuickCheck() {
 
   const allChecksCompleted = result.statusCode === 200 && securityChecksComplete && seoChecksComplete && a11yChecksComplete && performanceChecksComplete
   const isInQueue = quickcheckId && waitingIndex !== null
+  const statusFailed = result.statusCode && result.statusCode !== 200
 
   return (
     <Layout title="Quick Check" hideNav={true}>
@@ -220,19 +221,19 @@ function QuickCheck() {
           </Blockquote>}
 
           <List mb="md">
-            <ListItem isLoading={!result.statusCode} isError={result.statusCode !== 200}>
-              Availability Status {result.statusCode && result.statusCode !== 200 && `[Code ${result.statusCode}]`}
+            <ListItem isLoading={!result.statusCode} isError={statusFailed}>
+              Availability Status {statusFailed !== 200 && `[Code ${result.statusCode}]`}
             </ListItem>
-            <ListItem isLoading={!securityChecksComplete} isSkipped={result.statusCode !== 200}>
+            <ListItem isLoading={!securityChecksComplete} isSkipped={statusFailed}>
               Security Checks
             </ListItem>
-            <ListItem isLoading={!seoChecksComplete} isSkipped={result.statusCode !== 200}>
+            <ListItem isLoading={!seoChecksComplete} isSkipped={statusFailed}>
               SEO Checks
             </ListItem>
-            <ListItem isLoading={!a11yChecksComplete} isSkipped={result.statusCode !== 200}>
+            <ListItem isLoading={!a11yChecksComplete} isSkipped={statusFailed}>
               Accessibility Checks
             </ListItem>
-            <ListItem isLoading={!performanceChecksComplete} isSkipped={result.statusCode !== 200}>
+            <ListItem isLoading={!performanceChecksComplete} isSkipped={statusFailed}>
               Performance Checks
             </ListItem>
           </List>
