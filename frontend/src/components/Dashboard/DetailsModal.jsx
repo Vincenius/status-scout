@@ -1,4 +1,4 @@
-import { Blockquote, List, Modal, Table, Text, Accordion, Badge, ActionIcon, Button } from "@mantine/core"
+import { Blockquote, List, Modal, Table, Text, Accordion, Badge, ActionIcon, Button, Textarea, TextInput } from "@mantine/core"
 import recommendedHeaders from '@/utils/headers'
 import { IconBell, IconBellOff } from "@tabler/icons-react"
 import Markdown from 'react-markdown'
@@ -43,7 +43,7 @@ const LinksTable = ({ items, updateIgnoreList, loading, ignoreAction }) => {
         <Table.Td>Status</Table.Td>
         <Table.Td>Broken Link</Table.Td>
         <Table.Td>Parent</Table.Td>
-        <Table.Td>{ignoreAction === 'add' ? 'Ignore' : 'Unignore'}</Table.Td>
+        {/* <Table.Td>{ignoreAction === 'add' ? 'Ignore' : 'Unignore'}</Table.Td> */}
       </Table.Tr>
     </Table.Thead>
     <Table.Tbody>
@@ -51,7 +51,7 @@ const LinksTable = ({ items, updateIgnoreList, loading, ignoreAction }) => {
         <Table.Td w={70}><Badge color={item.status === 404 ? 'orange' : 'red'}>{item.status}</Badge></Table.Td>
         <Table.Td><a href={item.url} target="_blank" rel="noopener noreferrer">{item.url}</a></Table.Td>
         <Table.Td><a href={item.parent} target="_blank" rel="noopener noreferrer">{item.parent}</a></Table.Td>
-        <Table.Td align="center">
+        {/* <Table.Td align="center">
           <ActionIcon
             variant="outline"
             aria-label="Ignore Item"
@@ -63,7 +63,7 @@ const LinksTable = ({ items, updateIgnoreList, loading, ignoreAction }) => {
               ? <IconBellOff style={{ width: '70%', height: '70%' }} stroke={1.5} />
               : <IconBell style={{ width: '70%', height: '70%' }} stroke={1.5} />}
           </ActionIcon>
-        </Table.Td>
+        </Table.Td> */}
       </Table.Tr>)}
     </Table.Tbody>
   </Table>
@@ -83,8 +83,6 @@ const DetailsModal = ({
   const [showIgnored, setShowIgnored] = useState(false)
   const { mutate } = useSWRConfig()
   const { ignore = [] } = user
-
-  // todo ignore list for headers & fuzz
 
   const updateIgnoreList = async ({ item, type, action }) => {
     setLoading(item.url)
@@ -109,14 +107,22 @@ const DetailsModal = ({
         <Blockquote color="indigo" mb="md" p="sm">
           For improved security, we recommend setting the following HTTP headers. These headers help protect your site against common web vulnerabilities and ensure better privacy and performance for your users.<br />The following headers are missing:
         </Blockquote>
-        <List>
-          {recentHeaders.result.details.missingHeaders.map((item, index) => (
-            <List.Item key={index} mb="sm">
-              <Text fw="bold">{item}</Text>
-              <Text>{recommendedHeaders[item]}</Text>
-            </List.Item>
-          ))}
-        </List>
+        <Table striped withTableBorder>
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Td>Header</Table.Td>
+              <Table.Td>Explanation</Table.Td>
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>
+            {recentHeaders.result.details.missingHeaders.map((item, index) => (
+              <Table.Tr key={`header-${index}`}>
+                <Table.Td><Text fw="bold">{item}</Text></Table.Td>
+                <Table.Td><Text>{recommendedHeaders[item]}</Text></Table.Td>
+              </Table.Tr>
+            ))}
+          </Table.Tbody>
+        </Table>
       </>}
       {modal === 'fuzz' && <>
         <Blockquote color="indigo" mb="md" p="sm">
@@ -184,6 +190,11 @@ const DetailsModal = ({
         <Blockquote color="indigo" mb="md" p="sm">
           We’ve detected broken links on your website that lead to missing or unavailable pages. These links can hurt user experience and negatively impact SEO.
         </Blockquote>
+
+        <Text mb="md">
+          For now the Quick Check is limited to a <b>maximum of 200 scanned links</b> to ensure fast results for everyone. A more comprehensive scan will be available soon.
+        </Text>
+
         <List>
           <LinksTable
             items={recentLinks.result.details.filter(item => !ignore.map(i => i.item).includes(item.url))}

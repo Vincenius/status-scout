@@ -27,7 +27,6 @@ export async function disconnectDB() {
   }
 }
 
-// todo check if it works without db as prop
 export const createCheckResult = async ({ userId, createdAt, check, result, quickcheckId }) => {
   await db.collection('checks').insertOne({
     userId,

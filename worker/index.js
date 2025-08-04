@@ -14,7 +14,7 @@ export const run = async ({ type = 'quick', userId, quickcheckId, url }) => {
   // type (of check) -> quick, extended, full
   try {
     const db = await connectDB()
-    const [user] = userId
+    const [user] = !url && userId
       ? await db.collection('users').find({ _id: new ObjectId(userId) }).toArray()
       : [{ domain: url }] // quickcheck
 

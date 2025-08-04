@@ -15,12 +15,14 @@ const OverviewChart = ({ data = [], flows = [] }) => {
   const performanceScores = Object.values(recentPerformance.result.details)
     .map(device => Object.values(device))
     .flat()
-    .filter(m => m?.category !== 'NONE') // TODO handle missing pagespeed insights
-    .map(metric => metric?.category === 'FAST' ? 100 : metric?.category === 'AVERAGE' ? 50 : 0)
-  const performanceValue = Math.round((performanceScores.filter(u => u === 100).length / performanceScores.length) * 100)
+    .filter(m => m?.category && m?.category !== 'NONE')
+    .map(metric => metric?.category === 'FAST' ? 1 : metric?.category === 'AVERAGE' ? 0.5 : 0)
+  const performanceValue = performanceScores.length === 0
+    ? null
+    : Math.round((performanceScores.reduce((p, c) => p + c, 0) / performanceScores.length) * 100)
 
   const fuzzScore = calcScore(recentFuzz.result.details.files.length, 20)
-  const headersScore = calcScore(recentHeaders.result.details.missingHeaders.length, 10) // todo allow config to change headers (filter here)
+  const headersScore = calcScore(recentHeaders.result.details.missingHeaders.length, 10)
   const sslScore = recentSSL.result.status === 'success' ? 0 : 100
   const securityScore = Math.max(Math.round(fuzzScore * 0.7 + headersScore * 0.3) - (sslScore / 2), 0);
   const linkScore = calcScore(recentLinks.result.details.length, 20)
@@ -43,13 +45,13 @@ const OverviewChart = ({ data = [], flows = [] }) => {
   }, {
     name: 'SEO',
     Score: seoScore
-  }, {
+  }, performanceValue !== null && {
     name: 'Performance',
     Score: performanceValue
-  }, customScore !== null ? {
+  }, customScore !== null && {
     name: 'Custom Flows',
     Score: customScore
-  } : null].filter(Boolean)
+  }].filter(Boolean)
 
   return <>
     <RadarChart

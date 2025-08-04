@@ -207,44 +207,51 @@ function QuickCheck() {
 
   return (
     <Layout title="Quick Check" hideNav={true}>
-      {!allChecksCompleted && <Card withBorder shadow="md" maw="600px" mx="auto">
-        <Title mb="md" order={1} fw="normal">Running Health Check...</Title>
+      <Box maw={1800} mx="auto">
+        {!allChecksCompleted && <Card withBorder shadow="md" maw="600px" mx="auto">
+          <Title mb="md" order={1} fw="normal">Running Health Check...</Title>
 
-        <Text mb={isInQueue ? "xs" : "xl"}>Please wait while we perform background checks for <a href={url} target="_blank" rel="noopener noreferrer">{url}</a>. This won't take long.</Text>
+          <Text mb={isInQueue ? "xs" : "xl"}>Please wait while we perform background checks for <a href={url} target="_blank" rel="noopener noreferrer">{url}</a>. This won't take long.</Text>
 
-        {isInQueue && <Blockquote mb="xl" p="md">
-          <b>You’re in the Queue</b><br/>
-          Our system is handling a high volume of checks. Hang tight — your website health check will begin shortly.<br />
-          <i>Current position in queue: #{waitingIndex + 1}</i>
-        </Blockquote>}
+          {isInQueue && <Blockquote mb="xl" p="md">
+            <b>You’re in the Queue</b><br />
+            Our system is handling a high volume of checks. Hang tight — your website health check will begin shortly.<br />
+            <i>Current position in queue: #{waitingIndex + 1}</i>
+          </Blockquote>}
 
-        <List>
-          <ListItem isLoading={!result.statusCode} isError={result.statusCode !== 200}>
-            Availability Status {result.statusCode && result.statusCode !== 200 && `[Code ${result.statusCode}]`}
-          </ListItem>
-          <ListItem isLoading={!securityChecksComplete} isSkipped={result.statusCode !== 200}>
-            Security Checks
-          </ListItem>
-          <ListItem isLoading={!seoChecksComplete} isSkipped={result.statusCode !== 200}>
-            SEO Checks
-          </ListItem>
-          <ListItem isLoading={!a11yChecksComplete} isSkipped={result.statusCode !== 200}>
-            Accessibility Checks
-          </ListItem>
-          <ListItem isLoading={!performanceChecksComplete} isSkipped={result.statusCode !== 200}>
-            Performance Checks
-          </ListItem>
-        </List>
-      </Card>}
+          <List mb="md">
+            <ListItem isLoading={!result.statusCode} isError={result.statusCode !== 200}>
+              Availability Status {result.statusCode && result.statusCode !== 200 && `[Code ${result.statusCode}]`}
+            </ListItem>
+            <ListItem isLoading={!securityChecksComplete} isSkipped={result.statusCode !== 200}>
+              Security Checks
+            </ListItem>
+            <ListItem isLoading={!seoChecksComplete} isSkipped={result.statusCode !== 200}>
+              SEO Checks
+            </ListItem>
+            <ListItem isLoading={!a11yChecksComplete} isSkipped={result.statusCode !== 200}>
+              Accessibility Checks
+            </ListItem>
+            <ListItem isLoading={!performanceChecksComplete} isSkipped={result.statusCode !== 200}>
+              Performance Checks
+            </ListItem>
+          </List>
 
-      {allChecksCompleted && <Overview
-        data={{
-          user: { domain: url },
-          checks
-        }}
-        isLoading={false}
-        isQuickCheck={true}
-      />}
+          <Blockquote p="xs">If the check is taking too long (2+ minutes), please send a bug report to: <a href="mailto:mail@vincentwill.com">mail@vincentwill.com</a></Blockquote>
+        </Card>}
+
+        {allChecksCompleted && <Box>
+          <Title order={1} mb="md" fw="normal">Your Quickcheck Results:</Title>
+          <Overview
+            data={{
+              user: { domain: url },
+              checks
+            }}
+            isLoading={false}
+            isQuickCheck={true}
+          />
+        </Box>}
+      </Box>
     </Layout>
   )
 }

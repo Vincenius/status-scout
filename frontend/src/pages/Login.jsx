@@ -29,7 +29,7 @@ function Login() {
       body: JSON.stringify(formObject),
     }).then(res => {
       if (res.ok) {
-        navigate("/");
+        navigate("/dashboard");
       } else {
         setError("Wrong username or password")
       }

@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import Layout from '@/components/Layout/Layout'
-import { Box, Card, Flex, Text, ThemeIcon, Title, LoadingOverlay, ActionIcon, Avatar, Grid } from '@mantine/core'
-import { IconAccessible, IconBrandSpeedtest, IconChartBar, IconCheck, IconDeviceDesktop, IconDeviceMobile, IconExclamationMark, IconInfoCircle, IconShieldLock, IconWorld, IconX, IconZoomCode } from '@tabler/icons-react'
+import { Box, Card, Flex, Text, ThemeIcon, Title, LoadingOverlay, ActionIcon, Avatar, Grid, Button, Blockquote } from '@mantine/core'
+import { IconAccessible, IconBrandSpeedtest, IconChartBar, IconCheck, IconDeviceDesktop, IconDeviceMobile, IconExclamationMark, IconInfoCircle, IconMessage, IconShieldLock, IconWorld, IconX, IconZoomCode } from '@tabler/icons-react'
 import OverviewChart from '@/components/Dashboard/OverviewChart';
 import PerformanceBar from '@/components/Dashboard/PerformanceBar';
 import DetailsModal from '@/components/Dashboard/DetailsModal';
 import calcScore from '@/utils/calcScore'
+import FeedbackButton from '@/components/FeedbackButton/FeedbackButton';
 
 function Overview({ data, isLoading, flows = [], uptime, isQuickCheck }) {
   const [modal, setModal] = useState(null);
@@ -305,6 +306,26 @@ function Overview({ data, isLoading, flows = [], uptime, isQuickCheck }) {
                 </Box>
               </Flex>
             </Card>
+
+            {isQuickCheck && <Card withBorder shadow="md" flex="1">
+              <Flex justify="space-between">
+                <Box w="100%">
+                  <Flex justify="space-between" gap="sm">
+                    <Flex gap="xs" align="center" mb="md">
+                      <ThemeIcon variant="default" size="md">
+                        <IconMessage style={{ width: '70%', height: '70%' }} />
+                      </ThemeIcon>
+
+                      <Title order={2} size="h4" fw="normal">Any Suggestions?</Title>
+                    </Flex>
+                    <FeedbackButton size="xs">Send Feedback</FeedbackButton>
+                  </Flex>
+
+
+                  <Blockquote w="100%" p="xs">Spotted a bug, something missing, or have a suggestion?<br/>Let me know!</Blockquote>
+                </Box>
+              </Flex>
+            </Card>}
 
             {!isQuickCheck && <Card withBorder shadow="md" flex="1">
               <Flex justify="space-between">

@@ -9,7 +9,7 @@ export const runUptimeCheck = async ({ uri, db, userId, createdAt, quickcheckId 
 
   try {
     const start = Date.now()
-    const response = await fetch(uri, { method: 'GET' }) // todo optional path?
+    const response = await fetch(uri, { method: 'GET' })
     const duration = Date.now() - start
 
     if (response.ok) {
