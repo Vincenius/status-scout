@@ -15,6 +15,7 @@ export const runBrokenLinkCheck = async ({ uri, userId, createdAt, type, quickch
   const results = await checker.check({
     path: baseUrl,
     recurse: true,
+    timeout: 30000, // 30 seconds timeout
     linksToSkip: (url) => {
       const isFile = fileRegex.test(url); // skip files
       const skip = skipList.some(skip => url.includes(skip));
