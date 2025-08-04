@@ -52,13 +52,14 @@ services:
       - redis
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        VITE_WEBSITE_NAME: ${VITE_WEBSITE_NAME}
+        VITE_BASE_URL: ${VITE_BASE_URL}
+        VITE_API_URL: ${VITE_API_URL}
     container_name: frontend
     restart: always
-    environment:
-      - VITE_WEBSITE_NAME=${VITE_WEBSITE_NAME}
-      - VITE_BASE_URL=${VITE_BASE_URL} 
-      - VITE_API_URL=${VITE_API_URL}
     ports:
       - "3003:80"
 
