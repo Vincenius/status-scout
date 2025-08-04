@@ -60,7 +60,7 @@ services:
       - VITE_BASE_URL=${VITE_BASE_URL} 
       - VITE_API_URL=${VITE_API_URL}
     ports:
-      - "3001:80"
+      - "3003:80"
 
   worker:
     build: ./worker
