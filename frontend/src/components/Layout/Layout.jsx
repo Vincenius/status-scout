@@ -1,38 +1,34 @@
 import { Text, Flex, Burger, AppShell, NavLink, Box } from '@mantine/core'
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { useDisclosure } from '@mantine/hooks';
 import { IconDashboard, IconHeartbeat, IconLogout } from '@tabler/icons-react';
 import { Link, useNavigate } from 'react-router-dom';
 import styles from './Layout.module.css';
 import ColorSchemeToggle from './ColorSchemeToggle.jsx';
+import { useEffect } from 'react';
 
-const Layout = ({ children, title, description, date, noindex, image, hideNav }) => {
-  const ogImage = image || '/og.png';
-  const setNoIndex = noindex || import.meta.env.VITE_NOINDEX === 'true';
+const Layout = ({ children, title, hideNav }) => {
   const [opened, { toggle }] = useDisclosure();
   const navigate = useNavigate();
   const isAnalyticsEnabled = import.meta.env.VITE_ENABLE_ANALYTICS === 'true';
 
+  // set head info on initial load
+  useEffect(() => {
+    if (isAnalyticsEnabled && !document.querySelector('[data-website-id]')) {
+      const script = document.createElement('script');
+      script.src = 'https://analytics.vincentwill.com/script.js';
+      script.defer = true;
+      script.setAttribute('data-website-id', 'a807669d-6eda-4c1c-9b36-2247d2caf318');
+      document.head.appendChild(script);
+    }
+    if (document.title !== `${title} | ${import.meta.env.VITE_WEBSITE_NAME}`) {
+      document.title = `${title} | ${import.meta.env.VITE_WEBSITE_NAME}`
+    }
+  });
+
   return <>
     <Helmet>
       <title>{`${title} | ${import.meta.env.VITE_WEBSITE_NAME}`}</title>
-      <meta name="description" content={description} />
-      <meta name="viewport" content="width=device-width, initial-scale=1" />
-      <meta property="og:title" content={title} />
-      <meta property="og:description" content={description} />
-      <meta property="og:image" content={ogImage} />
-      <meta property="og:url" content={import.meta.env.VITE_BASE_URL} />
-      <meta property="og:type" content="website" />
-      <meta property="og:site_name" content={import.meta.env.VITE_WEBSITE_NAME} />
-      <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:title" content={title} />
-      <meta name="twitter:description" content={description} />
-      <meta name="twitter:image" content={ogImage} />
-      {date && <meta property="article:published_time" content={date}></meta>}
-      {date && <meta name="author" content="Vincent Will"></meta>}
-      {setNoIndex && <meta name="robots" content="noindex" />}
-      <link rel="icon" href="/favicon.ico" sizes="any" />
-      <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
       {isAnalyticsEnabled && (<script defer src="https://analytics.vincentwill.com/script.js" data-website-id="a807669d-6eda-4c1c-9b36-2247d2caf318"></script>)}
     </Helmet>
     <AppShell
