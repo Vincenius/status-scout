@@ -1,15 +1,10 @@
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { useForm } from '@mantine/form';
-import { useLocation } from "react-router-dom";
 import Layout from '@/components/Layout/Layout'
-import { ActionIcon, Blockquote, Box, Card, Flex, List, Loader, Text, TextInput, ThemeIcon, Title } from '@mantine/core'
-import { IconArrowRight, IconCheck, IconSlash, IconX } from '@tabler/icons-react'
-import Overview from '@/components/Dashboard/Overview';
+import { ActionIcon, Box, Flex, Text, TextInput, Title } from '@mantine/core'
+import { IconArrowRight } from '@tabler/icons-react'
 import { trackEvent } from '@/utils/trackEvent'
-
-function useQuery() {
-  return new URLSearchParams(useLocation().search);
-}
+import { useNavigate } from 'react-router-dom'
 
 function isValidUrl(value) {
   try {
@@ -33,14 +28,9 @@ function normalizeUrl(value) {
   return value;
 }
 
-const UrlInput = ({ handleChange }) => {
-  const handleSubmit = ({ url }) => {
-    const finalUrl = normalizeUrl(url.trim());
-    const parsed = new URL(finalUrl);
-    const baseUrl = parsed.origin;
-
-    handleChange(baseUrl)
-  };
+function QuickCheck() {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const form = useForm({
     initialValues: {
@@ -51,214 +41,75 @@ const UrlInput = ({ handleChange }) => {
     },
   });
 
-  return (
-    <form onSubmit={form.onSubmit(handleSubmit)}>
-      <Text size="xl">Enter your website URL to run a quick check:</Text>
-      <Flex w="100%">
-        <TextInput
-          placeholder="https://www.yourdomain.com"
-          size="xl"
-          variant="filled"
-          w="100%"
-          {...form.getInputProps('url')}
-          styles={{
-            input: {
-              borderTopRightRadius: 0,
-              borderBottomRightRadius: 0,
-            },
-          }}
-        />
-        <ActionIcon
-          variant="filled"
-          radius="md"
-          type="submit"
-          aria-label="Run Check"
-          w={60}
-          h={60}
-          style={{
-            borderTopLeftRadius: 0,
-            borderBottomLeftRadius: 0,
-          }}
-        >
-          <IconArrowRight stroke={1.5} />
-        </ActionIcon>
-      </Flex>
-    </form>
-  );
-}
+  const handleSubmit = ({ url }) => {
+    const normalizedUrl = normalizeUrl(url.trim());
+    const parsed = new URL(normalizedUrl);
+    const finalUrl = parsed.origin;
 
-const getStatusIcon = ({ isLoading, isError, isSkipped }) => {
-  const iconSize = { width: '70%', height: '70%' };
-
-  if (isLoading && !isSkipped) return <Loader size="xs" type="bars" />;
-  if (isError)
-    return (
-      <ThemeIcon color="red" size="xs">
-        <IconX style={iconSize} />
-      </ThemeIcon>
-    );
-  if (isSkipped)
-    return (
-      <ThemeIcon color="gray" size="xs">
-        <IconSlash style={iconSize} />
-      </ThemeIcon>
-    );
-  return (
-    <ThemeIcon color="green" size="xs">
-      <IconCheck style={iconSize} />
-    </ThemeIcon>
-  );
-};
-
-const ListItem = ({ children, isLoading, isError, isSkipped }) => {
-  return (
-    <List.Item icon={getStatusIcon({ isLoading, isError, isSkipped })}>
-      {children}
-    </List.Item>
-  )
-}
-
-function QuickCheck() {
-  const query = useQuery();
-  const encodedUrl = query.get("url");
-  const decodedUrl = encodedUrl ? normalizeUrl(decodeURIComponent(encodedUrl)) : "";
-  const [url, setUrl] = useState(decodedUrl);
-  const [errorCount, setErrorCount] = useState(0);
-  const [result, setResult] = useState({});
-  const didMount = useRef(false);
-  const intervalRef = useRef(null);
-
-  useEffect(() => {
-    if (!didMount.current) {
-      didMount.current = true;
+    if (!isValidUrl(normalizedUrl)) {
+      form.setFieldError('url', 'Please enter a valid URL');
       return;
     }
-    if (isValidUrl(url)) {
-      trackEvent('quickcheck', { url })
-      fetch(`${import.meta.env.VITE_API_URL}/v1/quickcheck`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ url }),
-      }).then(res => res.json())
-        .then(res => {
-          setResult(res)
-        })
-    }
-  }, [url]);
 
-  // Polling logic
-  useEffect(() => {
-    // Start polling only if we have a quickcheckId and polling hasn't already started
-    if (!result?.quickcheckId || result.state === 'completed' || intervalRef.current) return;
-
-    intervalRef.current = setInterval(async () => {
-      try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/v1/quickcheck?id=${result.quickcheckId}`);
-        const data = await response.json();
-
-        if (data.state === 'completed' || data.state === 'failed') {
-          clearInterval(intervalRef.current);
-          intervalRef.current = null;
-
-          setResult(data);
-          trackEvent('quickcheck-results', { url, state: data.state })
+    setLoading(true)
+    trackEvent('quickcheck', { url: finalUrl })
+    fetch(`${import.meta.env.VITE_API_URL}/v1/quickcheck`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ url: finalUrl }),
+    }).then(res => res.json())
+      .then(res => {
+        if (res.statusCode === 200 && res.quickcheckId) {
+          navigate(`/quickcheck?id=${res.quickcheckId}`)
         } else {
-          setResult(data);
+          form.setFieldError('url', `Could not reach ${url} [Status: ${res.statusCode}]`);
         }
-      } catch (error) {
-        setErrorCount(errorCount + 1);
-      }
-    }, 3000);
-
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
-    };
-  }, [result?.quickcheckId, result?.state]);
-
-  if (!isValidUrl(url)) {
-    return (
-      <Layout title="Quick Check" hideNav={true}>
-        <Box shadow="md" maw="800px" mx="auto" py="xl">
-          <Title mb="md" order={1} fw="normal">Check Your Website’s Health</Title>
-
-          <UrlInput handleChange={val => setUrl(val)} />
-
-          {url && <Text mt="md" c="red">{url} is not a valid URL</Text>}
-        </Box>
-      </Layout>
-    )
-  }
-
-  const { checks = [], waitingIndex, quickcheckId } = result
-  const securityChecksComplete =
-    checks.find(check => check.check === 'headers') &&
-    checks.find(check => check.check === 'ssl') &&
-    checks.find(check => check.check === 'fuzz');
-  const seoChecksComplete =
-    checks.find(check => check.check === 'seo') &&
-    checks.find(check => check.check === 'links')
-  const a11yChecksComplete = checks.find(check => check.check === 'a11y')
-  const performanceChecksComplete = checks.find(check => check.check === 'performance')
-
-  const allChecksCompleted = result.statusCode === 200 && result.state === 'completed'
-  const isInQueue = quickcheckId && waitingIndex !== null
-  const statusFailed = result.statusCode && result.statusCode !== 200
-  const jobFailed = result.state === 'failed'
+      }).finally(() => {
+        setLoading(false)
+      })
+  };
 
   return (
     <Layout title="Quick Check" hideNav={true}>
-      <Box maw={1800} mx="auto">
-        {!allChecksCompleted && <Card withBorder shadow="md" maw="600px" mx="auto">
-          <Title mb="md" order={1} fw="normal">Running Health Check...</Title>
+      <Box shadow="md" maw="800px" mx="auto" py="xl">
+        <Title mb="md" order={1} fw="normal">Check Your Website’s Health</Title>
 
-          <Text mb={isInQueue ? "xs" : "xl"}>Please wait while we perform background checks for <a href={url} target="_blank" rel="noopener noreferrer">{url}</a>. This won't take long.</Text>
-
-          {isInQueue && <Blockquote mb="xl" p="md">
-            <b>You’re in the Queue</b><br />
-            Our system is handling a high volume of checks. Hang tight — your website health check will begin shortly.<br />
-            <i>Current position in queue: #{waitingIndex + 1}</i>
-          </Blockquote>}
-
-          <List mb="md">
-            <ListItem isLoading={!result.statusCode} isError={statusFailed}>
-              Availability Status {statusFailed && `[Code ${result.statusCode}]`}
-            </ListItem>
-            <ListItem isLoading={!securityChecksComplete} isSkipped={statusFailed} isError={!securityChecksComplete && jobFailed}>
-              Security Checks
-            </ListItem>
-            <ListItem isLoading={!seoChecksComplete} isSkipped={statusFailed} isError={!seoChecksComplete && jobFailed}>
-              SEO Checks
-            </ListItem>
-            <ListItem isLoading={!a11yChecksComplete} isSkipped={statusFailed} isError={!securityChecksComplete && jobFailed}>
-              Accessibility Checks
-            </ListItem>
-            <ListItem isLoading={!performanceChecksComplete} isSkipped={statusFailed} isError={!performanceChecksComplete && jobFailed}>
-              Performance Checks
-            </ListItem>
-          </List>
-
-          {jobFailed || errorCount > 5&& <Blockquote p="xs" color="red">
-            An unexpected error occurred. Please try again or contact me: <a href="mailto:mail@vincentwill.com">mail@vincentwill.com</a>
-          </Blockquote>}
-        </Card>}
-
-        {allChecksCompleted && <Box>
-          <Title order={1} mb="md" fw="normal">Your Quickcheck Results:</Title>
-          <Overview
-            data={{
-              user: { domain: url },
-              checks
-            }}
-            isLoading={false}
-            isQuickCheck={true}
-          />
-        </Box>}
+        <form onSubmit={form.onSubmit(handleSubmit)}>
+          <Text size="xl">Enter your website URL to run a quick check:</Text>
+          <Flex w="100%">
+            <TextInput
+              placeholder="https://www.yourdomain.com"
+              size="xl"
+              variant="filled"
+              w="100%"
+              {...form.getInputProps('url')}
+              styles={{
+                input: {
+                  borderTopRightRadius: 0,
+                  borderBottomRightRadius: 0,
+                },
+              }}
+            />
+            <ActionIcon
+              variant="filled"
+              radius="md"
+              type="submit"
+              aria-label="Run Check"
+              w={60}
+              h={60}
+              loading={loading}
+              style={{
+                borderTopLeftRadius: 0,
+                borderBottomLeftRadius: 0,
+              }}
+            >
+              <IconArrowRight stroke={1.5} />
+            </ActionIcon>
+          </Flex>
+        </form>
       </Box>
     </Layout>
   )

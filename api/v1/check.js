@@ -104,7 +104,7 @@ export default async function checkRoutes(fastify, opts) {
     const { id } = request.query;
 
     if (!id) {
-      return { statusCode: 400, message: 'Missing Id' }
+      return { error: true, message: 'Missing Id' }
     }
 
     try {
@@ -114,6 +114,11 @@ export default async function checkRoutes(fastify, opts) {
         await db.collection('quickchecks').find({ quickcheckId: id }).toArray(),
         await db.collection('checks').find({ quickcheckId: id }).toArray()
       ])
+
+      if (!quickcheck) {
+        return { error: true, message: 'Quickcheck not found' }
+      }
+      
       const { waitingIndex, state } = await getJobStatus(quickcheck.jobId)
 
       return {
@@ -121,7 +126,8 @@ export default async function checkRoutes(fastify, opts) {
         quickcheckId: id,
         checks,
         waitingIndex,
-        state
+        state,
+        url: quickcheck.url
       }
     } catch (e) {
       console.error(e)
