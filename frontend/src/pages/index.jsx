@@ -123,6 +123,7 @@ function QuickCheck() {
   const encodedUrl = query.get("url");
   const decodedUrl = encodedUrl ? normalizeUrl(decodeURIComponent(encodedUrl)) : "";
   const [url, setUrl] = useState(decodedUrl);
+  const [errorCount, setErrorCount] = useState(0);
   const [result, setResult] = useState({});
   const didMount = useRef(false);
   const intervalRef = useRef(null);
@@ -154,17 +155,21 @@ function QuickCheck() {
     if (!result?.quickcheckId || result.state === 'completed' || intervalRef.current) return;
 
     intervalRef.current = setInterval(async () => {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/v1/quickcheck?id=${result.quickcheckId}`);
-      const data = await response.json();
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/v1/quickcheck?id=${result.quickcheckId}`);
+        const data = await response.json();
 
-      if (data.state === 'completed' || data.state === 'failed') {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
+        if (data.state === 'completed' || data.state === 'failed') {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
 
-        setResult(data);
-        trackEvent('quickcheck-results', { url, state: data.state })
-      } else {
-        setResult(data);
+          setResult(data);
+          trackEvent('quickcheck-results', { url, state: data.state })
+        } else {
+          setResult(data);
+        }
+      } catch (error) {
+        setErrorCount(errorCount + 1);
       }
     }, 3000);
 
@@ -238,7 +243,7 @@ function QuickCheck() {
             </ListItem>
           </List>
 
-          {jobFailed && <Blockquote p="xs" color="red">
+          {jobFailed || errorCount > 5&& <Blockquote p="xs" color="red">
             An unexpected error occurred. Please try again or contact me: <a href="mailto:mail@vincentwill.com">mail@vincentwill.com</a>
           </Blockquote>}
         </Card>}
