@@ -27,6 +27,36 @@ async function tryRun(type) {
   }
 }
 
+async function cleanUp() {
+  try {
+    console.log('run cleanup')
+    const weekAgo = new Date();
+    weekAgo.setDate(weekAgo.getDate() - 2)
+    weekAgo.setHours(0, 0, 0, 0)
+
+    const db = await connectDB()
+    const quickchecks = await db.collection('quickchecks')
+      .find({ createdAt: { $lte: weekAgo } })
+      .toArray();
+
+    for (const quickcheck of quickchecks) {
+      await Promise.all([
+        db.collection('checks').deleteMany({ quickcheckId: quickcheck.quickcheckId }),
+        db.collection('quickchecks').deleteOne({ _id: quickcheck._id })
+      ])
+    }
+
+    console.log('deleted', quickchecks.length, 'quickchecks')
+  } catch (e) {
+    console.error(e)
+  } finally {
+    await disconnectDB()
+  }
+}
+
+// once a day at 03:00:00
+cron.schedule('0 0 3 * * *', () => cleanUp())
+
 // once a day at 04:00:00 — full
 cron.schedule('0 0 4 * * *', () => tryRun('full'))
 
@@ -36,6 +66,6 @@ cron.schedule('10 0 */2 * * *', () => tryRun('extended'))
 // every 10 minutes at :00:20 — quick
 cron.schedule('20 */10 * * * *', () => tryRun('quick'))
 
-tryRun('quick') // run once immediately
-
-// todo cron job to clear up the tmp user database
+// run once immediately
+tryRun('quick')
+cleanUp()
