@@ -24,7 +24,7 @@ const OverviewChart = ({ data = [], flows = [] }) => {
   const fuzzScore = calcScore(recentFuzz.result.details.files.length, 20)
   const headersScore = calcScore(recentHeaders.result.details.missingHeaders.length, 10)
   const sslScore = recentSSL.result.status === 'success' ? 0 : 100
-  const securityScore = Math.max(Math.round(fuzzScore * 0.7 + headersScore * 0.3) - (sslScore / 2), 0);
+  const securityScore = Math.max(Math.round(fuzzScore * 0.8 + headersScore * 0.2) - (sslScore / 2), 0);
   const linkScore = calcScore(recentLinks.result.details.length, 20)
   const seoScore = Math.max(Math.round(recentSeoCheck.result.details.score * 0.9 + linkScore * 0.1), 0);
   const customScore = (flows.length > 0 && recentCustomChecks?.result.length > 0)
@@ -41,7 +41,7 @@ const OverviewChart = ({ data = [], flows = [] }) => {
     Score: securityScore
   }, {
     name: 'Accessibility',
-    Score: recentA11yCheck.result.details.score
+    Score: Math.round(recentA11yCheck.result.details.score)
   }, {
     name: 'SEO',
     Score: seoScore
@@ -50,7 +50,7 @@ const OverviewChart = ({ data = [], flows = [] }) => {
     Score: performanceValue
   }, customScore !== null && {
     name: 'Custom Flows',
-    Score: customScore
+    Score: Math.round(customScore)
   }].filter(Boolean)
 
   return <>

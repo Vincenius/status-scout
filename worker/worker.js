@@ -35,6 +35,7 @@ const worker = new Worker(
       }, 1000 * 120); // 60 seconds timeout
 
       child.on('message', (message) => {
+        clearTimeout(timeout);
         if (message.status === 'done') {
           resolve({ status: 'done' });
         } else {
@@ -43,12 +44,14 @@ const worker = new Worker(
       });
 
       child.on('exit', (code) => {
+        clearTimeout(timeout);
         if (code !== 0) {
           reject(new Error(`Child process exited with code ${code}`));
         }
       });
 
       child.on('error', (err) => {
+        clearTimeout(timeout);
         reject(err);
       });
     });

@@ -11,7 +11,7 @@ const connection = new IORedis({
 
 const queue = new Queue('checks', { connection })
 
-const getQueueIndex = async (id) => {
+const getJobStatus = async (id) => {
   const freshJob = await queue.getJob(id)
   const state = await freshJob.getState()
   let waitingIndex = null
@@ -21,7 +21,7 @@ const getQueueIndex = async (id) => {
     waitingIndex = waitingJobs.findIndex(j => j.id === id)
   }
 
-  return waitingIndex
+  return { waitingIndex, state }
 }
 
 const runJob = async (body) => {
@@ -30,7 +30,7 @@ const runJob = async (body) => {
 
     const job = await queue.add('api-triggered-job', body)
     await new Promise(r => setTimeout(r, 100))
-    const waitingIndex = await getQueueIndex(job.id)
+    const { waitingIndex } = await getJobStatus(job.id)
 
     return { message: 'Job enqueued', waitingIndex, jobId: job.id }
   } catch (err) {
@@ -114,14 +114,14 @@ export default async function checkRoutes(fastify, opts) {
         await db.collection('quickchecks').find({ quickcheckId: id }).toArray(),
         await db.collection('checks').find({ quickcheckId: id }).toArray()
       ])
-      const waitingIndex = await getQueueIndex(quickcheck.jobId)
+      const { waitingIndex, state } = await getJobStatus(quickcheck.jobId)
 
       return {
         statusCode: 200,
         quickcheckId: id,
         checks,
-        completed: checks.length === 8,
-        waitingIndex
+        waitingIndex,
+        state
       }
     } catch (e) {
       console.error(e)

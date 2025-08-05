@@ -87,10 +87,6 @@ const UrlInput = ({ handleChange }) => {
   );
 }
 
-// api returns check or creates a new one with uuid
-// uuid can be used to check status / waiting line
-// check every 3 seconds for updated data
-
 const getStatusIcon = ({ isLoading, isError, isSkipped }) => {
   const iconSize = { width: '70%', height: '70%' };
 
@@ -155,18 +151,18 @@ function QuickCheck() {
   // Polling logic
   useEffect(() => {
     // Start polling only if we have a quickcheckId and polling hasn't already started
-    if (!result?.quickcheckId || result.completed || intervalRef.current) return;
+    if (!result?.quickcheckId || result.state === 'completed' || intervalRef.current) return;
 
     intervalRef.current = setInterval(async () => {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/v1/quickcheck?id=${result.quickcheckId}`);
       const data = await response.json();
 
-      if (data.completed) {
+      if (data.state === 'completed' || data.state === 'failed') {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
 
         setResult(data);
-        trackEvent('quickcheck-results', { url })
+        trackEvent('quickcheck-results', { url, state: data.state })
       } else {
         setResult(data);
       }
@@ -178,7 +174,7 @@ function QuickCheck() {
         intervalRef.current = null;
       }
     };
-  }, [result?.quickcheckId, result?.completed]);
+  }, [result?.quickcheckId, result?.state]);
 
   if (!isValidUrl(url)) {
     return (
@@ -205,9 +201,10 @@ function QuickCheck() {
   const a11yChecksComplete = checks.find(check => check.check === 'a11y')
   const performanceChecksComplete = checks.find(check => check.check === 'performance')
 
-  const allChecksCompleted = result.statusCode === 200 && securityChecksComplete && seoChecksComplete && a11yChecksComplete && performanceChecksComplete
+  const allChecksCompleted = result.statusCode === 200 && result.state === 'completed'
   const isInQueue = quickcheckId && waitingIndex !== null
   const statusFailed = result.statusCode && result.statusCode !== 200
+  const jobFailed = result.state === 'failed'
 
   return (
     <Layout title="Quick Check" hideNav={true}>
@@ -225,23 +222,25 @@ function QuickCheck() {
 
           <List mb="md">
             <ListItem isLoading={!result.statusCode} isError={statusFailed}>
-              Availability Status {statusFailed !== 200 && `[Code ${result.statusCode}]`}
+              Availability Status {statusFailed && `[Code ${result.statusCode}]`}
             </ListItem>
-            <ListItem isLoading={!securityChecksComplete} isSkipped={statusFailed}>
+            <ListItem isLoading={!securityChecksComplete} isSkipped={statusFailed} isError={!securityChecksComplete && jobFailed}>
               Security Checks
             </ListItem>
-            <ListItem isLoading={!seoChecksComplete} isSkipped={statusFailed}>
+            <ListItem isLoading={!seoChecksComplete} isSkipped={statusFailed} isError={!seoChecksComplete && jobFailed}>
               SEO Checks
             </ListItem>
-            <ListItem isLoading={!a11yChecksComplete} isSkipped={statusFailed}>
+            <ListItem isLoading={!a11yChecksComplete} isSkipped={statusFailed} isError={!securityChecksComplete && jobFailed}>
               Accessibility Checks
             </ListItem>
-            <ListItem isLoading={!performanceChecksComplete} isSkipped={statusFailed}>
+            <ListItem isLoading={!performanceChecksComplete} isSkipped={statusFailed} isError={!performanceChecksComplete && jobFailed}>
               Performance Checks
             </ListItem>
           </List>
 
-          <Blockquote p="xs">If the check is taking too long (2+ minutes), please send a bug report to: <a href="mailto:mail@vincentwill.com">mail@vincentwill.com</a></Blockquote>
+          {jobFailed && <Blockquote p="xs" color="red">
+            An unexpected error occurred. Please try again or contact me: <a href="mailto:mail@vincentwill.com">mail@vincentwill.com</a>
+          </Blockquote>}
         </Card>}
 
         {allChecksCompleted && <Box>
