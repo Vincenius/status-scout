@@ -5,6 +5,7 @@ import Layout from '@/components/Layout/Layout'
 import { ActionIcon, Blockquote, Box, Card, Flex, List, Loader, Text, TextInput, ThemeIcon, Title } from '@mantine/core'
 import { IconArrowRight, IconCheck, IconSlash, IconX } from '@tabler/icons-react'
 import Overview from '@/components/Dashboard/Overview';
+import { trackEvent } from '@/utils/trackEvent'
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -136,6 +137,7 @@ function QuickCheck() {
       return;
     }
     if (isValidUrl(url)) {
+      trackEvent('quickcheck', { url })
       fetch(`${import.meta.env.VITE_API_URL}/v1/quickcheck`, {
         method: 'POST',
         headers: {
@@ -164,6 +166,7 @@ function QuickCheck() {
         intervalRef.current = null;
 
         setResult(data);
+        trackEvent('quickcheck-results', { url })
       } else {
         setResult(data);
       }
@@ -180,7 +183,7 @@ function QuickCheck() {
   if (!isValidUrl(url)) {
     return (
       <Layout title="Quick Check" hideNav={true}>
-        <Box withBorder shadow="md" maw="800px" mx="auto" py="xl">
+        <Box shadow="md" maw="800px" mx="auto" py="xl">
           <Title mb="md" order={1} fw="normal">Check Your Website’s Health</Title>
 
           <UrlInput handleChange={val => setUrl(val)} />

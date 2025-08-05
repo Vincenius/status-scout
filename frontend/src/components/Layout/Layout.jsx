@@ -1,4 +1,4 @@
-import { Text, Flex, Burger, AppShell, NavLink } from '@mantine/core'
+import { Text, Flex, Burger, AppShell, NavLink, Box } from '@mantine/core'
 import { Helmet } from 'react-helmet';
 import { useDisclosure } from '@mantine/hooks';
 import { IconDashboard, IconHeartbeat, IconLogout } from '@tabler/icons-react';
@@ -7,10 +7,11 @@ import styles from './Layout.module.css';
 import ColorSchemeToggle from './ColorSchemeToggle.jsx';
 
 const Layout = ({ children, title, description, date, noindex, image, hideNav }) => {
-  const ogImage = image || '/og-image.jpg';
+  const ogImage = image || '/og.png';
   const setNoIndex = noindex || import.meta.env.VITE_NOINDEX === 'true';
   const [opened, { toggle }] = useDisclosure();
   const navigate = useNavigate();
+  const isAnalyticsEnabled = import.meta.env.VITE_ENABLE_ANALYTICS === 'true';
 
   return <>
     <Helmet>
@@ -32,6 +33,7 @@ const Layout = ({ children, title, description, date, noindex, image, hideNav })
       {setNoIndex && <meta name="robots" content="noindex" />}
       <link rel="icon" href="/favicon.ico" sizes="any" />
       <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+      {isAnalyticsEnabled && (<script defer src="https://analytics.vincentwill.com/script.js" data-website-id="a807669d-6eda-4c1c-9b36-2247d2caf318"></script>)}
     </Helmet>
     <AppShell
       header={{ height: 60 }}
@@ -51,7 +53,7 @@ const Layout = ({ children, title, description, date, noindex, image, hideNav })
             size="sm"
           />}
           <Flex justify="space-between" w="100%" px="md">
-            <Flex gap="xs" align="center">
+            <Flex gap="xs" align="center" component={Link} to="/" c="inherit" td="none">
               <IconHeartbeat size={26} stroke={0.8} />
               <Text size="xl" fw={200}>{import.meta.env.VITE_WEBSITE_NAME}</Text>
             </Flex>
@@ -87,7 +89,22 @@ const Layout = ({ children, title, description, date, noindex, image, hideNav })
         {/* Alerts */}
       </AppShell.Navbar>}
 
-      <AppShell.Main>{children}</AppShell.Main>
+      <AppShell.Main>
+        <Box pb="lg">
+          {children}
+        </Box>
+      </AppShell.Main>
+
+      <AppShell.Footer>
+        <Flex py="xs" px="md" w="100%" justify="space-between">
+          <Text size="sm" align="center">© {new Date().getFullYear()} {import.meta.env.VITE_WEBSITE_NAME}</Text>
+
+          <Flex gap="sm">
+            <Text size="sm" c="inherit"><Link to="/imprint">Imprint</Link></Text>
+            <Text size="sm"><Link to="/privacy">Privacy</Link></Text>
+          </Flex>
+        </Flex>
+      </AppShell.Footer>
     </AppShell>
   </>
 }
