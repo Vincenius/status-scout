@@ -82,6 +82,7 @@ worker.on('error', (err) => {
 
 const shutdown = async () => {
   console.log('Shutting down gracefully...');
+  await worker.pause(true);     // Stop fetching new jobs
   await worker.close();         // close BullMQ worker
   await disconnectDB();         // close MongoDB connection
   await connection.quit();      // close Redis connection

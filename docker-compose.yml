@@ -14,6 +14,9 @@ services:
     restart: always
     ports:
       - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: ["redis-server", "--appendonly", "yes"]
 
   api:
     build: ./api
@@ -67,6 +70,8 @@ services:
     build: ./worker
     container_name: worker
     restart: always
+    stop_signal: SIGTERM
+    stop_grace_period: 60s # give the container time to finish jobs
     environment:
       - MONGODB_URI=${MONGODB_URI}
       - GOOGLE_PAGESPEED_API_KEY=${GOOGLE_PAGESPEED_API_KEY} 
@@ -80,3 +85,4 @@ services:
 
 volumes:
   mongo_data:
+  redis_data:
