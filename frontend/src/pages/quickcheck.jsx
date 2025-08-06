@@ -6,6 +6,7 @@ import { IconCheck, IconSlash, IconX } from '@tabler/icons-react'
 import Overview from '@/components/Dashboard/Overview';
 import { trackEvent } from '@/utils/trackEvent'
 import { useNavigate, Link } from 'react-router-dom'
+import MockHistoryCharts from '@/components/Dashboard/MockHistoryCharts';
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -187,6 +188,8 @@ function QuickCheck() {
             isLoading={false}
             isQuickCheck={true}
           />
+
+          {/* <MockHistoryCharts /> */}
         </Box>}
       </Box>
     </Layout>

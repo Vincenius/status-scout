@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Layout from '@/components/Layout/Layout'
 import { Box, Card, Flex, Text, ThemeIcon, Title, LoadingOverlay, ActionIcon, Avatar, Grid, Button, Blockquote } from '@mantine/core'
-import { IconAccessible, IconBrandSpeedtest, IconChartBar, IconCheck, IconDeviceDesktop, IconDeviceMobile, IconExclamationMark, IconInfoCircle, IconMessage, IconShieldLock, IconWorld, IconX, IconZoomCode } from '@tabler/icons-react'
+import { IconAccessible, IconBrandSpeedtest, IconChartBar, IconCheck, IconClock, IconClockFilled, IconDeviceDesktop, IconDeviceMobile, IconExclamationMark, IconInfoCircle, IconMessage, IconShieldLock, IconWorld, IconX, IconZoomCode } from '@tabler/icons-react'
 import OverviewChart from '@/components/Dashboard/OverviewChart';
 import PerformanceBar from '@/components/Dashboard/PerformanceBar';
 import DetailsModal from '@/components/Dashboard/DetailsModal';
@@ -61,13 +61,29 @@ function Overview({ data, isLoading, flows = [], uptime, isQuickCheck }) {
         <Grid.Col span={grid}>
           <Flex gap={spacing} h="100%" direction={{ base: 'column', md: 'row', xl: 'column' }}>
             <Card withBorder shadow="md">
-              <Flex gap="xs" align="center">
-                <ThemeIcon variant="default" size="md">
-                  <IconInfoCircle style={{ width: '70%', height: '70%' }} />
+              <Box mb="lg">
+                <Flex gap="xs" align="center">
+                  <ThemeIcon variant="default" size="md">
+                    <IconInfoCircle style={{ width: '70%', height: '70%' }} />
+                  </ThemeIcon>
+                  <Title order={2} size="h4" fw="normal">Overview</Title>
+                </Flex>
+                {!isQuickCheck && <Text size="xs">Last check: {new Date(recentCheck.createdAt).toLocaleString()}</Text>}
+              </Box>
+
+              {isQuickCheck && <Flex gap="xs" mb="md">
+                <ThemeIcon mt="5px" size="md" variant="light">
+                  <IconClockFilled style={{ width: '70%', height: '70%' }} />
                 </ThemeIcon>
-                <Title order={2} size="h4" fw="normal">Overview</Title>
-              </Flex>
-              <Text size="xs" mb="lg">Last check: {new Date(recentCheck.createdAt).toLocaleString()}</Text>
+                <Box>
+                  <Text fw="normal" size="sm">
+                    Checked at:
+                  </Text>
+                  <Text size="sm">
+                    {new Date(recentCheck.createdAt).toLocaleString()}
+                  </Text>
+                </Box>
+              </Flex>}
 
               <Flex gap="xs" mb="md">
                 <ThemeIcon mt="5px" size="md" variant="light">
@@ -105,20 +121,21 @@ function Overview({ data, isLoading, flows = [], uptime, isQuickCheck }) {
                 <OverviewChart data={checks} flows={flows} />
               </Flex>
             </Card>
-
           </Flex>
         </Grid.Col>
 
         <Grid.Col span={grid} h={{ base: '100%', md: 'auto' }}>
           <Flex gap={spacing} direction={{ base: 'column', md: 'row', xl: 'column' }} h="100%">
             <Card withBorder shadow="md" flex="1">
-              <Flex gap="xs" align="center">
-                <ThemeIcon variant="default" size="md">
-                  <IconShieldLock style={{ width: '70%', height: '70%' }} />
-                </ThemeIcon>
-                <Title order={2} size="h4" fw="normal">Security</Title>
-              </Flex>
-              <Text size="xs" mb="lg">from {new Date(recentSSL.createdAt).toLocaleDateString()}</Text>
+              <Box mb="lg">
+                <Flex gap="xs" align="center">
+                  <ThemeIcon variant="default" size="md">
+                    <IconShieldLock style={{ width: '70%', height: '70%' }} />
+                  </ThemeIcon>
+                  <Title order={2} size="h4" fw="normal">Security</Title>
+                </Flex>
+                {!isQuickCheck && <Text size="xs">from {new Date(recentSSL.createdAt).toLocaleDateString()}</Text>}
+              </Box>
 
               <Flex direction="column" gap="md">
                 <Flex gap="xs">
@@ -175,24 +192,25 @@ function Overview({ data, isLoading, flows = [], uptime, isQuickCheck }) {
             </Card>
 
             <Card withBorder shadow="md" flex="1">
-              <Flex justify="space-between">
-                <Flex gap="xs" align="center" >
-                  <ThemeIcon variant="default" size="md">
-                    <IconBrandSpeedtest style={{ width: '70%', height: '70%' }} />
-                  </ThemeIcon>
-                  <Title order={2} size="h4" fw="normal">Performance</Title>
+              <Box mb="lg">
+                <Flex justify="space-between">
+                  <Flex gap="xs" align="center" >
+                    <ThemeIcon variant="default" size="md">
+                      <IconBrandSpeedtest style={{ width: '70%', height: '70%' }} />
+                    </ThemeIcon>
+                    <Title order={2} size="h4" fw="normal">Performance</Title>
+                  </Flex>
+                  <Flex gap="xs">
+                    <ActionIcon variant={performanceTab === 'desktop' ? 'filled' : 'outline'} aria-label="Desktop" onClick={() => setPerformanceTab('desktop')}>
+                      <IconDeviceDesktop style={{ width: '70%', height: '70%' }} stroke={1.5} />
+                    </ActionIcon>
+                    <ActionIcon variant={performanceTab === 'mobile' ? 'filled' : 'outline'} aria-label="Mobile" onClick={() => setPerformanceTab('mobile')}>
+                      <IconDeviceMobile style={{ width: '70%', height: '70%' }} stroke={1.5} />
+                    </ActionIcon>
+                  </Flex>
                 </Flex>
-                <Flex gap="xs">
-                  <ActionIcon variant={performanceTab === 'desktop' ? 'filled' : 'outline'} aria-label="Desktop" onClick={() => setPerformanceTab('desktop')}>
-                    <IconDeviceDesktop style={{ width: '70%', height: '70%' }} stroke={1.5} />
-                  </ActionIcon>
-                  <ActionIcon variant={performanceTab === 'mobile' ? 'filled' : 'outline'} aria-label="Mobile" onClick={() => setPerformanceTab('mobile')}>
-                    <IconDeviceMobile style={{ width: '70%', height: '70%' }} stroke={1.5} />
-                  </ActionIcon>
-                </Flex>
-              </Flex>
-
-              <Text size="xs" mb="md">from {new Date(recentPerformance.createdAt).toLocaleDateString()}</Text>
+                {!isQuickCheck && <Text size="xs">from {new Date(recentPerformance.createdAt).toLocaleDateString()}</Text>}
+              </Box>
 
               {performanceTab === 'desktop' && <Box>
                 <PerformanceBar title="Largest Contentful Paint" metric={recentPerformance.result.details.desktopResult.LCP} unit="ms" mb="sm" />
@@ -211,10 +229,9 @@ function Overview({ data, isLoading, flows = [], uptime, isQuickCheck }) {
 
         <Grid.Col span={grid} h={{ base: '100%', md: 'auto' }}>
           <Flex direction={{ base: 'column', md: 'row', xl: 'column' }} gap={spacing} h="100%">
-
             <Card withBorder shadow="md" flex="1">
               <Flex justify="space-between">
-                <Box>
+                <Box mb="lg">
                   <Flex gap="xs" align="center">
                     <ThemeIcon variant="default" size="md">
                       <IconZoomCode style={{ width: '70%', height: '70%' }} />
@@ -222,7 +239,7 @@ function Overview({ data, isLoading, flows = [], uptime, isQuickCheck }) {
 
                     <Title order={2} size="h4" fw="normal">SEO</Title>
                   </Flex>
-                  <Text size="xs" mb="lg">from {new Date(recentSeo.createdAt).toLocaleDateString()}</Text>
+                  {!isQuickCheck && <Text size="xs">from {new Date(recentSeo.createdAt).toLocaleDateString()}</Text>}
                 </Box>
 
                 <Avatar
@@ -270,7 +287,7 @@ function Overview({ data, isLoading, flows = [], uptime, isQuickCheck }) {
 
             <Card withBorder shadow="md" flex="1">
               <Flex justify="space-between">
-                <Box>
+                <Box mb="lg">
                   <Flex gap="xs" align="center">
                     <ThemeIcon variant="default" size="md">
                       <IconAccessible style={{ width: '70%', height: '70%' }} />
@@ -278,7 +295,7 @@ function Overview({ data, isLoading, flows = [], uptime, isQuickCheck }) {
 
                     <Title order={2} size="h4" fw="normal">Accessibility</Title>
                   </Flex>
-                  <Text size="xs" mb="lg">from {new Date(recentA11y.createdAt).toLocaleDateString()}</Text>
+                  {!isQuickCheck && <Text size="xs">from {new Date(recentA11y.createdAt).toLocaleDateString()}</Text>}
                 </Box>
 
                 <Avatar
@@ -322,14 +339,14 @@ function Overview({ data, isLoading, flows = [], uptime, isQuickCheck }) {
                   </Flex>
 
 
-                  <Blockquote w="100%" p="xs">Spotted a bug, something missing, or have a suggestion?<br/>Let me know!</Blockquote>
+                  <Blockquote w="100%" p="xs">Spotted a bug, something missing, or have a suggestion?<br />Let me know!</Blockquote>
                 </Box>
               </Flex>
             </Card>}
 
             {!isQuickCheck && <Card withBorder shadow="md" flex="1">
               <Flex justify="space-between">
-                <Box>
+                <Box mb="lg">
                   <Flex gap="xs" align="center">
                     <ThemeIcon variant="default" size="md">
                       <IconChartBar style={{ width: '70%', height: '70%' }} />
@@ -337,7 +354,7 @@ function Overview({ data, isLoading, flows = [], uptime, isQuickCheck }) {
 
                     <Title order={2} size="h4" fw="normal">Custom Flows</Title>
                   </Flex>
-                  <Text size="xs" mb="lg">from {new Date(recentCustomChecks.createdAt).toLocaleDateString()}</Text>
+                  <Text size="xs">from {new Date(recentCustomChecks.createdAt).toLocaleDateString()}</Text>
                 </Box>
 
                 <Avatar
