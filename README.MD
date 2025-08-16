@@ -2,7 +2,9 @@
 
 StatusScout is an all-in-one status monitoring tool for websites and services. It tracks uptime, detects outages, checks for security issues, and provides instant alerts through a modern dashboard.
 
-This is a work in progress.
+StatusScout is currently in active development. The initial release supports manual website health checks. The monitoring features will be available soon.
+
+Run a health check on:
 
 [https://statusscout.dev/](https://statusscout.dev/)
 
