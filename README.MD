@@ -20,11 +20,11 @@ Run a health check on:
 ## Project Structure
 
 ```
-api/        # Fastify-based REST API server
-cron/       # Cron job scheduler to trigger worker jobs
-frontend/   # React frontend (Vite + Mantine)
-worker/     # Background worker for executing checks
-assets/     # Static assets (e.g., logo)
+packages/api/        # Fastify-based REST API server
+packages/cron/       # Cron job scheduler to trigger worker jobs
+packages/frontend/   # React frontend (Vite + Mantine)
+packages/worker/     # Background worker for executing checks
+assets/              # Static assets (e.g., logo)
 ```
 
 ## Getting Started
@@ -57,33 +57,48 @@ assets/     # Static assets (e.g., logo)
 
 ### Development
 
+This project uses [Lerna](https://lerna.js.org/) for managing subprojects in the `packages/` folder.
+
+1. Install dependencies for all packages:
+```sh
+npx lerna bootstrap
+```
+
+2. Run Frontend, API and Worker
+```sh
+yarn
+yarn dev
+```
+
+Or run each package separately
+
 - **Frontend:**  
   ```sh
-  cd frontend
+  cd packages/frontend
   cp .env.dist .env
-  npm install
-  npm run dev
+  yarn
+  yarn dev
   ```
 - **API:**  
   ```sh
-  cd api
+  cd packages/api
   cp .env.dist .env
-  npm install
-  npm run dev
+  yarn install
+  yarn dev
   ```
 - **Worker:**  
   ```sh
-  cd worker
+  cd packages/worker
   cp .env.dist .env
-  npm install
-  npm run dev
+  yarn
+  yarn dev
   ```
 - **Cron:**  
   ```sh
-  cd cron
+  cd packages/cron
   cp .env.dist .env
-  npm install
-  npm start
+  yarn
+  yarn start
   ```
 
 ## Usage

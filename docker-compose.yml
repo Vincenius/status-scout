@@ -19,8 +19,8 @@ services:
     command: ["redis-server", "--appendonly", "yes"]
 
   api:
-    build: ./api
-    container_name: api
+    build: ./packages/api
+    container_name: status-scout-api
     restart: always
     ports:
       - "3002:3000"
@@ -43,8 +43,8 @@ services:
       - redis
 
   cron:
-    build: ./cron
-    container_name: cron
+    build: ./packages/cron
+    container_name: status-scout-cron
     restart: always
     environment:
       - MONGODB_URI=${MONGODB_URI}
@@ -56,19 +56,19 @@ services:
 
   frontend:
     build:
-      context: ./frontend
+      context: ./packages/frontend
       args:
         VITE_WEBSITE_NAME: ${VITE_WEBSITE_NAME}
         VITE_BASE_URL: ${VITE_BASE_URL}
         VITE_API_URL: ${VITE_API_URL}
-    container_name: frontend
+    container_name: status-scout-frontend
     restart: always
     ports:
       - "3003:80"
 
   worker:
-    build: ./worker
-    container_name: worker
+    build: ./packages/worker
+    container_name: status-scout-worker
     restart: always
     stop_signal: SIGTERM
     stop_grace_period: 60s # give the container time to finish jobs

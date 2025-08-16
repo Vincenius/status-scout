@@ -1,5 +1,6 @@
 {
-  "name": "cron",
+  "name": "status-scout-cron",
+  "private": true,
   "version": "1.0.0",
   "description": "",
   "main": "cron.js",
