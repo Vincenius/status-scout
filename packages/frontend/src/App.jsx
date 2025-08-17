@@ -6,15 +6,11 @@ import { Center, Loader, MantineProvider } from "@mantine/core";
 import { theme } from "./theme";
 import { useRoutes } from 'react-router-dom';
 import routes from '~react-pages';
-import { Suspense } from 'react';
+import { Suspense, lazy } from 'react';
 import { HelmetProvider } from 'react-helmet-async';
-import NotFound from "./pages/NotFound";
 
 function AppRoutes() {
-  return useRoutes([
-    ...routes,
-    { path: "*", element: <NotFound /> },
-  ]);
+  return useRoutes(routes);
 }
 
 export default function App() {
