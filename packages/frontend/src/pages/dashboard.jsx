@@ -1,4 +1,4 @@
-import Layout from '@/components/Layout/Layout'
+import Layout from '@/components/Layout/AppLayout'
 import { Box, Card, Flex, Text, ThemeIcon, Title, LoadingOverlay, Divider } from '@mantine/core'
 import { IconAccessible, IconBrandSpeedtest, IconChartBar, IconListCheck, IconShieldLock, IconZoomCode } from '@tabler/icons-react'
 import { useAuthSWR } from '@/utils/useAuthSWR'

@@ -2,8 +2,8 @@ import Layout from '@/components/Layout/Layout';
 import { Box, Title } from '@mantine/core';
 
 const Privacy = () => {
-  return <Layout title="Privacy Policy" description="The Privacy Policy of StatusScout" hideNav>
-    <Box maw={800} mx="auto" px="md">
+  return <Layout title="Privacy Policy" description="The Privacy Policy of StatusScout">
+    <Box maw={800} mx="auto" px="md" py="xl">
       <Title order={1} mb="xl">Privacy Policy</Title>
       <Title order={2} my="md">TLDR</Title>
       <p>
