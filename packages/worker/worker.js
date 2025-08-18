@@ -1,9 +1,8 @@
 import 'dotenv/config'
 import { fork } from 'child_process';
 import path from 'path';
-import { Worker, QueueEvents, Job } from 'bullmq';
+import { Worker, QueueEvents } from 'bullmq';
 import IORedis from 'ioredis';
-import { run } from './index.js'
 import { disconnectDB } from './db.js';
 
 const CONCURRENT_RUNS = process.env.CONCURRENT_RUNS

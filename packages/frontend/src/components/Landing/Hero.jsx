@@ -120,12 +120,12 @@ export default function Hero() {
               <IconArrowRight stroke={1.5} />
             </ActionIcon>
           </Flex>
-          <Group gap="sm" align="center" mt="xs" mb="xl">
+          <Flex gap="sm" align="center" mt="xs" mb="xl">
             <ThemeIcon variant="light" size="md">
               <IconSearch style={{ width: '70%', height: '70%' }} />
             </ThemeIcon>
             <Text size="lg">Check your website for free - no account needed</Text>
-          </Group>
+          </Flex>
         </form>
       </Flex>
 

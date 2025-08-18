@@ -3,16 +3,6 @@ import path from 'path'
 import pLimit from 'p-limit';
 import { createCheckResult } from '../db.js'
 
-function splitIntoBatches(arr, batchSize) {
-  let result = [];
-
-  for (let i = 0; i < arr.length; i += batchSize) {
-    result.push(arr.slice(i, i + batchSize));
-  }
-
-  return result;
-}
-
 export const runFuzzCheck = async ({ uri, db, userId, createdAt, type, quickcheckId }) => {
   console.log(`Running fuzz check for ${uri}`)
   const [prevCheck] = await db.collection('checks')
@@ -35,6 +25,11 @@ export const runFuzzCheck = async ({ uri, db, userId, createdAt, type, quickchec
       try {
         const filename = file.startsWith('/') ? file.slice(1) : file;
         const res = await fetch(`${uri}/${filename}`, { method: 'head' });
+        if (res.status === 200) {
+          const contentRes = await fetch(`${uri}/${filename}`);
+          const text = await contentRes.text();
+          return { status: 200, file, hasContent: text.trim().length > 0 };
+        }
         return { status: res.status, file };
       } catch (err) {
         return { status: 500, file };
@@ -44,11 +39,11 @@ export const runFuzzCheck = async ({ uri, db, userId, createdAt, type, quickchec
 
   const results = await Promise.all(promises);
 
-  const availableFiles = results.filter(sc => sc.status === 200) // todo warn on other codes like [401, 403, 405, 301, 302];
+  const filesWithContent = results.filter(sc => sc.status === 200 && sc.hasContent);
   const result = {
-    status: availableFiles.length === 0 ? 'success' : 'fail',
+    status: filesWithContent.length === 0 ? 'success' : 'fail',
     details: {
-      files: availableFiles
+      files: filesWithContent
     },
   }
 
