@@ -2,12 +2,20 @@ import "@mantine/core/styles.css";
 import '@mantine/charts/styles.css';
 import "./global.css";
 
+import { useEffect } from "react";
 import { Center, Loader, MantineProvider } from "@mantine/core";
 import { theme } from "./theme";
-import { useRoutes, Navigate } from 'react-router-dom';
+import { useRoutes } from 'react-router-dom';
 import routes from '~react-pages';
-import { Suspense, lazy } from 'react';
+import { Suspense } from 'react';
 import { HelmetProvider } from 'react-helmet-async';
+
+function Redirect404() {
+  useEffect(() => {
+    window.location.replace("/404.html");
+  }, []);
+  return null;
+}
 
 
 function AppRoutes() {
@@ -15,7 +23,7 @@ function AppRoutes() {
     ...routes,
     {
       path: "*",
-      element: <Navigate to="/404.html" replace />
+      element: <Redirect404 />
     }
   ]);
   return element;
