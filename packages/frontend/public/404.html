@@ -1,11 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+  <title>404 – Page Not Found | StatusScout</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <meta name="color-scheme" content="light dark">
+  <script>
+    // Check for a saved theme in localStorage
+    const theme = localStorage.getItem('mantine-color-scheme-value');
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else if (theme === 'light') {
+      document.documentElement.classList.remove('dark');
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.documentElement.classList.add('dark');
+    }
+  </script>
+  <style>
+    :root {
+      --primary: #228be6;
+      --background: #f8f9fa;
+      --foreground: #212529;
+      --card-bg: #fff;
+      --shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .dark {
+      --background: #181a1b;
+      --foreground: #f8f9fa;
+      --card-bg: #23272e;
+      --shadow: 0 2px 8px rgba(0, 0, 0, 0.32);
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--background);
+      color: var(--foreground);
+      font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      background: var(--card-bg);
+      box-shadow: var(--shadow);
+      border-radius: 16px;
+      padding: 48px 32px;
+      text-align: center;
+      max-width: 400px;
+      width: 100%;
+    }
+
+    .logo {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      font-size: 3em;
+      margin: 0 0 12px 0;
+      font-weight: 700;
+      background: linear-gradient(90deg, #228be6, #4dabf7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-fill-color: transparent;
+    }
+
+    .desc {
+      font-size: 1.2em;
+      margin-bottom: 32px;
+      color: var(--foreground);
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 0.75em 2em;
+      font-size: 1em;
+      border-radius: 8px;
+      background: linear-gradient(90deg, #228be6, #4dabf7);
+      color: #fff;
+      text-decoration: none;
+      font-weight: 500;
+      box-shadow: 0 1px 4px rgba(34, 139, 230, 0.08);
+      transition: background 0.2s, box-shadow 0.2s;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background: linear-gradient(90deg, #1c7ed6, #339af0);
+      box-shadow: 0 2px 8px rgba(34, 139, 230, 0.12);
+    }
+  </style>
 </head>
+
 <body>
-  404 Not Found
+  <div class="container">
+    <img src="/favicon.svg" alt="StatusScout Logo" class="logo" />
+    <h1>404</h1>
+    <div class="desc">Sorry, the page you’re looking for doesn’t exist.</div>
+    <a href="/" class="btn">Go back home</a>
+  </div>
 </body>
+
 </html>
