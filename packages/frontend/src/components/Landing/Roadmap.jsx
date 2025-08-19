@@ -65,7 +65,7 @@ export default function Roadmap({
       <Card display={{ base: "block", xs: "none" }} mt="xl" withBorder radius="md" p="md" bg="var(--mantine-color-body)">
         <List spacing="md">
           {items.map((item, idx) => (
-            <List.Item key={idx} icon={item.icon} color={item.completed ? "green" : "dimmed"}>
+            <List.Item key={idx} icon={item.icon} color={item.completed ? "green" : ""}>
               <Text fw={500}>{item.title}</Text>
               <Text size="sm">{item.description}</Text>
             </List.Item>

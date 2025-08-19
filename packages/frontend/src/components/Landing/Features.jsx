@@ -61,7 +61,7 @@ export default function Features() {
           <Stack gap="xs">
             <Stack gap={6} align="center" direction="row">
               <ThemeIcon variant={feature.disabled ? 'default' : 'light'}>{feature.icon}</ThemeIcon>
-              <Title order={2} size="h4" c={feature.disabled ? 'dimmed' : 'inherit'}>{feature.title}</Title>
+              <Title order={2} size="h4" opacity={feature.disabled ? 0.8 : 1}>{feature.title}</Title>
             </Stack>
             <Text size="sm">
               {feature.description}
