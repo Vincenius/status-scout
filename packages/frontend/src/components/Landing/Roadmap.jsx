@@ -44,7 +44,7 @@ export default function Roadmap({
               <Table.Td>
                 <Flex gap="xs">
                   {item.icon}
-                  <Text size="sm" c={item.completed ? "green" : "dimmed"}>
+                  <Text size="sm" c={item.completed ? "green" : ""}>
                     {item.completed ? "Done" : "Planned"}
                   </Text>
                 </Flex>

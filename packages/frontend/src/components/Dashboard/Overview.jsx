@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Layout from '@/components/Layout/Layout'
-import { Box, Card, Flex, Text, ThemeIcon, Title, LoadingOverlay, ActionIcon, Avatar, Grid, Button, Blockquote } from '@mantine/core'
+import { Box, Card, Flex, Text, ThemeIcon, Title, LoadingOverlay, ActionIcon, Avatar, Grid, Button, Blockquote, Loader, Skeleton, Divider, Space } from '@mantine/core'
 import { IconAccessible, IconBrandSpeedtest, IconChartBar, IconCheck, IconClock, IconClockFilled, IconDeviceDesktop, IconDeviceMobile, IconExclamationMark, IconInfoCircle, IconMessage, IconShieldLock, IconWorld, IconX, IconZoomCode } from '@tabler/icons-react'
 import OverviewChart from '@/components/Dashboard/OverviewChart';
 import PerformanceBar from '@/components/Dashboard/PerformanceBar';
@@ -8,11 +8,38 @@ import DetailsModal from '@/components/Dashboard/DetailsModal';
 import calcScore from '@/utils/calcScore'
 import FeedbackButton from '@/components/FeedbackButton/FeedbackButton';
 
+const LoadingInfoBox = ({ title }) => {
+  return (
+    <Flex gap="xs">
+      <Skeleton mt="5px" height={22} radius="xs" w={22} animate={false} />
+      <Box>
+        <Text fw="normal">{title}</Text>
+        <Skeleton height={8} radius="xl" w={150} />
+      </Box>
+    </Flex>
+  )
+}
+
+const InfoBox = ({ success, title, children }) => {
+  return (<Flex gap="xs">
+    <ThemeIcon mt="5px" size="sm" color={success ? 'green' : 'yellow'}>
+      {success
+        ? <IconCheck style={{ width: '70%', height: '70%' }} />
+        : <IconExclamationMark style={{ width: '70%', height: '70%' }} />
+      }
+    </ThemeIcon>
+    <Box>
+      <Text fw="normal">{title}</Text>
+      {children}
+    </Box>
+  </Flex>)
+}
+
 function Overview({ data, isLoading, flows = [], uptime, isQuickCheck }) {
   const [modal, setModal] = useState(null);
   const [performanceTab, setPerformanceTab] = useState('desktop');
 
-  const { user, checks } = data
+  const { user, checks = [], createdAt, allChecksCompleted } = data
 
   if (isLoading) {
     return (
@@ -25,12 +52,10 @@ function Overview({ data, isLoading, flows = [], uptime, isQuickCheck }) {
 
   const { ignore = [] } = user
 
-  // todo empty & loading & error state?
-
   const spacing = { base: 'md', md: 'md' }
   const grid = { base: 12, md: 12, xl: 4 }
   const url = data.user.domain && new URL(data.user.domain);
-  const recentCheck = checks.sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
+  const dateString = new Date(createdAt).toLocaleString();
   const recentPerformance = checks.filter(d => d.check === 'performance').sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
   const recentFuzz = checks.filter(d => d.check === 'fuzz').sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
   const recentHeaders = checks.filter(d => d.check === 'headers').sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
@@ -39,10 +64,10 @@ function Overview({ data, isLoading, flows = [], uptime, isQuickCheck }) {
   const recentSeo = checks.filter(d => d.check === 'seo').sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
   const recentLinks = checks.filter(d => d.check === 'links').sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
   const recentCustomChecks = checks.filter(d => d.check === 'custom').sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
-  const brokenLinks = recentLinks.result.details.filter(link => !ignore.filter(i => i.type === 'links').map(i => i.item).includes(link.url))
+  const brokenLinks = recentLinks && recentLinks.result.details.filter(link => !ignore.filter(i => i.type === 'links').map(i => i.item).includes(link.url))
 
-  const linkScore = calcScore(brokenLinks.length, 20)
-  const seoScore = Math.max(Math.round(recentSeo.result.details.score * 0.9 + linkScore * 0.1), 0);
+  const linkScore = brokenLinks && calcScore(brokenLinks.length, 20)
+  const seoScore = recentSeo && recentLinks && Math.max(Math.round(recentSeo.result.details.score * 0.9 + linkScore * 0.1), 0);
 
   const customScore = (flows.length > 0 && recentCustomChecks?.result.length > 0)
     ? recentCustomChecks.result
@@ -68,7 +93,7 @@ function Overview({ data, isLoading, flows = [], uptime, isQuickCheck }) {
                   </ThemeIcon>
                   <Title order={2} size="h4" fw="normal">Overview</Title>
                 </Flex>
-                {!isQuickCheck && <Text size="xs">Last check: {new Date(recentCheck.createdAt).toLocaleString()}</Text>}
+                {!isQuickCheck && <Text size="xs">Last check: {dateString}</Text>}
               </Box>
 
               {isQuickCheck && <Flex gap="xs" mb="md">
@@ -80,7 +105,7 @@ function Overview({ data, isLoading, flows = [], uptime, isQuickCheck }) {
                     Checked at:
                   </Text>
                   <Text size="sm">
-                    {new Date(recentCheck.createdAt).toLocaleString()}
+                    {dateString}
                   </Text>
                 </Box>
               </Flex>}
@@ -118,7 +143,9 @@ function Overview({ data, isLoading, flows = [], uptime, isQuickCheck }) {
 
             <Card withBorder shadow="md" p="0" flex="1">
               <Flex h="100%" align="center" justify="center">
-                <OverviewChart data={checks} flows={flows} />
+                {allChecksCompleted && <OverviewChart data={checks} flows={flows} />}
+                {!allChecksCompleted && <Loader size="xl" />}
+                {/* todo improve this loader / more info? */}
               </Flex>
             </Card>
           </Flex>
@@ -138,56 +165,30 @@ function Overview({ data, isLoading, flows = [], uptime, isQuickCheck }) {
               </Box>
 
               <Flex direction="column" gap="md">
-                <Flex gap="xs">
-                  <ThemeIcon mt="5px" size="sm" color={recentSSL.result.status === 'success' ? 'green' : 'red'}>
-                    {recentSSL.result.status === 'success'
-                      ? <IconCheck style={{ width: '70%', height: '70%' }} />
-                      : <IconX style={{ width: '70%', height: '70%' }} />
-                    }
-                  </ThemeIcon>
-                  <Box>
-                    <Text fw="normal">SSL Certificate</Text>
-                    {recentSSL.result.status === 'success' &&
-                      <Text size="xs" fa="right">Valid until {new Date(recentSSL.result.details.validTo).toLocaleDateString()}</Text>
-                    }
-                  </Box>
-                </Flex>
+                {!recentSSL && <LoadingInfoBox title="SSL Certificate" />}
+                {recentSSL && <InfoBox success={recentSSL.result.status === 'success'} title="SSL Certificate">
+                  <Text size="xs" fa="right">Valid until {new Date(recentSSL.result.details.validTo).toLocaleDateString()}</Text>
+                </InfoBox>}
 
-                <Flex gap="xs">
-                  <ThemeIcon mt="5px" size="sm" color={recentFuzz.result.status === 'success' ? 'green' : 'red'}>
-                    {recentFuzz.result.status === 'success'
-                      ? <IconCheck style={{ width: '70%', height: '70%' }} />
-                      : <IconX style={{ width: '70%', height: '70%' }} />
-                    }
-                  </ThemeIcon>
-                  <Box>
-                    <Text fw="normal">Sensitive Files Check</Text>
-                    {recentFuzz.result.details.files.length === 0 && <Text size="xs" fa="right">No exposed files found</Text>}
-                    {recentFuzz.result.details.files.length > 0 && <Text size="xs" fa="right">
-                      <a href="#open-modal" onClick={e => openModal(e, 'fuzz')}>
-                        {recentFuzz.result.details.files.length} files found
-                      </a>
-                    </Text>}
-                  </Box>
-                </Flex>
+                {!recentFuzz && <LoadingInfoBox title="Sensitive Files Check" />}
+                {recentFuzz && <InfoBox success={recentFuzz.result.status === 'success'} title="Sensitive Files Check">
+                  {recentFuzz.result.details.files.length === 0 && <Text size="xs" fa="right">No exposed files found</Text>}
+                  {recentFuzz.result.details.files.length > 0 && <Text size="xs" fa="right">
+                    <a href="#open-modal" onClick={e => openModal(e, 'fuzz')}>
+                      {recentFuzz.result.details.files.length} files found
+                    </a>
+                  </Text>}
+                </InfoBox>}
 
-                <Flex gap="xs">
-                  <ThemeIcon mt="5px" size="sm" color={recentHeaders.result.status === 'success' ? 'green' : 'yellow'}>
-                    {recentHeaders.result.status === 'success'
-                      ? <IconCheck style={{ width: '70%', height: '70%' }} />
-                      : <IconExclamationMark style={{ width: '70%', height: '70%' }} />
-                    }
-                  </ThemeIcon>
-                  <Box>
-                    <Text fw="normal">HTTP Headers</Text>
-                    {recentHeaders.result.details.missingHeaders.length === 0 && <Text size="xs" fa="right">All security headers are set</Text>}
-                    {recentHeaders.result.details.missingHeaders.length > 0 && <Text size="xs" fa="right">
-                      <a href="#open-modal" onClick={e => openModal(e, 'headers')}>
-                        {recentHeaders.result.details.missingHeaders.length} missing security headers
-                      </a>
-                    </Text>}
-                  </Box>
-                </Flex>
+                {!recentHeaders && <LoadingInfoBox title="HTTP Headers" />}
+                {recentHeaders && <InfoBox success={recentHeaders.result.details.missingHeaders.length === 0} title="HTTP Headers">
+                  {recentHeaders.result.details.missingHeaders.length === 0 && <Text size="xs" fa="right">All security headers are set</Text>}
+                  {recentHeaders.result.details.missingHeaders.length > 0 && <Text size="xs" fa="right">
+                    <a href="#open-modal" onClick={e => openModal(e, 'headers')}>
+                      {recentHeaders.result.details.missingHeaders.length} missing security headers
+                    </a>
+                  </Text>}
+                </InfoBox>}
               </Flex>
             </Card>
 
@@ -213,22 +214,22 @@ function Overview({ data, isLoading, flows = [], uptime, isQuickCheck }) {
               </Box>
 
               {performanceTab === 'desktop' && <Box>
-                <PerformanceBar title="Largest Contentful Paint" metric={recentPerformance.result.details.desktopResult.LCP} unit="ms" mb="sm" />
-                <PerformanceBar title="Interaction to Next Paint" metric={recentPerformance.result.details.desktopResult.INP} unit="ms" mb="sm" />
-                <PerformanceBar title="Cumulative Layout Shift" metric={recentPerformance.result.details.desktopResult.CLS} unit="ms" />
+                <PerformanceBar title="Largest Contentful Paint" isLoading={!recentPerformance} metric={recentPerformance?.result?.details?.desktopResult?.LCP} unit="ms" mb="sm" />
+                <PerformanceBar title="Interaction to Next Paint" isLoading={!recentPerformance} metric={recentPerformance?.result?.details?.desktopResult?.INP} unit="ms" mb="sm" />
+                <PerformanceBar title="Cumulative Layout Shift" isLoading={!recentPerformance} metric={recentPerformance?.result?.details?.desktopResult?.CLS} unit="ms" />
               </Box>}
 
               {performanceTab === 'mobile' && <Box>
-                <PerformanceBar title="Largest Contentful Paint" metric={recentPerformance.result.details.mobileResult.LCP} unit="ms" mb="sm" />
-                <PerformanceBar title="Interaction to Next Paint" metric={recentPerformance.result.details.mobileResult.INP} unit="ms" mb="sm" />
-                <PerformanceBar title="Cumulative Layout Shift" metric={recentPerformance.result.details.mobileResult.CLS} unit="ms" />
+                <PerformanceBar title="Largest Contentful Paint" isLoading={!recentPerformance} metric={recentPerformance?.result?.details?.mobileResult?.LCP} unit="ms" mb="sm" />
+                <PerformanceBar title="Interaction to Next Paint" isLoading={!recentPerformance} metric={recentPerformance?.result?.details?.mobileResult?.INP} unit="ms" mb="sm" />
+                <PerformanceBar title="Cumulative Layout Shift" isLoading={!recentPerformance} metric={recentPerformance?.result?.details?.mobileResult?.CLS} unit="ms" />
               </Box>}
             </Card>
           </Flex>
         </Grid.Col>
 
         <Grid.Col span={grid} h={{ base: '100%', md: 'auto' }}>
-          <Flex direction={{ base: 'column', md: 'row', xl: 'column' }} gap={spacing} h="100%">
+          <Flex gap={spacing} direction={{ base: 'column', md: 'row', xl: 'column' }} h="100%">
             <Card withBorder shadow="md" flex="1">
               <Flex justify="space-between">
                 <Box mb="lg">
@@ -242,50 +243,39 @@ function Overview({ data, isLoading, flows = [], uptime, isQuickCheck }) {
                   {!isQuickCheck && <Text size="xs">from {new Date(recentSeo.createdAt).toLocaleDateString()}</Text>}
                 </Box>
 
-                <Avatar
+                {(!recentSeo || !recentLinks) && <Skeleton radius="xl" w={38} h={38} animate={false} />}
+                {recentSeo && recentLinks && <Avatar
                   radius="xl"
                   color={seoScore > 90 ? 'green' : seoScore > 50 ? 'yellow' : 'red'}
                 >
                   {seoScore}
-                </Avatar>
+                </Avatar>}
               </Flex>
 
-              <Flex gap="xs" align="center" mb="md">
-                <ThemeIcon size="sm" color={recentSeo.result.details.items.length === 0 ? 'green' : 'yellow'}>
-                  {recentSeo.result.details.items.length === 0
-                    ? <IconCheck style={{ width: '70%', height: '70%' }} />
-                    : <IconExclamationMark style={{ width: '70%', height: '70%' }} />
-                  }
-                </ThemeIcon>
-                <Box>
-                  {recentSeo.result.details.items.length === 0 && <Text fa="right">No SEO issues found</Text>}
-                  {recentSeo.result.details.items.length > 0 && <Text fa="right">
-                    <a href="#open-modal" onClick={e => openModal(e, 'seo')}>
-                      {recentSeo.result.details.items.length} SEO {recentSeo.result.details.items.length === 1 ? 'issue' : 'issues'} found
-                    </a>
-                  </Text>}
-                </Box>
-              </Flex>
+              {!recentSeo && <LoadingInfoBox title="Lighthouse SEO" />}
+              {recentSeo && <InfoBox success={recentSeo.result.details.items.length === 0} title="Lighthouse SEO">
+                {recentSeo.result.details.items.length === 0 && <Text fa="right" size="xs">No SEO issues found</Text>}
+                {recentSeo.result.details.items.length > 0 && <Text size="xs" fa="right">
+                  <a href="#open-modal" onClick={e => openModal(e, 'seo')}>
+                    {recentSeo.result.details.items.length} SEO {recentSeo.result.details.items.length === 1 ? 'issue' : 'issues'} found
+                  </a>
+                </Text>}
+              </InfoBox>}
 
-              <Flex gap="xs" align="center">
-                <ThemeIcon size="sm" color={brokenLinks.length === 0 ? 'green' : 'yellow'}>
-                  {brokenLinks.length === 0
-                    ? <IconCheck style={{ width: '70%', height: '70%' }} />
-                    : <IconExclamationMark style={{ width: '70%', height: '70%' }} />
-                  }
-                </ThemeIcon>
-                <Box>
-                  {brokenLinks.length === 0 && <Text fa="right">No broken links found</Text>}
-                  {brokenLinks.length > 0 && <Text fa="right">
-                    <a href="#open-modal" onClick={e => openModal(e, 'links')}>
-                      {brokenLinks.length} broken {brokenLinks.length === 1 ? 'link' : 'links'} found
-                    </a>
-                  </Text>}
-                </Box>
-              </Flex>
+              <Space h="md" />
+
+              {!recentLinks && <LoadingInfoBox title="Broken Links" />}
+              {recentLinks && <InfoBox success={brokenLinks.length === 0} title="Broken Links">
+                {brokenLinks.length === 0 && <Text fa="right" size="xs">No broken links found</Text>}
+                {brokenLinks.length > 0 && <Text fa="right" size="xs">
+                  <a href="#open-modal" onClick={e => openModal(e, 'links')}>
+                    {brokenLinks.length} broken {brokenLinks.length === 1 ? 'link' : 'links'} found
+                  </a>
+                </Text>}
+              </InfoBox>}
             </Card>
 
-            <Card withBorder shadow="md" flex="1">
+            <Card withBorder shadow="md" flex="1" mah={{ base: 'auto', xl: '24%' }}>
               <Flex justify="space-between">
                 <Box mb="lg">
                   <Flex gap="xs" align="center">
@@ -298,30 +288,24 @@ function Overview({ data, isLoading, flows = [], uptime, isQuickCheck }) {
                   {!isQuickCheck && <Text size="xs">from {new Date(recentA11y.createdAt).toLocaleDateString()}</Text>}
                 </Box>
 
-                <Avatar
+                {!recentA11y && <Skeleton radius="xl" w={38} h={38} animate={false} />}
+                {recentA11y && <Avatar
                   radius="xl"
                   color={recentA11y.result.details.score > 90 ? 'green' : recentA11y.result.details.score > 50 ? 'yellow' : 'red'}
                 >
                   {Math.round(recentA11y.result.details.score)}
-                </Avatar>
+                </Avatar>}
               </Flex>
 
-              <Flex gap="xs" align="center">
-                <ThemeIcon size="sm" color={recentA11y.result.details.items.length === 0 ? 'green' : 'yellow'}>
-                  {recentA11y.result.details.items.length === 0
-                    ? <IconCheck style={{ width: '70%', height: '70%' }} />
-                    : <IconExclamationMark style={{ width: '70%', height: '70%' }} />
-                  }
-                </ThemeIcon>
-                <Box>
-                  {recentA11y.result.details.items.length === 0 && <Text fa="right">No accessibility violations found</Text>}
-                  {recentA11y.result.details.items.length > 0 && <Text fa="right">
-                    <a href="#open-modal" onClick={e => openModal(e, 'a11y')}>
-                      {recentA11y.result.details.items.length} accessibility {recentA11y.result.details.items.length === 1 ? 'violation' : 'violations'} found
-                    </a>
-                  </Text>}
-                </Box>
-              </Flex>
+              {!recentA11y && <LoadingInfoBox title="Lighthouse Accessibility" />}
+              {recentA11y && <InfoBox success={recentA11y.result.details.items.length === 0} title="Lighthouse Accessibility">
+                {recentA11y.result.details.items.length === 0 && <Text fa="right" size="xs">No accessibility violations found</Text>}
+                {recentA11y.result.details.items.length > 0 && <Text fa="right" size="xs">
+                  <a href="#open-modal" onClick={e => openModal(e, 'a11y')}>
+                    {recentA11y.result.details.items.length} accessibility {recentA11y.result.details.items.length === 1 ? 'violation' : 'violations'} found
+                  </a>
+                </Text>}
+              </InfoBox>}
             </Card>
 
             {isQuickCheck && <Card withBorder shadow="md" flex="1">

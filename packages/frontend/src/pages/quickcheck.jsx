@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLocation } from "react-router-dom";
 import Layout from '@/components/Layout/AppLayout'
-import { Blockquote, Box, Button, Card, List, Loader, Text, ThemeIcon, Title } from '@mantine/core'
+import { Blockquote, Box, Button, Card, Flex, List, Loader, Overlay, Text, ThemeIcon, Title } from '@mantine/core'
 import { IconCheck, IconSlash, IconX } from '@tabler/icons-react'
 import Overview from '@/components/Dashboard/Overview';
 import { trackEvent } from '@/utils/trackEvent'
@@ -144,7 +144,7 @@ function QuickCheck() {
   return (
     <Layout title="Quick Check" hideNav={true}>
       <Box maw={1800} mx="auto">
-        {!allChecksCompleted && <Card withBorder shadow="md" maw="600px" mx="auto">
+        {/* {!allChecksCompleted && <Card withBorder shadow="md" maw="600px" mx="auto">
           <Title mb="md" order={1} fw="normal">Running Health Check...</Title>
 
           <Text mb={isInQueue ? "xs" : "xl"}>Please wait while we perform our background checks. This won't take long.</Text>
@@ -176,21 +176,45 @@ function QuickCheck() {
           {jobFailed || errorCount > 5 && <Blockquote p="xs" color="red">
             An unexpected error occurred. Please try again or contact me: <a href="mailto:mail@vincentwill.com">mail@vincentwill.com</a>
           </Blockquote>}
-        </Card>}
+        </Card>} */}
 
-        {allChecksCompleted && <Box>
+        <Box>
           <Title order={1} mb="md" fw="normal">Your Quickcheck Results:</Title>
+          {/* todo queue and error overlay */}
+          {isInQueue && <>
+            <Overlay backgroundOpacity={0.45} blur={4} zIndex={200} />
+            <Flex
+              style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 201 }}
+              w="100vw" h="100vh" align="center"
+              p="md"
+              bg=""
+            >
+              <Card withBorder shadow="md" mx="auto" p="md">
+                <Flex gap="md" align="center" mb="md">
+                  <Loader type="bars" size="sm" />
+                  <Title order={2} size="h1" ta="center">You’re in the Queue</Title>
+                </Flex>
+
+                <Text size="xl" mb="md">Our system is handling a high volume of checks.<br />Hang tight — your website health check will begin shortly.</Text>
+                <Text size="xl">Current position in queue: <b>#{waitingIndex + 1}</b></Text>
+              </Card>
+            </Flex>
+          </>}
+          
           <Overview
             data={{
               user: { domain: url },
-              checks
+              checks,
+              allChecksCompleted,
+              createdAt: result.createdAt,
             }}
             isLoading={false}
             isQuickCheck={true}
+            allChecksCompleted={allChecksCompleted}
           />
 
           {/* <MockHistoryCharts /> */}
-        </Box>}
+        </Box>
       </Box>
     </Layout>
   )

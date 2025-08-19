@@ -1,4 +1,4 @@
-import { Box, Group, Stack, Tooltip, Text, Flex } from "@mantine/core";
+import { Box, Group, Stack, Tooltip, Text, Flex, Skeleton } from "@mantine/core";
 import { useEffect, useState, useRef } from "react";
 
 const categoryColors = ['green', 'yellow', 'red']; // Fast, Average, Slow
@@ -37,19 +37,19 @@ function calculateMarkerLeft(metric, containerWidth) {
   return Math.min(leftProportion * containerWidth, containerWidth);
 }
 
-const PerformanceBar = ({ title, metric, unit, mb = '0' }) => {
+const PerformanceBar = ({ title, metric, isLoading, unit, mb = '0' }) => {
   if (!metric) return <Box mb={mb}>
     <Group justify="space-between" mb="2px">
       <Flex gap="4px" align="center">
         <Box w="8px" h="8px" bg="gray.5" />
         <Text fw={500} size="sm">{title}</Text>
       </Flex>
-      <Text size="sm" c="dimmed">
+      {!isLoading && <Text size="sm" c="dimmed">
         no data
-      </Text>
+      </Text>}
     </Group>
 
-    <Box
+    {!isLoading && <Box
       bg="gray.5"
       h={20}
       w="100%"
@@ -57,13 +57,13 @@ const PerformanceBar = ({ title, metric, unit, mb = '0' }) => {
         transition: 'width 0.2s ease',
         borderRadius: 4,
       }}
-    />
+    />}
+    {isLoading && <Skeleton h={20} w="100%" mb="sm" />}
   </Box>;
 
   const containerRef = useRef(null);
   const [containerWidth, setContainerWidth] = useState(0);
 
-  // ResizeObserver to track container width
   useEffect(() => {
     const resizeObserver = new ResizeObserver((entries) => {
       if (entries.length > 0) {

@@ -58,8 +58,8 @@ const Layout = ({ children, title, hideNav }) => {
             <Text size="md" fw={200}>{import.meta.env.VITE_WEBSITE_NAME}</Text>
           </Flex>
           <Box>
-            <Text size="sm" c="dimmed">Made and hosted in the EU 🇪🇺</Text>
-            <Text size="sm" c="dimmed">Runs on renewable energy 🍃</Text>
+            <Text size="sm">Made and hosted in the EU 🇪🇺</Text>
+            <Text size="sm">Runs on renewable energy 🍃</Text>
           </Box>
         </Flex>
 

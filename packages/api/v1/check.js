@@ -127,7 +127,8 @@ export default async function checkRoutes(fastify, opts) {
         checks,
         waitingIndex,
         state,
-        url: quickcheck.url
+        url: quickcheck.url,
+        createdAt: quickcheck.createdAt.toISOString(),
       }
     } catch (e) {
       console.error(e)
