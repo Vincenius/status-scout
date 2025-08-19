@@ -7,6 +7,7 @@ import PerformanceBar from '@/components/Dashboard/PerformanceBar';
 import DetailsModal from '@/components/Dashboard/DetailsModal';
 import calcScore from '@/utils/calcScore'
 import FeedbackButton from '@/components/FeedbackButton/FeedbackButton';
+import InfoPopover from '@/components/InfoPopover/InfoPopover';
 
 const LoadingInfoBox = ({ title }) => {
   return (
@@ -20,7 +21,7 @@ const LoadingInfoBox = ({ title }) => {
   )
 }
 
-const InfoBox = ({ success, title, children }) => {
+const InfoBox = ({ success, title, hint, children }) => {
   return (<Flex gap="xs">
     <ThemeIcon mt="5px" size="sm" color={success ? 'green' : 'yellow'}>
       {success
@@ -29,7 +30,10 @@ const InfoBox = ({ success, title, children }) => {
       }
     </ThemeIcon>
     <Box>
-      <Text fw="normal">{title}</Text>
+      <Flex gap="xs" align="center">
+        <Text fw="normal">{title}</Text>
+        { hint && <InfoPopover infoText={hint} /> }
+      </Flex>
       {children}
     </Box>
   </Flex>)
@@ -171,7 +175,11 @@ function Overview({ data, isLoading, flows = [], uptime, isQuickCheck }) {
                 </InfoBox>}
 
                 {!recentFuzz && <LoadingInfoBox title="Sensitive Files Check" />}
-                {recentFuzz && <InfoBox success={recentFuzz.result.status === 'success'} title="Sensitive Files Check">
+                {recentFuzz && <InfoBox
+                  success={recentFuzz.result.status === 'success'}
+                  title="Sensitive Files Check"
+                  hint="Note: For performance reasons, only the 140 most common sensitive files are checked. This does not cover all possible files."
+                >
                   {recentFuzz.result.details.files.length === 0 && <Text size="xs" fa="right">No exposed files found</Text>}
                   {recentFuzz.result.details.files.length > 0 && <Text size="xs" fa="right">
                     <a href="#open-modal" onClick={e => openModal(e, 'fuzz')}>
@@ -265,7 +273,11 @@ function Overview({ data, isLoading, flows = [], uptime, isQuickCheck }) {
               <Space h="md" />
 
               {!recentLinks && <LoadingInfoBox title="Broken Links" />}
-              {recentLinks && <InfoBox success={brokenLinks.length === 0} title="Broken Links">
+              {recentLinks && <InfoBox
+                success={brokenLinks.length === 0}
+                title="Broken Links"
+                hint="Note: For performance reasons, only up to 200 links are checked for now. This does not cover all links on the site."
+              >
                 {brokenLinks.length === 0 && <Text fa="right" size="xs">No broken links found</Text>}
                 {brokenLinks.length > 0 && <Text fa="right" size="xs">
                   <a href="#open-modal" onClick={e => openModal(e, 'links')}>
