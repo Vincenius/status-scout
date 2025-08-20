@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "postbuild": "node scripts/generate-nginx-routes.js",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit"
   },
