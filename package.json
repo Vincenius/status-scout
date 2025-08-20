@@ -2,7 +2,7 @@
   "name": "status-scout",
   "version": "1.0.0",
   "repository": "git@github.com:Vincenius/status-scout.git",
-  "author": "Vincent Will <mail@vincentwill.com>",
+  "author": "Vincent Will <hello@statusscout.dev>",
   "license": "ISC",
   "private": true,
   "workspaces": [

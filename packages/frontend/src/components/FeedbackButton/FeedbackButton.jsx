@@ -21,7 +21,6 @@ function FeedbackButton({ children, ...props }) {
       },
       body: JSON.stringify(formData),
     }).then(res => res.json()).then(res => {
-      console.log('feedback', res)
       setSuccess(true)
     }).finally(() => {
       setLoading(false)

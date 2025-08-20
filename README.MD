@@ -118,4 +118,4 @@ This project is licensed under the ISC License.
 
 ---
 
-For more details, see the documentation in each subfolder or contact [mail@vincentwill.com](mailto:mail@vincentwill.com).
+For more details, see the documentation in each subfolder or contact [hello@statusscout.dev](mailto:hello@statusscout.dev).

@@ -15,7 +15,7 @@ const Privacy = () => {
         Also AdBlockers will work for blocking the tracking. I&apos;d recomment <i>uBlock Origin</i> for that.
       </p>
       <p>
-        If you think I&apos;m missing something here - please let me know: mail@vincentwill.com
+        If you think I&apos;m missing something here - please let me know: hello@statusscout.dev
       </p>
 
       <br />
@@ -231,6 +231,15 @@ const Privacy = () => {
         This website does not display advertisements and does not use third-party advertising services.
       </p>
 
+      <Title order={2} my="md">Waitlist Signups & Brevo</Title>
+      <p>
+        If you sign up for the waitlist, I use <a href="https://www.brevo.com/" target="_blank" rel="noopener">Brevo</a> to send you notifications about StatusScout updates.
+        For this purpose, your email address and name are stored securely with Brevo. Your data is only used to notify you about StatusScout and will not be shared or used for other purposes.
+      </p>
+      <p>
+        You can request deletion of your data at any time by contacting me at hello@statusscout.dev.
+      </p>
+      <br />
 
       <Title order={2} my="md">Links To Other Sites</Title>
       <p>
@@ -268,7 +277,7 @@ const Privacy = () => {
         please contact me:
       </p>
       <ul>
-        <li>By email: mail@vincentwill.com</li>
+        <li>By email: hello@statusscout.dev</li>
       </ul>
     </Box>
   </Layout>

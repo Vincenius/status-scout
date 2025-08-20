@@ -2,7 +2,7 @@ import { LinkChecker } from 'linkinator';
 import { createCheckResult } from '../db.js';
 
 const fileRegex = /\.[a-z0-9]+([?#].*)?$/i;
-const skipList = ['/error', '/presse', '/imprensa'] // todo dynamic
+const skipList = [] // todo dynamic
 let crawlCount = 0;
 
 export const runBrokenLinkCheck = async ({ uri, userId, createdAt, type, quickcheckId }) => {

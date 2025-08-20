@@ -32,14 +32,14 @@ const InfoBox = ({ success, title, hint, children }) => {
     <Box>
       <Flex gap="xs" align="center">
         <Text fw="normal">{title}</Text>
-        { hint && <InfoPopover infoText={hint} /> }
+        {hint && <InfoPopover infoText={hint} />}
       </Flex>
       {children}
     </Box>
   </Flex>)
 }
 
-function Overview({ data, isLoading, flows = [], uptime, isQuickCheck }) {
+function Overview({ data, isLoading, flows = [], uptime, isQuickCheck, hasFailed }) {
   const [modal, setModal] = useState(null);
   const [performanceTab, setPerformanceTab] = useState('desktop');
 
@@ -148,8 +148,10 @@ function Overview({ data, isLoading, flows = [], uptime, isQuickCheck }) {
             <Card withBorder shadow="md" p="0" flex="1">
               <Flex h="100%" align="center" justify="center">
                 {allChecksCompleted && <OverviewChart data={checks} flows={flows} />}
-                {!allChecksCompleted && <Loader size="xl" />}
-                {/* todo improve this loader / more info? */}
+                {!allChecksCompleted && !hasFailed && <Loader size="xl" p="md" />}
+                {!allChecksCompleted && hasFailed && <Blockquote p="xs" color="red" maw={400} mx="auto">
+                  An unexpected error occurred. Please try again or contact me: <a href="mailto:hello@statusscout.dev">hello@statusscout.dev</a>
+                </Blockquote>}
               </Flex>
             </Card>
           </Flex>

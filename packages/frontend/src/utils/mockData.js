@@ -8,7 +8,7 @@ export const linkMock = {
       {
         "url": "https://www.noticiasdelmotor.com/noticias/c/0/i/89840543/siete-claves-para-reducir-la-huella-de-carbono-en-la-logistica-de-vehiculos",
         "status": 404,
-        "parent": "https://www.onlogist.com/ueber-uns"
+        "parent": "https://www.example.com/ueber-uns"
       }
     ]
   },

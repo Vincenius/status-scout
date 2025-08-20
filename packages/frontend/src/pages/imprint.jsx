@@ -13,7 +13,7 @@ const Imprint = () => {
           Landsberger Allee 171D<br />
           10369 Berlin<br />
           <b>Contact:</b><br />
-          Email: mail@vincentwill.com<br />
+          Email: hello@statusscout.dev<br />
         </p><br />
 
         {/* VAT ID

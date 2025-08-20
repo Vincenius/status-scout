@@ -11,6 +11,7 @@ import flowsRoutes from './v1/flows.js'
 import userRoutes from './v1/user.js'
 import checkRoutes from './v1/check.js'
 import feedbackRoutes from './v1/feedback.js';
+import waitlistRoutes from './v1/waitlist.js';
 import { disconnectDB } from './db.js'
 
 const fastify = Fastify({
@@ -73,6 +74,7 @@ fastify.register(flowsRoutes, { prefix: '/v1' })
 fastify.register(userRoutes, { prefix: '/v1/user' })
 fastify.register(checkRoutes, { prefix: '/v1' })
 fastify.register(feedbackRoutes, { prefix: '/v1/feedback' })
+fastify.register(waitlistRoutes, { prefix: '/v1/waitlist' })
 
 fastify.addHook('onClose', async (instance, done) => {
   console.log('Close db connection');

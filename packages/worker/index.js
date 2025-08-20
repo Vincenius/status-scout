@@ -80,7 +80,7 @@ export const run = async ({ type = 'quick', userId, quickcheckId, url }) => {
 
       if (notifications.length > 0) {
         console.log('sending notifications');
-        await fetch('https://ntfy.sh/www-onlogist-monitoring', {
+        await fetch(process.env.NTFY_URL, {
           method: 'POST',
           body: 'Error: ' + notifications.map(n => n.check).join(', ')
         })
