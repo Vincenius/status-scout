@@ -38,6 +38,7 @@ services:
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - SENDER_EMAIL=${SENDER_EMAIL}
       - FEEDBACK_EMAIL=${FEEDBACK_EMAIL}
+      - BREVO_API_KEY=${BREVO_API_KEY}
     depends_on:
       - mongodb
       - redis

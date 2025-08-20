@@ -88,12 +88,12 @@ const Layout = ({ children, title, hideNav }) => {
       </AppShell.Navbar>}
 
       <AppShell.Main>
-        <Box pb="lg">
+        <Box>
           {children}
         </Box>
       </AppShell.Main>
 
-      <AppShell.Footer>
+      {/* <AppShell.Footer>
         <Flex py="xs" px="md" w="100%" justify="space-between">
           <Text size="sm" align="center">© {new Date().getFullYear()} {import.meta.env.VITE_WEBSITE_NAME}</Text>
 
@@ -102,7 +102,7 @@ const Layout = ({ children, title, hideNav }) => {
             <Text size="sm"><Link to="/privacy">Privacy</Link></Text>
           </Flex>
         </Flex>
-      </AppShell.Footer>
+      </AppShell.Footer> */}
     </AppShell>
   </>
 }
