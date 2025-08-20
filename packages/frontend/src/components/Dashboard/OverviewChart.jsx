@@ -12,11 +12,13 @@ const OverviewChart = ({ data = [], flows = [] }) => {
   const recentPerformance = data.filter(d => d.check === 'performance').sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
   const recentCustomChecks = data.filter(d => d.check === 'custom').sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
 
-  const performanceScores = Object.values(recentPerformance.result.details)
-    .map(device => Object.values(device))
-    .flat()
-    .filter(m => m?.category && m?.category !== 'NONE')
-    .map(metric => metric?.category === 'FAST' ? 1 : metric?.category === 'AVERAGE' ? 0.5 : 0)
+  const performanceScores = recentPerformance?.result
+    ? Object.values(recentPerformance.result.details)
+      .map(device => Object.values(device))
+      .flat()
+      .filter(m => m?.category && m?.category !== 'NONE')
+      .map(metric => metric?.category === 'FAST' ? 1 : metric?.category === 'AVERAGE' ? 0.5 : 0)
+    : []
   const performanceValue = performanceScores.length === 0
     ? null
     : Math.round((performanceScores.reduce((p, c) => p + c, 0) / performanceScores.length) * 100)
