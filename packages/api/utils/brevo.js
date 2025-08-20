@@ -18,7 +18,7 @@ export const createAccount = async ({ email, firstName, listId }) => {
       body: JSON.stringify({
         email,
         attributes: {
-          FIRSTNAME: firstName,
+          VORNAME: firstName,
         },
         includeListIds: [listId],
         templateId: 1,
