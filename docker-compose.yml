@@ -72,7 +72,7 @@ services:
     container_name: status-scout-worker
     restart: always
     stop_signal: SIGTERM
-    stop_grace_period: 60s # give the container time to finish jobs
+    # stop_grace_period: 60s # give the container time to finish jobs # todo re-add
     environment:
       - MONGODB_URI=${MONGODB_URI}
       - GOOGLE_PAGESPEED_API_KEY=${GOOGLE_PAGESPEED_API_KEY} 

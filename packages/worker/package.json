@@ -8,8 +8,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node worker.js",
-    "dev": "nodemon worker.js",
-    "deploy": "sh deploy.sh"
+    "dev": "nodemon worker.js"
   },
   "author": "",
   "license": "ISC",
