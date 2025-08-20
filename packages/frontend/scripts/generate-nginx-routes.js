@@ -32,9 +32,8 @@ function generateLocationBlocks(routes) {
 }
 
 const routes = getRoutes(pagesDir);
-console.log('DBG', routes)
+console.log('Generate routes:', routes)
 const locationBlocks = generateLocationBlocks(routes);
-console.log('Generated location blocks:\n', locationBlocks);
 
 let conf = fs.readFileSync(nginxConfPath, 'utf8');
 conf = conf.replace(/#\s*\{\{\s*frontend_routes\s*\}\}/, locationBlocks);
