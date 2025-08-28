@@ -1,0 +1,39 @@
+{
+  "name": "status-scout-landing",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "postbuild": "node scripts/generate-nginx-routes.js",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@mantine/charts": "^8.1.3",
+    "@mantine/core": "8.1.2",
+    "@mantine/form": "^8.2.2",
+    "@mantine/hooks": "8.1.2",
+    "@tabler/icons-react": "^3.34.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-helmet-async": "^2.0.5",
+    "react-markdown": "^10.1.0",
+    "react-router-dom": "^7.6.3",
+    "recharts": "2",
+    "swr": "^2.3.4",
+    "zustand": "^5.0.7"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@vitejs/plugin-react": "^4.5.2",
+    "postcss": "^8.5.5",
+    "postcss-preset-mantine": "1.17.0",
+    "postcss-simple-vars": "^7.0.1",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5",
+    "vite-plugin-pages": "^0.33.1"
+  }
+}

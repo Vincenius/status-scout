@@ -1,0 +1,7 @@
+a {
+  color: var(--mantine-primary-color-9);
+}
+
+[data-mantine-color-scheme="dark"] a {
+  color: var(--mantine-primary-color-2);
+}

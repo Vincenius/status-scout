@@ -22,7 +22,8 @@ Run a health check on:
 ```
 packages/api/        # Fastify-based REST API server
 packages/cron/       # Cron job scheduler to trigger worker jobs
-packages/frontend/   # React frontend (Vite + Mantine)
+packages/frontend/   # App Frontend
+packages/landing/    # Landing Page
 packages/worker/     # Background worker for executing checks
 assets/              # Static assets (e.g., logo)
 ```

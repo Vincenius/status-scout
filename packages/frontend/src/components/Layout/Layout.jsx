@@ -1,11 +1,15 @@
-import { Text, Flex, Box, Indicator, Divider, ThemeIcon } from '@mantine/core'
+import { Text, Flex, Burger, AppShell, NavLink, Box, Indicator } from '@mantine/core'
 import { Helmet } from 'react-helmet-async';
-import { IconBrandBluesky, IconBrandGithub, IconHeartbeat, IconMug } from '@tabler/icons-react';
-import { Link } from 'react-router-dom';
+import { useDisclosure } from '@mantine/hooks';
+import { IconDashboard, IconHeartbeat, IconLogout } from '@tabler/icons-react';
+import { Link, useNavigate } from 'react-router-dom';
 import ColorSchemeToggle from './ColorSchemeToggle.jsx';
 import { useEffect } from 'react';
 
 const Layout = ({ children, title, hideNav }) => {
+  // hideNav if unauthenticated?
+  const [opened, { toggle }] = useDisclosure();
+  const navigate = useNavigate();
   const isAnalyticsEnabled = import.meta.env.VITE_ENABLE_ANALYTICS === 'true' || import.meta.env.VITE_ENABLE_ANALYTICS === true;
 
   // set head info on initial load
@@ -27,66 +31,79 @@ const Layout = ({ children, title, hideNav }) => {
       <title>{`${title} | StatusScout`}</title>
       {isAnalyticsEnabled && (<script defer src="https://analytics.vincentwill.com/script.js" data-website-id="a807669d-6eda-4c1c-9b36-2247d2caf318"></script>)}
     </Helmet>
+    <AppShell
+      header={{ height: 60 }}
+      navbar={{
+        width: hideNav ? 0 : 250,
+        breakpoint: 'sm',
+        collapsed: { mobile: !opened },
+      }}
+      padding="md"
+    >
+      <AppShell.Header>
+        <Flex align="center" h="100%" gap="lg">
+          {!hideNav && <Burger
+            opened={opened}
+            onClick={toggle}
+            hiddenFrom="sm"
+            size="sm"
+          />}
+          <Flex justify="space-between" w="100%" px="md">
+            <Indicator inline label="Beta" size={16}>
+              <Flex gap="xs" align="center" component={Link} to="/" c="inherit" td="none">
+                <IconHeartbeat size={26} stroke={0.8} />
+                <Text size="xl" fw={200}>StatusScout</Text>
+              </Flex>
+            </Indicator>
 
-    <Flex align="center" justify="space-between" h="100%" gap="lg" maw={1200} mx="auto" py="xs" px="xl">
-      <Indicator inline label="Beta" size={16}>
-        <Flex gap="xs" align="center" component={Link} to="/" c="inherit" td="none">
-          <IconHeartbeat size={26} stroke={0.8} />
-          <Text size="xl" fw={200}>StatusScout</Text>
-        </Flex>
-      </Indicator>
-
-      <ColorSchemeToggle />
-    </Flex>
-
-    <Divider my="0" />
-
-    <Box px="xl" maw={1200} mx="auto" mih="80vh" style={{ position: 'relative' }}>
-      {children}
-    </Box>
-
-    <Divider mb="1em" />
-
-    <footer>
-      <Flex py="xs" px="xl" w="100%" maw={1200} mx="auto" justify="space-between" direction={{ base: 'column', xs: 'row' }} gap={{ base: 'xl', xs: 'md' }}>
-        <Flex gap="md" direction="column" align={{ base: 'center', xs: 'flex-start' }}>
-          <Flex gap="xs" align="center" component={Link} to="/" c="inherit" td="none">
-            <IconHeartbeat size={20} stroke={0.8} />
-            <Text size="md" fw={200}>StatusScout</Text>
+            <ColorSchemeToggle />
           </Flex>
-          <Box>
-            <Text size="sm">Made and hosted in the EU 🇪🇺</Text>
-            <Text size="sm">Runs on renewable energy 🍃</Text>
-          </Box>
         </Flex>
+      </AppShell.Header>
 
-        <Flex gap="lg" direction="column">
-          <Flex gap="sm" justify={{ base: 'center', xs: 'flex-end' }} wrap="wrap">
+      {!hideNav && <AppShell.Navbar p="sm">
+        <NavLink
+          label="Dashboard"
+          leftSection={<IconDashboard size={16} stroke={1.5} />}
+          active={window.location.pathname === '/'}
+          component={Link}
+        />
+        <NavLink
+          label="Logout"
+          leftSection={<IconLogout size={16} stroke={1.5} />}
+          onClick={async () => {
+            await fetch(`${import.meta.env.VITE_API_URL}/v1/logout`, { credentials: 'include' })
+            navigate('/login')
+          }}
+        />
+        {/* <NavLink
+          to="/custom-flows"
+          label="Custom Test Flows"
+          leftSection={<IconReorder size={16} stroke={1.5} />}
+          active={window.location.pathname === '/custom-flows'}
+          component={Link}
+        /> */}
+        {/* Manual Tests */}
+        {/* Alerts */}
+      </AppShell.Navbar>}
+
+      <AppShell.Main>
+        <Box>
+          {children}
+        </Box>
+      </AppShell.Main>
+
+      {/* <AppShell.Footer>
+        <Flex py="xs" px="md" w="100%" justify="space-between">
+          <Text size="sm" align="center">© {new Date().getFullYear()} StatusScout</Text>
+
+          <Flex gap="sm">
             <Text size="sm" c="inherit"><Link to="/imprint">Imprint</Link></Text>
             <Text size="sm"><Link to="/privacy">Privacy</Link></Text>
           </Flex>
-          <Flex gap="sm" justify={{ base: 'center', xs: 'flex-end' }}>
-            <a href="https://github.com/vincenius/status-scout" target="_blank" rel="noopener noreferrer">
-              <ThemeIcon variant="light" size="lg" aria-label="GitHub">
-                <IconBrandGithub size={20} />
-              </ThemeIcon>
-            </a>
-            <a href="https://bsky.app/profile/vincentwill.com" target="_blank" rel="noopener noreferrer">
-              <ThemeIcon variant="light" size="lg" aria-label="Bluesky">
-                <IconBrandBluesky size={20} />
-              </ThemeIcon>
-            </a>
-            <a href="https://ko-fi.com/wweb_dev" target="_blank" rel="noopener noreferrer">
-              <ThemeIcon variant="light" size="lg" aria-label="Bluesky">
-                <IconMug size={20} />
-              </ThemeIcon>
-            </a>
-          </Flex>
         </Flex>
-      </Flex>
-
-      <Text size="sm" align="center" my="lg">© {new Date().getFullYear()} StatusScout</Text>
-    </footer>
+      </AppShell.Footer> */}
+    </AppShell>
   </>
 }
 

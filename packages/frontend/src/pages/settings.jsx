@@ -1,5 +1,5 @@
 import React from 'react'
-import Layout from '@/components/Layout/AppLayout'
+import Layout from '@/components/Layout/Layout'
 
 function Settings() {
   return (

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLocation } from "react-router-dom";
-import Layout from '@/components/Layout/AppLayout'
+import Layout from '@/components/Layout/Layout'
 import { Blockquote, Box, Button, Card, Flex, Loader, Overlay, Text, Title } from '@mantine/core'
 import Overview from '@/components/Dashboard/Overview';
 import { trackEvent } from '@/utils/trackEvent'

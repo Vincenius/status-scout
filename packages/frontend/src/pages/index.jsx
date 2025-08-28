@@ -1,25 +1,15 @@
 import Layout from '@/components/Layout/Layout'
-import { Box, Flex } from '@mantine/core'
-import Features from '@/components/Landing/Features';
-import Hero from '@/components/Landing/Hero';
-import SocialProof from '@/components/Landing/SocialProof';
-import Roadmap from '@/components/Landing/Roadmap';
+import { Box, Flex, Loader, LoadingOverlay } from '@mantine/core'
 
-function QuickCheck() {
+function IndexPage() {
+  // if authenticated -> /dashboard
+  // else /login
+
   return (
-    <Layout title="Quick Check" >
-      <Flex mx="auto" mih="80vh" align="center">
-        <Hero />
-      </Flex>
-
-      <Features />
-
-      {/* <SocialProof /> */}
-
-      <Roadmap />
-
+    <Layout title="Login" hideNav>
+      <LoadingOverlay visible overlayBlur={2} />
     </Layout>
   )
 }
 
-export default QuickCheck
+export default IndexPage

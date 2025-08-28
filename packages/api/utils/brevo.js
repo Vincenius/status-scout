@@ -22,7 +22,7 @@ export const createAccount = async ({ email, firstName, listId }) => {
         },
         includeListIds: [listId],
         templateId: 1,
-        redirectionUrl: `${process.env.FRONTEND_URL}/confirmation`,
+        redirectionUrl: `${process.env.APP_URL}/confirmation`,
       })
     }).then(res => res.json())
 

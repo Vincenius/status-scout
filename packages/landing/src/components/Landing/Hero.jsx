@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { useForm } from '@mantine/form';
-import { ActionIcon, Box, Flex, Group, Image, Text, TextInput, ThemeIcon, Title, useMantineColorScheme } from '@mantine/core'
-import { IconArrowRight, IconCheck, IconSearch } from '@tabler/icons-react'
+import { ActionIcon, Box, Flex, Image, Text, TextInput, ThemeIcon, Title, useMantineColorScheme } from '@mantine/core'
+import { IconArrowRight, IconSearch } from '@tabler/icons-react'
 import { trackEvent } from '@/utils/trackEvent'
-import { useNavigate } from 'react-router-dom'
 import classes from './Landing.module.css';
 
 function isValidUrl(value) {
@@ -29,7 +28,6 @@ function normalizeUrl(value) {
 }
 
 export default function Hero() {
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const { colorScheme } = useMantineColorScheme();
   const heroImage = colorScheme === 'dark'
@@ -67,7 +65,7 @@ export default function Hero() {
     }).then(res => res.json())
       .then(res => {
         if (res.statusCode === 200 && res.quickcheckId) {
-          navigate(`/quickcheck?id=${res.quickcheckId}`)
+          window.location.href = `${import.meta.env.VITE_APP_URL}/quickcheck?id=${res.quickcheckId}`
         } else {
           form.setFieldError('url', `Could not reach ${url} [Status: ${res.statusCode}]`);
         }
