@@ -1,11 +1,14 @@
 import { useNavigate } from "react-router-dom";
 import { Box, Button, Card, Flex, Text, TextInput, Title } from '@mantine/core'
 import { useState } from 'react';
+import Layout from "@/components/Layout/Layout";
 
 function Login() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState();
+
+  // todo redirect to dashboard if already logged in
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,23 +43,25 @@ function Login() {
 
 
   return (
-    <Flex px="lg" py="3rem" align="center" justify="center">
-      <Card shadow="md" padding="lg" radius="md" withBorder w="100%" maw="400px" pos="rel" style={{ overflow: "visible" }}>
+    <Layout title="Login" hideNav>
+      <Flex px="lg" py="3rem" align="center" justify="center">
+        <Card shadow="md" padding="lg" radius="md" withBorder w="100%" maw="400px" pos="rel" style={{ overflow: "visible" }}>
 
-        <Box>
-          <Title ta="center" fw="lighter" mb="xl">Login</Title>
+          <Box>
+            <Title ta="center" fw="lighter" mb="xl">Login</Title>
 
-          <form onSubmit={handleSubmit}>
-            <TextInput name="username" size="md" placeholder="username" label="Username" mb="md" required />
-            <TextInput name="password" size="md" label="Passwort" type="password" mb="lg" required />
+            <form onSubmit={handleSubmit}>
+              <TextInput name="username" size="md" placeholder="username" label="Username" mb="md" required />
+              <TextInput name="password" size="md" label="Passwort" type="password" mb="lg" required />
 
-            <Button size="lg" mb={error ? "md" : "0"} fullWidth type="submit" loading={isLoading}>Login</Button>
+              <Button size="lg" mb={error ? "md" : "0"} fullWidth type="submit" loading={isLoading}>Login</Button>
 
-            {error && <Text c="red.9">{error}</Text>}
-          </form>
-        </Box>
-      </Card>
-    </Flex>
+              {error && <Text c="red.9">{error}</Text>}
+            </form>
+          </Box>
+        </Card>
+      </Flex>
+    </Layout>
   )
 }
 

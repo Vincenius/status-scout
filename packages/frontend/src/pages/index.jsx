@@ -1,13 +1,24 @@
 import Layout from '@/components/Layout/Layout'
-import { Box, Flex, Loader, LoadingOverlay } from '@mantine/core'
+import { LoadingOverlay } from '@mantine/core'
+import { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 function IndexPage() {
-  // if authenticated -> /dashboard
-  // else /login
+  const navigate = useNavigate();
+  useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_URL}/v1/authenticated`, { credentials: 'include' })
+      .then(res => {
+        if (res.status === 200) {
+          navigate('/dashboard');
+        } else {
+          navigate('/login');
+        }
+      });
+  }, [navigate]);
 
   return (
     <Layout title="Login" hideNav>
-      <LoadingOverlay visible overlayBlur={2} />
+      <LoadingOverlay visible />
     </Layout>
   )
 }

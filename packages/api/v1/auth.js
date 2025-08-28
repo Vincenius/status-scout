@@ -17,4 +17,11 @@ export default async function authRoutes(fastify, opts) {
     await req.logout();
     return { message: 'Logged out' };
   });
+
+  fastify.get('/authenticated',
+    { preValidation: fastifyPassport.authenticate('session') },
+    async (req, res) => {
+      return { message: 'Authenticated' };
+    }
+  );
 }
