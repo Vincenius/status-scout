@@ -6,6 +6,7 @@ import ColorSchemeToggle from './ColorSchemeToggle.jsx';
 import { useEffect } from 'react';
 
 const Layout = ({ children, title, hideNav }) => {
+  console.log('VITE_ENABLE_ANALYTICS:', import.meta.env.VITE_ENABLE_ANALYTICS);
   const isAnalyticsEnabled = import.meta.env.VITE_ENABLE_ANALYTICS === 'true' || import.meta.env.VITE_ENABLE_ANALYTICS === true;
 
   // set head info on initial load
