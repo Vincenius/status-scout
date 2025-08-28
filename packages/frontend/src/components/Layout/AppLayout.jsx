@@ -3,14 +3,13 @@ import { Helmet } from 'react-helmet-async';
 import { useDisclosure } from '@mantine/hooks';
 import { IconDashboard, IconHeartbeat, IconLogout } from '@tabler/icons-react';
 import { Link, useNavigate } from 'react-router-dom';
-import styles from './Layout.module.css';
 import ColorSchemeToggle from './ColorSchemeToggle.jsx';
 import { useEffect } from 'react';
 
 const Layout = ({ children, title, hideNav }) => {
   const [opened, { toggle }] = useDisclosure();
   const navigate = useNavigate();
-  const isAnalyticsEnabled = import.meta.env.VITE_ENABLE_ANALYTICS === 'true';
+  const isAnalyticsEnabled = import.meta.env.VITE_ENABLE_ANALYTICS === 'true' || import.meta.env.VITE_ENABLE_ANALYTICS === true;
 
   // set head info on initial load
   useEffect(() => {
@@ -21,14 +20,14 @@ const Layout = ({ children, title, hideNav }) => {
       script.setAttribute('data-website-id', 'a807669d-6eda-4c1c-9b36-2247d2caf318');
       document.head.appendChild(script);
     }
-    if (document.title !== `${title} | ${import.meta.env.VITE_WEBSITE_NAME}`) {
-      document.title = `${title} | ${import.meta.env.VITE_WEBSITE_NAME}`
+    if (document.title !== `${title} | StatusScout`) {
+      document.title = `${title} | StatusScout`
     }
   });
 
   return <>
     <Helmet>
-      <title>{`${title} | ${import.meta.env.VITE_WEBSITE_NAME}`}</title>
+      <title>{`${title} | StatusScout`}</title>
       {isAnalyticsEnabled && (<script defer src="https://analytics.vincentwill.com/script.js" data-website-id="a807669d-6eda-4c1c-9b36-2247d2caf318"></script>)}
     </Helmet>
     <AppShell
@@ -52,7 +51,7 @@ const Layout = ({ children, title, hideNav }) => {
             <Indicator inline label="Beta" size={16}>
               <Flex gap="xs" align="center" component={Link} to="/" c="inherit" td="none">
                 <IconHeartbeat size={26} stroke={0.8} />
-                <Text size="xl" fw={200}>{import.meta.env.VITE_WEBSITE_NAME}</Text>
+                <Text size="xl" fw={200}>StatusScout</Text>
               </Flex>
             </Indicator>
 
@@ -95,7 +94,7 @@ const Layout = ({ children, title, hideNav }) => {
 
       {/* <AppShell.Footer>
         <Flex py="xs" px="md" w="100%" justify="space-between">
-          <Text size="sm" align="center">© {new Date().getFullYear()} {import.meta.env.VITE_WEBSITE_NAME}</Text>
+          <Text size="sm" align="center">© {new Date().getFullYear()} StatusScout</Text>
 
           <Flex gap="sm">
             <Text size="sm" c="inherit"><Link to="/imprint">Imprint</Link></Text>

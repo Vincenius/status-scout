@@ -14,12 +14,11 @@ RUN yarn config set nodeLinker node-modules
 RUN yarn
 
 # Accept build arguments from docker-compose
-ARG VITE_WEBSITE_NAME
 ARG VITE_BASE_URL
 ARG VITE_API_URL
 
 # Inject environment variables into a .env.production file for Vite
-RUN echo "VITE_WEBSITE_NAME=${VITE_WEBSITE_NAME}" > .env.production && \
+RUN echo "VITE_BASE_URL=${VITE_BASE_URL}" > .env.production && \
     echo "VITE_BASE_URL=${VITE_BASE_URL}" >> .env.production && \
     echo "VITE_API_URL=${VITE_API_URL}" >> .env.production
 

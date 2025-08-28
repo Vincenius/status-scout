@@ -11,7 +11,6 @@ export default function Roadmap({
     <Box
       mx="auto"
       maw={900}
-      withBorder
       radius="xl"
       p="md"
       py="8em"

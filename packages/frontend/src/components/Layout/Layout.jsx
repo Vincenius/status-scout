@@ -1,15 +1,12 @@
 import { Text, Flex, Box, Indicator, Divider, ThemeIcon } from '@mantine/core'
 import { Helmet } from 'react-helmet-async';
-import { useDisclosure } from '@mantine/hooks';
 import { IconBrandBluesky, IconBrandGithub, IconHeartbeat, IconMug } from '@tabler/icons-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import ColorSchemeToggle from './ColorSchemeToggle.jsx';
 import { useEffect } from 'react';
 
 const Layout = ({ children, title, hideNav }) => {
-  const [opened, { toggle }] = useDisclosure();
-  const navigate = useNavigate();
-  const isAnalyticsEnabled = import.meta.env.VITE_ENABLE_ANALYTICS === 'true';
+  const isAnalyticsEnabled = import.meta.env.VITE_ENABLE_ANALYTICS === 'true' || import.meta.env.VITE_ENABLE_ANALYTICS === true;
 
   // set head info on initial load
   useEffect(() => {
@@ -20,14 +17,14 @@ const Layout = ({ children, title, hideNav }) => {
       script.setAttribute('data-website-id', 'a807669d-6eda-4c1c-9b36-2247d2caf318');
       document.head.appendChild(script);
     }
-    if (document.title !== `${title} | ${import.meta.env.VITE_WEBSITE_NAME}`) {
-      document.title = `${title} | ${import.meta.env.VITE_WEBSITE_NAME}`
+    if (document.title !== `${title} | StatusScout`) {
+      document.title = `${title} | StatusScout`
     }
   });
 
   return <>
     <Helmet>
-      <title>{`${title} | ${import.meta.env.VITE_WEBSITE_NAME}`}</title>
+      <title>{`${title} | StatusScout`}</title>
       {isAnalyticsEnabled && (<script defer src="https://analytics.vincentwill.com/script.js" data-website-id="a807669d-6eda-4c1c-9b36-2247d2caf318"></script>)}
     </Helmet>
 
@@ -35,7 +32,7 @@ const Layout = ({ children, title, hideNav }) => {
       <Indicator inline label="Beta" size={16}>
         <Flex gap="xs" align="center" component={Link} to="/" c="inherit" td="none">
           <IconHeartbeat size={26} stroke={0.8} />
-          <Text size="xl" fw={200}>{import.meta.env.VITE_WEBSITE_NAME}</Text>
+          <Text size="xl" fw={200}>StatusScout</Text>
         </Flex>
       </Indicator>
 
@@ -55,7 +52,7 @@ const Layout = ({ children, title, hideNav }) => {
         <Flex gap="md" direction="column" align={{ base: 'center', xs: 'flex-start' }}>
           <Flex gap="xs" align="center" component={Link} to="/" c="inherit" td="none">
             <IconHeartbeat size={20} stroke={0.8} />
-            <Text size="md" fw={200}>{import.meta.env.VITE_WEBSITE_NAME}</Text>
+            <Text size="md" fw={200}>StatusScout</Text>
           </Flex>
           <Box>
             <Text size="sm">Made and hosted in the EU 🇪🇺</Text>
@@ -88,7 +85,7 @@ const Layout = ({ children, title, hideNav }) => {
         </Flex>
       </Flex>
 
-      <Text size="sm" align="center" my="lg">© {new Date().getFullYear()} {import.meta.env.VITE_WEBSITE_NAME}</Text>
+      <Text size="sm" align="center" my="lg">© {new Date().getFullYear()} StatusScout</Text>
     </footer>
   </>
 }

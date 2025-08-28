@@ -59,7 +59,6 @@ services:
     build:
       context: ./packages/frontend
       args:
-        VITE_WEBSITE_NAME: ${VITE_WEBSITE_NAME}
         VITE_BASE_URL: ${VITE_BASE_URL}
         VITE_API_URL: ${VITE_API_URL}
     container_name: status-scout-frontend
