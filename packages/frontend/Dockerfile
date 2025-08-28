@@ -16,9 +16,10 @@ RUN yarn
 # Accept build arguments from docker-compose
 ARG VITE_BASE_URL
 ARG VITE_API_URL
+ARG VITE_ENABLE_ANALYTICS
 
 # Inject environment variables into a .env.production file for Vite
-RUN echo "VITE_BASE_URL=${VITE_BASE_URL}" > .env.production && \
+RUN echo "VITE_ENABLE_ANALYTICS=${VITE_ENABLE_ANALYTICS}" > .env.production && \
     echo "VITE_BASE_URL=${VITE_BASE_URL}" >> .env.production && \
     echo "VITE_API_URL=${VITE_API_URL}" >> .env.production
 

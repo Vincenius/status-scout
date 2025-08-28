@@ -61,6 +61,7 @@ services:
       args:
         VITE_BASE_URL: ${VITE_BASE_URL}
         VITE_API_URL: ${VITE_API_URL}
+        VITE_ENABLE_ANALYTICS: ${VITE_ENABLE_ANALYTICS}
     container_name: status-scout-frontend
     restart: always
     ports:
