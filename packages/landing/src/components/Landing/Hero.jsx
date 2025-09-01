@@ -48,6 +48,8 @@ export default function Hero() {
     const parsed = new URL(normalizedUrl);
     const finalUrl = parsed.origin;
 
+    console.log(import.meta.env.VITE_APP_URL, import.meta.env.VITE_API_URL)
+
     if (!isValidUrl(normalizedUrl)) {
       form.setFieldError('url', 'Please enter a valid URL');
       return;

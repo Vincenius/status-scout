@@ -30,7 +30,6 @@ COPY . .
 RUN yarn build
 
 # Serve static files with nginx
-# Serve static files with nginx
 FROM nginx:1.25-alpine
 
 # Copy custom nginx config
