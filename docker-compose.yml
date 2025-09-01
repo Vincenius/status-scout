@@ -23,7 +23,7 @@ services:
     container_name: status-scout-api
     restart: always
     ports:
-      - "3002:3000"
+      - "3002:4000"
     environment:
       - FRONTEND_URL=${FRONTEND_URL}
       - MONGODB_URI=${MONGODB_URI}
