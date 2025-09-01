@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Box, Button, Card, Flex, Text, TextInput, Title } from '@mantine/core'
 import { useState } from 'react';
 import Layout from "@/components/Layout/Layout";
@@ -46,7 +46,6 @@ function Login() {
     <Layout title="Login" hideNav>
       <Flex px="lg" py="3rem" align="center" justify="center">
         <Card shadow="md" padding="lg" radius="md" withBorder w="100%" maw="400px" pos="rel" style={{ overflow: "visible" }}>
-
           <Box>
             <Title ta="center" fw="lighter" mb="xl">Login</Title>
 
@@ -59,6 +58,18 @@ function Login() {
               {error && <Text c="red.9">{error}</Text>}
             </form>
           </Box>
+
+          {import.meta.env.VITE_FEATURE_REGISTRATION !== 'false' && (
+            <Text ta="center" mt="md">
+              Don't have an account? <Link to="/register">Register</Link>
+            </Text>
+          )}
+
+          {import.meta.env.VITE_FEATURE_REGISTRATION === 'false' && (
+            <Text ta="center" mt="md">
+              Registration is coming soon. <a href="https://0f7495fb.sibforms.com/serve/MUIFADIQkUYBRIpI3bsMn79ArzJ8j5Kr2gdrJRY1r7Xz09lYOoh62G_iHbpj806MK1Q303dYfxoPcaFj_utr-Mi8w84WdtbV8sV1qWz5cTtKTkoNIM_zq3IZOGA_2K9WhmSmEf0r4gA51yHfXkdAWCHiCYiB6a07utZbfYq1GZAI8Tfa_mtAqlOGnc89HGp3k4TKuBZ03sApeWS3">Join the waitlist</a>.
+            </Text>
+          )}
         </Card>
       </Flex>
     </Layout>

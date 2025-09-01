@@ -17,11 +17,13 @@ RUN yarn
 ARG VITE_BASE_URL
 ARG VITE_API_URL
 ARG VITE_ENABLE_ANALYTICS
+ARG VITE_FEATURE_REGISTRATION
 
 # Inject environment variables into a .env.production file for Vite
 RUN echo "VITE_ENABLE_ANALYTICS=${VITE_ENABLE_ANALYTICS}" > .env.production && \
     echo "VITE_BASE_URL=${VITE_BASE_URL}" >> .env.production && \
-    echo "VITE_API_URL=${VITE_API_URL}" >> .env.production
+    echo "VITE_API_URL=${VITE_API_URL}" >> .env.production && \
+    echo "VITE_FEATURE_REGISTRATION=${VITE_FEATURE_REGISTRATION}" >> .env.production
 
 COPY . .
 
