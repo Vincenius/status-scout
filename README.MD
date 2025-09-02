@@ -115,7 +115,7 @@ Pull requests are welcome! For major changes, please open an issue first to disc
 
 ## License
 
-This project is licensed under the StatusScout License 2.0 (a source-available license with restrictions on offering it as a hosted service).
+This project is licensed under a source-available license with restrictions on offering it as a hosted service.
 
 ---
 
