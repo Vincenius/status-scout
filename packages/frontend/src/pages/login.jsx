@@ -65,7 +65,7 @@ function Login() {
             </Text>
           )}
 
-          {(import.meta.env.VITE_FEATURE_REGISTRATION !== 'true' ||  import.meta.env.VITE_FEATURE_REGISTRATION !== true) && (
+          {(import.meta.env.VITE_FEATURE_REGISTRATION !== 'true' &&  import.meta.env.VITE_FEATURE_REGISTRATION !== true) && (
             <Text ta="center" mt="md">
               Registration is coming soon. <a href="https://0f7495fb.sibforms.com/serve/MUIFADIQkUYBRIpI3bsMn79ArzJ8j5Kr2gdrJRY1r7Xz09lYOoh62G_iHbpj806MK1Q303dYfxoPcaFj_utr-Mi8w84WdtbV8sV1qWz5cTtKTkoNIM_zq3IZOGA_2K9WhmSmEf0r4gA51yHfXkdAWCHiCYiB6a07utZbfYq1GZAI8Tfa_mtAqlOGnc89HGp3k4TKuBZ03sApeWS3">Join the waitlist</a>.
             </Text>
