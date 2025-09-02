@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Box, Button, Card, Flex, PasswordInput, Text, TextInput, Title } from '@mantine/core'
+import { Box, Button, Card, Checkbox, Flex, PasswordInput, Text, TextInput, Title } from '@mantine/core'
 import { useState } from 'react';
 import Layout from "@/components/Layout/Layout";
 import getFormData from "@/utils/getFormData";
@@ -59,9 +59,18 @@ function Register() {
 
             <form onSubmit={handleSubmit}>
               <TextInput name="email" size="md" placeholder="you@example.com" label="Email" mb="md" type="email" required />
-              <PasswordInput name="password" size="md" label="Password" description="Min. 8 characters" mb="lg" required minLength={8} />
+              <PasswordInput name="password" size="md" label="Password" description="Min. 8 characters" mb="md" required minLength={8} />
 
-              {/* todo agb checkbox */}
+              {/* todo checkbox based on env variable */}
+              <Checkbox
+                mb="lg"
+                label={
+                  <span>
+                    I agree to the{' '} <a href="/terms" target="_blank" rel="noopener noreferrer"> Terms and Conditions</a>.
+                  </span>
+                }
+                required
+              />
 
               <Button size="lg" mb={error ? "md" : "0"} fullWidth type="submit" loading={isLoading}>Register</Button>
 
