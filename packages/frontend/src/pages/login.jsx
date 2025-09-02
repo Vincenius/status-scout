@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Box, Button, Card, Flex, Text, TextInput, Title } from '@mantine/core'
+import { Box, Button, Card, Flex, PasswordInput, Text, TextInput, Title } from '@mantine/core'
 import { useState } from 'react';
 import Layout from "@/components/Layout/Layout";
 
@@ -34,7 +34,7 @@ function Login() {
       if (res.ok) {
         navigate("/dashboard");
       } else {
-        setError("Wrong username or password")
+        setError("Wrong email or password")
       }
     }).finally(() => {
       setIsLoading(false)
@@ -50,8 +50,8 @@ function Login() {
             <Title ta="center" fw="lighter" mb="xl">Login</Title>
 
             <form onSubmit={handleSubmit}>
-              <TextInput name="username" size="md" placeholder="username" label="Username" mb="md" required />
-              <TextInput name="password" size="md" label="Passwort" type="password" mb="lg" required />
+              <TextInput name="Email" size="md" placeholder="you@example.com" label="Email" mb="md" required />
+              <PasswordInput name="password" size="md" label="Password" type="password" mb="lg" required />
 
               <Button size="lg" mb={error ? "md" : "0"} fullWidth type="submit" loading={isLoading}>Login</Button>
 

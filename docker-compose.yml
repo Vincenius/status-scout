@@ -39,6 +39,7 @@ services:
       - SENDER_EMAIL=${SENDER_EMAIL}
       - FEEDBACK_EMAIL=${FEEDBACK_EMAIL}
       - BREVO_API_KEY=${BREVO_API_KEY}
+      - PASSWORD_HASH_SECRET=${PASSWORD_HASH_SECRET}
     depends_on:
       - mongodb
       - redis

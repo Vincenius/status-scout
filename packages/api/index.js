@@ -5,6 +5,8 @@ import middie from '@fastify/middie';
 import fastifySecureSession from '@fastify/secure-session';
 import { Strategy as LocalStrategy } from 'passport-local';
 import fastifyPassport from '@fastify/passport';
+import { ObjectId } from 'mongodb';
+import CryptoJS from 'crypto-js'
 
 import authRoutes from './v1/auth.js'
 import flowsRoutes from './v1/flows.js'
@@ -12,7 +14,7 @@ import userRoutes from './v1/user.js'
 import checkRoutes from './v1/check.js'
 import feedbackRoutes from './v1/feedback.js';
 import waitlistRoutes from './v1/waitlist.js';
-import { disconnectDB } from './db.js'
+import { disconnectDB, connectDB } from './db.js'
 
 const fastify = Fastify({
   logger: true,
@@ -38,22 +40,42 @@ await fastify.register(fastifyPassport.secureSession());
 // Local strategy
 fastifyPassport.use(
   'local',
-  new LocalStrategy((username, password, done) => {
-    if (username === process.env.ADMIN_USER && password === process.env.ADMIN_PASSWORD) {
-      return done(null, { id: 1, username: 'admin' });
-    } else {
-      return done(null, false, { message: 'Invalid credentials' });
-    }
-  })
+  new LocalStrategy({ usernameField: 'email', passwordField: 'password' },
+    async (email, password, done) => {
+      try {
+        const db = await connectDB();
+        const user = await db.collection('users').findOne({ email });
+        if (!user) {
+          return done(null, false, { message: 'Invalid login' });
+        }
+
+        const passHash = CryptoJS.SHA256(password, process.env.PASSWORD_HASH_SECRET).toString(CryptoJS.enc.Hex)
+        if (user.password !== passHash) {
+          return done(null, false, { message: 'Invalid login' });
+        }
+
+        return done(null, user);
+      } catch (err) {
+        return done(err);
+      }
+    })
 );
 
-// Serialize / deserialize
-fastifyPassport.registerUserSerializer(async (user) => user.id);
-fastifyPassport.registerUserDeserializer(async (id) => {
-  if (id === 1) {
-    return { id: 1, username: 'admin' };
+// Serialize
+fastifyPassport.registerUserSerializer(async (user) => {
+  return { id: user._id };
+});
+
+// Deserialize
+fastifyPassport.registerUserDeserializer(async (user) => {
+  try {
+    const db = await connectDB();
+    const dbUser = await db.collection('users').findOne({ _id: new ObjectId(user.id) });
+    if (!dbUser) return null;
+    return dbUser; // todo map user
+  } catch (err) {
+    return null;
   }
-  return null;
 });
 
 fastify.addHook('preHandler', async (request, reply) => {
