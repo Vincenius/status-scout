@@ -117,6 +117,8 @@ Pull requests are welcome! For major changes, please open an issue first to disc
 
 This project is licensed under a source-available license with restrictions on offering it as a hosted service.
 
+This means it’s free and open for personal or commercial use, but you can’t resell it as a hosted service.
+
 ---
 
 For more details, see the documentation in each subfolder or contact [hello@statusscout.dev](mailto:hello@statusscout.dev).
