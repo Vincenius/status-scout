@@ -3,7 +3,7 @@ import Layout from "@/components/Layout/Layout";
 
 export default function TermsPage() {
   return (
-    <Layout title="Terms and Conditions" hideNav>
+    <Layout title="Terms and Conditions" isPublicRoute>
       <Container size="sm">
         <Title order={1} mb="md">
           Terms and Conditions

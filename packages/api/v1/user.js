@@ -29,33 +29,37 @@ export default async function userRoutes(fastify, opts) {
     { preValidation: fastifyPassport.authenticate('session', { failureRedirect: '/login' }) },
     async (request, reply) => {
       try {
-        const db = await connectDB()
+        const user = request.user
 
-        const [user] = await db.collection('users').find({}).toArray()
-        const checks = await db.collection('checks').aggregate([
-          { $match: { userId: user._id } },
-          { $sort: { check: 1, createdAt: -1 } },
-          {
-            $group: {
-              _id: "$check",
-              entries: { $push: "$$ROOT" }
-            }
-          },
-          {
-            $project: {
-              _id: 0,
-              check: "$_id",
-              entries: { $slice: ["$entries", 40] }
-            }
-          },
-          { $unwind: "$entries" },
-          { $replaceRoot: { newRoot: "$entries" } }
-        ]).toArray();
+        return user
 
-        return {
-          user,
-          checks,
-        }
+        // todo move endpoint
+        // const db = await connectDB()
+
+        // const checks = await db.collection('checks').aggregate([
+        //   { $match: { userId: user._id } },
+        //   { $sort: { check: 1, createdAt: -1 } },
+        //   {
+        //     $group: {
+        //       _id: "$check",
+        //       entries: { $push: "$$ROOT" }
+        //     }
+        //   },
+        //   {
+        //     $project: {
+        //       _id: 0,
+        //       check: "$_id",
+        //       entries: { $slice: ["$entries", 40] }
+        //     }
+        //   },
+        //   { $unwind: "$entries" },
+        //   { $replaceRoot: { newRoot: "$entries" } }
+        // ]).toArray();
+
+        // return {
+        //   user,
+        //   checks,
+        // }
       } catch (e) {
         console.error(e)
         reply.code(500).send({ error: 'Internal server error' });

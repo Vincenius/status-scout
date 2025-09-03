@@ -76,7 +76,7 @@ function QuickCheck() {
 
   if (idError) {
     return (
-      <Layout title="Quick Check" hideNav={true}>
+      <Layout title="Quick Check" isPublicRoute>
         <Box maw={1800} mx="auto" py="xl">
           <Card withBorder shadow="md" maw="600px" mx="auto" p="lg">
             <Title order={2} fw={500} mb="md">Couldn't find this Quickcheck.</Title>
@@ -100,7 +100,7 @@ function QuickCheck() {
   const jobFailed = result.state === 'failed'
 
   return (
-    <Layout title="Quick Check" hideNav={true}>
+    <Layout title="Quick Check" isPublicRoute>
       <Box maw={1800} mx="auto">
         <Box>
           <Title order={1} mb="md" fw="normal">Your Quickcheck Results:</Title>

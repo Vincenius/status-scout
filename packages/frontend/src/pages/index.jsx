@@ -17,7 +17,7 @@ function IndexPage() {
   }, [navigate]);
 
   return (
-    <Layout title="Login" hideNav>
+    <Layout title="Login" isPublicRoute>
       <LoadingOverlay visible />
     </Layout>
   )

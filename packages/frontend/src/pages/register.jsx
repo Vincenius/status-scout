@@ -51,7 +51,7 @@ function Register() {
 
 
   return (
-    <Layout title="Register" hideNav>
+    <Layout title="Register" isPublicRoute>
       <Flex px="lg" py="3rem" align="center" justify="center">
         <Card shadow="md" padding="lg" radius="md" withBorder w="100%" maw="400px" pos="rel" style={{ overflow: "visible" }}>
           <Box>

@@ -43,15 +43,17 @@ function Login() {
 
 
   return (
-    <Layout title="Login" hideNav>
+    <Layout title="Login" isPublicRoute>
       <Flex px="lg" py="3rem" align="center" justify="center">
         <Card shadow="md" padding="lg" radius="md" withBorder w="100%" maw="400px" pos="rel" style={{ overflow: "visible" }}>
           <Box>
             <Title ta="center" fw="lighter" mb="xl">Login</Title>
 
             <form onSubmit={handleSubmit}>
-              <TextInput name="Email" size="md" placeholder="you@example.com" label="Email" mb="md" required />
-              <PasswordInput name="password" size="md" label="Password" type="password" mb="lg" required />
+              <TextInput name="email" size="md" placeholder="you@example.com" label="Email" mb="md" required />
+              <PasswordInput name="password" size="md" label="Password" type="password" mb="xs" required />
+
+              <Text size="xs" mb="lg"><Link to="/forgot-password">Forgot password?</Link></Text>
 
               <Button size="lg" mb={error ? "md" : "0"} fullWidth type="submit" loading={isLoading}>Login</Button>
 
@@ -59,13 +61,16 @@ function Login() {
             </form>
           </Box>
 
-          {(import.meta.env.VITE_FEATURE_REGISTRATION === 'true' ||  import.meta.env.VITE_FEATURE_REGISTRATION === true) && (
-            <Text ta="center" mt="md">
-              Don't have an account? <Link to="/register">Register</Link>
-            </Text>
+          {(import.meta.env.VITE_FEATURE_REGISTRATION === 'true' || import.meta.env.VITE_FEATURE_REGISTRATION === true) && (
+            <>
+              <Text ta="center" mt="md">
+                Don't have an account? <Link to="/register">Register</Link>
+              </Text>
+            </>
+
           )}
 
-          {(import.meta.env.VITE_FEATURE_REGISTRATION !== 'true' &&  import.meta.env.VITE_FEATURE_REGISTRATION !== true) && (
+          {(import.meta.env.VITE_FEATURE_REGISTRATION !== 'true' && import.meta.env.VITE_FEATURE_REGISTRATION !== true) && (
             <Text ta="center" mt="md">
               Registration is coming soon. <a href="https://0f7495fb.sibforms.com/serve/MUIFADIQkUYBRIpI3bsMn79ArzJ8j5Kr2gdrJRY1r7Xz09lYOoh62G_iHbpj806MK1Q303dYfxoPcaFj_utr-Mi8w84WdtbV8sV1qWz5cTtKTkoNIM_zq3IZOGA_2K9WhmSmEf0r4gA51yHfXkdAWCHiCYiB6a07utZbfYq1GZAI8Tfa_mtAqlOGnc89HGp3k4TKuBZ03sApeWS3">Join the waitlist</a>.
             </Text>

@@ -1,16 +1,22 @@
-import { Text, Flex, Burger, AppShell, NavLink, Box, Indicator } from '@mantine/core'
+import { Text, Flex, Burger, AppShell, NavLink, Box, Indicator, LoadingOverlay, Loader } from '@mantine/core'
 import { Helmet } from 'react-helmet-async';
 import { useDisclosure } from '@mantine/hooks';
 import { IconDashboard, IconHeartbeat, IconLogout } from '@tabler/icons-react';
 import { Link, useNavigate } from 'react-router-dom';
 import ColorSchemeToggle from './ColorSchemeToggle.jsx';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useAuthSWR } from '@/utils/useAuthSWR'
 
-const Layout = ({ children, title, hideNav }) => {
-  // hideNav if unauthenticated?
+const Layout = ({ children, title, isPublicRoute }) => {
   const [opened, { toggle }] = useDisclosure();
+  const [logoutLoading, setLogoutLoading] = useState(false);
   const navigate = useNavigate();
   const isAnalyticsEnabled = import.meta.env.VITE_ENABLE_ANALYTICS === 'true' || import.meta.env.VITE_ENABLE_ANALYTICS === true;
+  const { data: user = {}, error, isLoading: isLoadingUser } = !isPublicRoute
+    ? useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/user`)
+    : { data: {}, error: null, isLoading: false };
+
+  const menuEnabled = user.confirmed && user.website; // todo proper check if account is fully setup
 
   // set head info on initial load
   useEffect(() => {
@@ -26,6 +32,15 @@ const Layout = ({ children, title, hideNav }) => {
     }
   });
 
+  useEffect(() => {
+    if (user.email && !user.confirmed && window.location.pathname !== '/confirm') {
+      navigate('/confirm');
+    }
+    if (user.email && user.confirmed && !user.website && window.location.pathname !== '/onboarding') {
+      navigate('/onboarding');
+    }
+  }, [user])
+
   return <>
     <Helmet>
       <title>{`${title} | StatusScout`}</title>
@@ -34,7 +49,7 @@ const Layout = ({ children, title, hideNav }) => {
     <AppShell
       header={{ height: 60 }}
       navbar={{
-        width: hideNav ? 0 : 250,
+        width: isPublicRoute ? 0 : 250,
         breakpoint: 'sm',
         collapsed: { mobile: !opened },
       }}
@@ -42,7 +57,7 @@ const Layout = ({ children, title, hideNav }) => {
     >
       <AppShell.Header>
         <Flex align="center" h="100%" gap="lg">
-          {!hideNav && <Burger
+          {!isPublicRoute && <Burger
             opened={opened}
             onClick={toggle}
             hiddenFrom="sm"
@@ -61,18 +76,23 @@ const Layout = ({ children, title, hideNav }) => {
         </Flex>
       </AppShell.Header>
 
-      {!hideNav && <AppShell.Navbar p="sm">
+      {!isPublicRoute && <AppShell.Navbar p="sm">
         <NavLink
           label="Dashboard"
           leftSection={<IconDashboard size={16} stroke={1.5} />}
           active={window.location.pathname === '/'}
           component={Link}
+          disabled={!menuEnabled}
         />
         <NavLink
-          label="Logout"
+          label={<span>Logout {logoutLoading ? <Loader size="xs" /> : ""}</span>}
+          disabled={logoutLoading}
           leftSection={<IconLogout size={16} stroke={1.5} />}
           onClick={async () => {
+            setLogoutLoading(true)
             await fetch(`${import.meta.env.VITE_API_URL}/v1/logout`, { credentials: 'include' })
+            await new Promise(resolve => setTimeout(resolve, 500));
+            setLogoutLoading(false)
             navigate('/login')
           }}
         />
@@ -89,6 +109,7 @@ const Layout = ({ children, title, hideNav }) => {
 
       <AppShell.Main>
         <Box>
+          {isLoadingUser && <LoadingOverlay />}
           {children}
         </Box>
       </AppShell.Main>
