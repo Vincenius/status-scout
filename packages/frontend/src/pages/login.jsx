@@ -2,26 +2,19 @@ import { Link, useNavigate } from "react-router-dom";
 import { Box, Button, Card, Flex, PasswordInput, Text, TextInput, Title } from '@mantine/core'
 import { useState } from 'react';
 import Layout from "@/components/Layout/Layout";
+import getFormData from "@/utils/getFormData";
 
 function Login() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState();
 
-  // todo redirect to dashboard if already logged in
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true)
     setError(null)
 
-    const formObject = {};
-    const elements = e.target.elements;
-    for (let element of elements) {
-      if (element.name && element.value) {
-        formObject[element.name] = element.value;
-      }
-    }
+    const data = getFormData(e)
 
     fetch(`${import.meta.env.VITE_API_URL}/v1/login`, {
       method: 'POST',
@@ -29,7 +22,7 @@ function Login() {
         'Content-Type': 'application/json',
       },
       credentials: 'include',
-      body: JSON.stringify(formObject),
+      body: JSON.stringify(data),
     }).then(res => {
       if (res.ok) {
         navigate("/dashboard");
@@ -43,7 +36,7 @@ function Login() {
 
 
   return (
-    <Layout title="Login" isPublicRoute>
+    <Layout title="Login" isPublicRoute redirectIfAuth>
       <Flex px="lg" py="3rem" align="center" justify="center">
         <Card shadow="md" padding="lg" radius="md" withBorder w="100%" maw="400px" pos="rel" style={{ overflow: "visible" }}>
           <Box>

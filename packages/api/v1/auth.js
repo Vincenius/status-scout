@@ -73,6 +73,73 @@ export default async function authRoutes(fastify, opts) {
     reply.redirect(`${process.env.APP_URL}/onboarding`);
   });
 
+
+  fastify.post(
+    '/forgot-password',
+    { config: { auth: false } },
+    async (req, reply) => {
+      const db = await connectDB()
+
+      const { email } = req.body
+
+      const existingUser = await db.collection('users').findOne({ email });
+      if (!existingUser) {
+        return { success: true };
+      }
+
+      const token = uuidv4()
+      await db.collection('users').updateOne({ email }, {
+        $set: {
+          resetPasswordToken: token,
+          resetPasswordExpires: new Date(Date.now() + 3600000) // 1 hour
+        }
+      }, { returnDocument: 'after' })
+
+      const reset_url = `${process.env.APP_URL}/reset-password?token=${token}`
+      const { htmlContent, subject } = await getTemplate(9)
+      const html = htmlContent.replace('{{reset_link}}', reset_url)
+
+      await sendEmail({
+        to: email,
+        subject,
+        html
+      })
+
+      return { success: true };
+    }
+  );
+
+  fastify.post(
+    '/reset-password',
+    { config: { auth: false } },
+    async (req, reply) => {
+      const db = await connectDB()
+
+      const { token, password } = req.body
+
+      const existingUser = await db.collection('users').findOne({
+        resetPasswordToken: token,
+        resetPasswordExpires: { $gt: new Date() }
+      });
+      if (!existingUser) {
+        await new Promise(resolve => setTimeout(resolve, 2000)); // simulate delay to prevent brute force attacks
+        reply.code(404);
+        return { error: true };
+      }
+
+      const hashedPassword = CryptoJS.SHA256(password, process.env.PASSWORD_HASH_SECRET).toString(CryptoJS.enc.Hex)
+      await db.collection('users').updateOne({ resetPasswordToken: token }, {
+        $set: {
+          password: hashedPassword,
+          resetPasswordToken: null,
+          resetPasswordExpires: null
+        }
+      }, { returnDocument: 'after' })
+
+      return { success: true };
+    }
+  );
+
   fastify.get('/logout', { config: { auth: false } }, async (req, reply) => {
     await req.logout();
     return { message: 'Logged out' };

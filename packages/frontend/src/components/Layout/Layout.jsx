@@ -7,12 +7,12 @@ import ColorSchemeToggle from './ColorSchemeToggle.jsx';
 import { useEffect, useState } from 'react';
 import { useAuthSWR } from '@/utils/useAuthSWR'
 
-const Layout = ({ children, title, isPublicRoute }) => {
+const Layout = ({ children, title, isPublicRoute, redirectIfAuth }) => {
   const [opened, { toggle }] = useDisclosure();
   const [logoutLoading, setLogoutLoading] = useState(false);
   const navigate = useNavigate();
   const isAnalyticsEnabled = import.meta.env.VITE_ENABLE_ANALYTICS === 'true' || import.meta.env.VITE_ENABLE_ANALYTICS === true;
-  const { data: user = {}, error, isLoading: isLoadingUser } = !isPublicRoute
+  const { data: user = {}, isLoading: isLoadingUser } = !isPublicRoute
     ? useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/user`)
     : { data: {}, error: null, isLoading: false };
 
@@ -31,6 +31,17 @@ const Layout = ({ children, title, isPublicRoute }) => {
       document.title = `${title} | StatusScout`
     }
   });
+
+  useEffect(() => {
+    if (redirectIfAuth) {
+      fetch(`${import.meta.env.VITE_API_URL}/v1/authenticated`, { credentials: 'include' })
+        .then(res => {
+          if (res.status === 200) {
+            navigate('/dashboard');
+          }
+        });
+    }
+  }, [navigate]);
 
   useEffect(() => {
     if (user.email && !user.confirmed && window.location.pathname !== '/confirm') {

@@ -49,9 +49,8 @@ function Register() {
     })
   }
 
-
   return (
-    <Layout title="Register" isPublicRoute>
+    <Layout title="Register" isPublicRoute redirectIfAuth>
       <Flex px="lg" py="3rem" align="center" justify="center">
         <Card shadow="md" padding="lg" radius="md" withBorder w="100%" maw="400px" pos="rel" style={{ overflow: "visible" }}>
           <Box>
@@ -61,7 +60,6 @@ function Register() {
               <TextInput name="email" size="md" placeholder="you@example.com" label="Email" mb="md" type="email" required />
               <PasswordInput name="password" size="md" label="Password" description="Min. 8 characters" mb="md" required minLength={8} />
 
-              {/* todo checkbox based on env variable */}
               <Checkbox
                 mb="lg"
                 label={
