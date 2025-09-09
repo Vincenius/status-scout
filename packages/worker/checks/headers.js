@@ -1,7 +1,7 @@
 import { createCheckResult } from '../db.js'
 
 // https://chatgpt.com/c/6870d745-5aa8-8013-bc17-69fa16456d9a
-export const runHeaderCheck = async ({ uri, db, userId, createdAt, quickcheckId }) => {
+export const runHeaderCheck = async ({ uri, db, websiteId, createdAt, quickcheckId }) => {
   console.log(`Running header check for ${uri}`)
   const recommendedHeaders = [
     'content-security-policy',
@@ -38,7 +38,7 @@ export const runHeaderCheck = async ({ uri, db, userId, createdAt, quickcheckId 
         missingHeaders
       },
     }
-    await createCheckResult({ db, userId, createdAt, check: 'headers', result, quickcheckId })
+    await createCheckResult({ db, websiteId, createdAt, check: 'headers', result, quickcheckId })
   } catch (err) {
     console.error(`Error fetching ${uri}:`, err.message);
   }

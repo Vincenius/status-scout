@@ -17,7 +17,7 @@ function parseAuditItem(item) {
   }
 }
 
-export const runLighthouseCheck = async ({ uri, db, userId, createdAt, quickcheckId }) => {
+export const runLighthouseCheck = async ({ uri, db, websiteId, createdAt, quickcheckId }) => {
   const port = await getPort();
   console.log(`Running lighthouse check for ${uri} on port ${port}`)
   const browser = await playwright.chromium.launch({
@@ -103,8 +103,8 @@ export const runLighthouseCheck = async ({ uri, db, userId, createdAt, quickchec
     });
 
     await Promise.all([
-      createCheckResult({ db, userId, createdAt, check: 'seo', result: seoResult, quickcheckId }),
-      createCheckResult({ db, userId, createdAt, check: 'a11y', result: a11yResult, quickcheckId }),
+      createCheckResult({ db, websiteId, createdAt, check: 'seo', result: seoResult, quickcheckId }),
+      createCheckResult({ db, websiteId, createdAt, check: 'a11y', result: a11yResult, quickcheckId }),
     ])
   } catch (err) {
     console.error(err);

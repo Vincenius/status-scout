@@ -3,7 +3,7 @@ import path from 'path'
 import pLimit from 'p-limit';
 import { createCheckResult } from '../db.js'
 
-export const runFuzzCheck = async ({ uri, db, userId, createdAt, type, quickcheckId }) => {
+export const runFuzzCheck = async ({ uri, db, websiteId, createdAt, type, quickcheckId }) => {
   console.log(`Running fuzz check for ${uri}`)
   const [prevCheck] = await db.collection('checks')
     .find({ check: 'fuzz' })
@@ -47,5 +47,5 @@ export const runFuzzCheck = async ({ uri, db, userId, createdAt, type, quickchec
     },
   }
 
-  await createCheckResult({ db, userId, createdAt, check: 'fuzz', result, quickcheckId })
+  await createCheckResult({ db, websiteId, createdAt, check: 'fuzz', result, quickcheckId })
 }

@@ -10,18 +10,18 @@ import { runCustomChecks } from './checks/custom.js'
 import { runBrokenLinkCheck } from './checks/links.js'
 import { ObjectId } from 'mongodb'
 
-export const run = async ({ type = 'quick', userId, quickcheckId, url }) => {
+export const run = async ({ type = 'quick', websiteId, quickcheckId, url }) => {
   // type (of check) -> quick, extended, full
   try {
     const db = await connectDB()
-    const [user] = !url && userId
-      ? await db.collection('users').find({ _id: new ObjectId(userId) }).toArray()
+    const [website] = !url && websiteId
+      ? await db.collection('websites').find({ _id: new ObjectId(websiteId) }).toArray()
       : [{ domain: url }] // quickcheck
 
     const createdAt = new Date().toISOString()
-    console.log(createdAt, `run ${type} status check for`, user.domain)
+    console.log(createdAt, `run ${type} status check for`, website.domain)
 
-    const baseParams = { uri: user.domain, db, userId: user._id, quickcheckId, createdAt }
+    const baseParams = { uri: website.domain, db, websiteId: website._id, quickcheckId, createdAt }
 
     const checks = [
       runUptimeCheck(baseParams),
@@ -50,11 +50,11 @@ export const run = async ({ type = 'quick', userId, quickcheckId, url }) => {
     if (process.env.NOTIFICATION_ENABLED === 'true') {
       const newChecks = await db
         .collection('checks')
-        .find({ userId: user._id, createdAt })
+        .find({ websiteId: website._id, createdAt })
         .toArray();
 
       const failedChecks = newChecks.filter(c => c.result.status === 'fail');
-      const failedMap = new Map((user.failedChecks || []).map(fc => [fc.check, fc]));
+      const failedMap = new Map((website.failedChecks || []).map(fc => [fc.check, fc]));
       const notifications = []
 
       for (const failedCheck of failedChecks) {
@@ -72,8 +72,8 @@ export const run = async ({ type = 'quick', userId, quickcheckId, url }) => {
       const updatedFailedChecks = Array.from(failedMap.values());
 
       if (updatedFailedChecks.length > 0) {
-        await db.collection('users').updateOne(
-          { _id: user._id },
+        await db.collection('websites').updateOne(
+          { _id: website._id },
           { $set: { failedChecks: updatedFailedChecks } }
         );
       }

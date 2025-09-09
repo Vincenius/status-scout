@@ -7,9 +7,9 @@ import Overview from '@/components/Dashboard/Overview';
 // import { linkMock } from '@/utils/mockData'
 
 function Dashboard() {
-  const { data = {}, error, isLoading: isLoadingUser } = useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/user`)
+  const { data = {}, error, isLoading: isLoadingUser } = useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/website`)
   const { data: flows = [], isLoading: isLoadingFlows } = useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/flows`)
-  const { data: uptime = {}, isLoading: isLoadingUptime } = useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/user/uptime`)
+  const { data: uptime = {}, isLoading: isLoadingUptime } = useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/website/uptime`)
 
   const isLoading = isLoadingUser || isLoadingFlows || isLoadingUptime
 

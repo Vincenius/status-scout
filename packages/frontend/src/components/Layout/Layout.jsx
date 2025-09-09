@@ -15,8 +15,11 @@ const Layout = ({ children, title, isPublicRoute, redirectIfAuth }) => {
   const { data: user = {}, isLoading: isLoadingUser } = !isPublicRoute
     ? useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/user`)
     : { data: {}, error: null, isLoading: false };
+  const { data: websites = [], isLoading: isLoadingWebsite } = !isPublicRoute
+    ? useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/website`)
+    : { data: [], error: null, isLoading: false };
 
-  const menuEnabled = user.confirmed && user.website; // todo proper check if account is fully setup
+  const menuEnabled = user.confirmed && websites.length > 0;
 
   // set head info on initial load
   useEffect(() => {
@@ -47,10 +50,10 @@ const Layout = ({ children, title, isPublicRoute, redirectIfAuth }) => {
     if (user.email && !user.confirmed && window.location.pathname !== '/confirm') {
       navigate('/confirm');
     }
-    if (user.email && user.confirmed && !user.website && window.location.pathname !== '/onboarding') {
+    if (user.email && user.confirmed && !isLoadingWebsite && websites.length === 0 && window.location.pathname !== '/onboarding') {
       navigate('/onboarding');
     }
-  }, [user])
+  }, [user, websites, isLoadingWebsite])
 
   return <>
     <Helmet>
@@ -120,8 +123,8 @@ const Layout = ({ children, title, isPublicRoute, redirectIfAuth }) => {
 
       <AppShell.Main>
         <Box>
-          {isLoadingUser && <LoadingOverlay />}
-          {children}
+          {(isLoadingUser || isLoadingWebsite) && <LoadingOverlay />}
+          {(!isLoadingUser && !isLoadingWebsite) && children}
         </Box>
       </AppShell.Main>
 

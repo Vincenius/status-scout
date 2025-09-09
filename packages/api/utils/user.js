@@ -1,3 +1,7 @@
 export const mapUser = (user) => {
-  return { email: user.email, subscription: user.subscription };
+  return {
+    email: user.email,
+    subscription: user.subscription,
+    confirmed: user.confirmed,
+  };
 };

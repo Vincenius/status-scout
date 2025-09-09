@@ -45,13 +45,14 @@ export default function Hero() {
 
   const handleSubmit = ({ url }) => {
     const normalizedUrl = normalizeUrl(url.trim());
-    const parsed = new URL(normalizedUrl);
-    const finalUrl = parsed.origin;
 
     if (!isValidUrl(normalizedUrl)) {
       form.setFieldError('url', 'Please enter a valid URL');
       return;
     }
+
+    const parsed = new URL(normalizedUrl);
+    const finalUrl = parsed.origin;
 
     setLoading(true)
     trackEvent('quickcheck', { url: finalUrl })

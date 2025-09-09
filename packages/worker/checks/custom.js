@@ -3,9 +3,9 @@ import { ObjectId } from 'mongodb'
 import { createCheckResult } from '../db.js'
 
 // https://chatgpt.com/c/6870d745-5aa8-8013-bc17-69fa16456d9a
-export const runCustomChecks = async ({ uri, db, userId, createdAt, quickcheckId }) => {
+export const runCustomChecks = async ({ uri, db, websiteId, createdAt, quickcheckId }) => {
   console.log(`Running custom checks for ${uri}`)
-  const checks = await db.collection('flows').find({ userId }).toArray()
+  const checks = await db.collection('flows').find({ websiteId }).toArray()
 
   if (checks.length) {
     const browser = await playwright.chromium.launch()
@@ -118,7 +118,7 @@ export const runCustomChecks = async ({ uri, db, userId, createdAt, quickcheckId
         })
       }
 
-      await createCheckResult({ db, userId, createdAt, check: 'custom', result: results, quickcheckId })
+      await createCheckResult({ db, websiteId, createdAt, check: 'custom', result: results, quickcheckId })
     } catch (err) {
       console.error(`Error fetching ${uri}:`, err.message);
     } finally {

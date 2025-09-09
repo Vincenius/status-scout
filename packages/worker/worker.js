@@ -14,6 +14,7 @@ const connection = new IORedis({
 });
 
 const QUEUE_NAME = 'checks';
+const TIMEOUT = 1000 * 300; // 300 seconds timeout
 
 console.log('Initialize worker with', CONCURRENT_RUNS, 'concurrent runs')
 
@@ -31,7 +32,7 @@ const worker = new Worker(
       const timeout = setTimeout(() => {
         child.kill();  // Forcefully kill the child process
         reject(new Error('Job timed out'));
-      }, 1000 * 120); // 60 seconds timeout
+      }, TIMEOUT);
 
       child.on('message', (message) => {
         clearTimeout(timeout);
@@ -59,7 +60,7 @@ const worker = new Worker(
     connection,
     concurrency: CONCURRENT_RUNS,
     settings: {
-      lockDuration: 1200000  // in ms; match your timeout
+      lockDuration: TIMEOUT
     }
   }
 );
@@ -81,10 +82,10 @@ worker.on('error', (err) => {
 
 const shutdown = async () => {
   console.log('Shutting down gracefully...');
-  await worker.pause(true);     // Stop fetching new jobs
-  await worker.close();         // close BullMQ worker
-  await disconnectDB();         // close MongoDB connection
-  await connection.quit();      // close Redis connection
+  await worker.pause(true);
+  await worker.close();
+  await disconnectDB();
+  await connection.quit();
   process.exit(0);
 };
 

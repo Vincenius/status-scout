@@ -87,7 +87,7 @@ const DetailsModal = ({
   const updateIgnoreList = async ({ item, type, action }) => {
     setLoading(item.url)
 
-    fetch(`${import.meta.env.VITE_API_URL}/v1/user/ignore`, {
+    fetch(`${import.meta.env.VITE_API_URL}/v1/website/ignore`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -95,7 +95,7 @@ const DetailsModal = ({
       credentials: 'include',
       body: JSON.stringify({ item: item.url, type, action }),
     }).then(async res => {
-      mutate(`${import.meta.env.VITE_API_URL}/v1/user`)
+      mutate(`${import.meta.env.VITE_API_URL}/v1/website`)
     }).finally(() => {
       setLoading(null)
     })

@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Box, Button, Card, Flex, Text, TextInput, Title } from '@mantine/core';
 import { useState } from 'react';
 import Layout from "@/components/Layout/Layout";

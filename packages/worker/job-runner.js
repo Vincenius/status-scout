@@ -4,7 +4,7 @@ const jobData = JSON.parse(process.env.JOB_DATA);
 
 run({
   type: jobData.type,
-  userId: jobData.userId,
+  websiteId: jobData.websiteId,
   quickcheckId: jobData.quickcheckId,
   url: jobData.url
 })

@@ -3,6 +3,7 @@ import IORedis from 'ioredis'
 import fastifyPassport from '@fastify/passport';
 import { v4 as uuidv4 } from 'uuid';
 import { connectDB } from '../db.js'
+import { ObjectId } from 'mongodb';
 
 const connection = new IORedis({
   host: process.env.REDIS_HOST || 'localhost',
@@ -40,22 +41,42 @@ const runJob = async (body) => {
 }
 
 export default async function checkRoutes(fastify, opts) {
+  fastify.post('/statuscheck',
+    { preValidation: fastifyPassport.authenticate('session', { failureRedirect: '/login' }) },
+    async (request, reply) => {
+      const body = request.body || {}
+      const url = new URL(body.url);
+      const baseUrl = url.origin;
+      const statusCode = await fetch(baseUrl, { method: 'GET' })
+        .then(response => response.status)
+        .catch(() => 500);
+
+      return { statusCode }
+    })
+
   fastify.post('/check',
     { preValidation: fastifyPassport.authenticate('session', { failureRedirect: '/login' }) },
     async (request, reply) => {
-      const userId = request.user?.id
+      const body = request.body || {}
+      const websiteId = body.id
+      const userId = request.user?._id
 
-      if (userId) {
-        return runJob({ userId, type: 'full' })
+      const db = await connectDB()
+      const website = await db.collection('websites').findOne({ _id: new ObjectId(websiteId), userId })
+
+      console.log({ userId, websiteId, website })
+
+      if (website) {
+        return runJob({ websiteId, type: 'full' })
       } else {
-        // return 403 error
-        reply.code(403).send({ error: 'Forbidden' })
+        // return 404 error
+        reply.code(404).send({ error: 'Not Found' })
       }
     })
 
   fastify.post('/quickcheck', { config: { auth: false } }, async (request, reply) => {
     const body = request.body || {}
-    const userId = request.user?.id
+    const userId = request.user?._id
 
     console.log('run quick check', { userId, ...body })
 
@@ -118,7 +139,7 @@ export default async function checkRoutes(fastify, opts) {
       if (!quickcheck) {
         return { error: true, message: 'Quickcheck not found' }
       }
-      
+
       const { waitingIndex, state } = await getJobStatus(quickcheck.jobId)
 
       return {

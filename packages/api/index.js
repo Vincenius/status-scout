@@ -7,14 +7,15 @@ import { Strategy as LocalStrategy } from 'passport-local';
 import fastifyPassport from '@fastify/passport';
 import { ObjectId } from 'mongodb';
 import CryptoJS from 'crypto-js'
+import { disconnectDB, connectDB } from './db.js'
 
 import authRoutes from './v1/auth.js'
 import flowsRoutes from './v1/flows.js'
-import userRoutes from './v1/user.js'
+import websiteRoutes from './v1/website.js'
 import checkRoutes from './v1/check.js'
 import feedbackRoutes from './v1/feedback.js';
 import waitlistRoutes from './v1/waitlist.js';
-import { disconnectDB, connectDB } from './db.js'
+import userRoutes from './v1/user.js';
 
 const fastify = Fastify({
   logger: true,
@@ -93,8 +94,10 @@ fastify.addHook('preHandler', async (request, reply) => {
 
 fastify.register(authRoutes, { prefix: '/v1' })
 fastify.register(flowsRoutes, { prefix: '/v1' })
+fastify.register(websiteRoutes, { prefix: '/v1/website' })
 fastify.register(userRoutes, { prefix: '/v1/user' })
 fastify.register(checkRoutes, { prefix: '/v1' })
+
 fastify.register(feedbackRoutes, { prefix: '/v1/feedback' })
 fastify.register(waitlistRoutes, { prefix: '/v1/waitlist' })
 
