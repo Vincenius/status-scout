@@ -1,0 +1,23 @@
+# StatusScout
+
+> **StatusScout** is your all-in-one website health and status monitoring tool. It lets you quickly check your site's uptime, performance, SEO, accessibility, security headers, SSL certificate, presence of sensitive files, broken links, and more — all from one interface.
+
+Things to remember when using StatusScout:
+
+- It's open-source (see source and how it works on GitHub).
+- It combines Lighthouse-based checks (for SEO, performance, a11y) plus custom scans (security headers, broken links, sensitive files).
+- Plans for future enhancements include DNS checks, monitoring, and alerting capabilities.
+- The frontend is built with React + Vite + Mantine UI; the backend uses Node.js, MongoDB, and Redis for background job queuing.
+- When you enter a URL, various checks are triggered as background jobs; broken link checks are currently limited to the first 200 links.
+
+## Docs & Source
+
+- [GitHub repository (code + architecture & roadmap)](https://github.com/Vincenius/status-scout): See the implementation details and future plans.
+
+## Features
+
+- **SEO**, **Accessibility**, **Performance** checks via Lighthouse tooling.
+- **Security headers**, **SSL certificate** validation.
+- Detection of **sensitive files** on the site.
+- **Broken link** detection (limited to 200 links as of now).
+- Future roadmap includes **DNS checks**, **custom test flows**, and **monitoring/alerting** features.
