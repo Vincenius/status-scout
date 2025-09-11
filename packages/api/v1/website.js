@@ -13,7 +13,7 @@ export default async function userRoutes(fastify, opts) {
 
       const db = await connectDB()
       const count = await db.collection('websites').countDocuments({ userId: user._id })
-      const newElemIndex = count + 1
+      const newElemIndex = (count + 1).toString()
       const result = await db.collection('websites').insertOne({
         userId: user._id,
         domain: baseUrl,
@@ -33,35 +33,11 @@ export default async function userRoutes(fastify, opts) {
         const db = await connectDB()
         const websites = await db.collection('websites').find({ userId: user._id }).toArray()
 
-        return websites
-
-        // todo move endpoint
-        // const db = await connectDB()
-
-        // const checks = await db.collection('checks').aggregate([
-        //   { $match: { userId: user._id } },
-        //   { $sort: { check: 1, createdAt: -1 } },
-        //   {
-        //     $group: {
-        //       _id: "$check",
-        //       entries: { $push: "$$ROOT" }
-        //     }
-        //   },
-        //   {
-        //     $project: {
-        //       _id: 0,
-        //       check: "$_id",
-        //       entries: { $slice: ["$entries", 40] }
-        //     }
-        //   },
-        //   { $unwind: "$entries" },
-        //   { $replaceRoot: { newRoot: "$entries" } }
-        // ]).toArray();
-
-        // return {
-        //   user,
-        //   checks,
-        // }
+        return websites.map(w => ({
+          domain: w.domain,
+          createdAt: w.createdAt,
+          index: w.index,
+        }))
       } catch (e) {
         console.error(e)
         reply.code(500).send({ error: 'Internal server error' });

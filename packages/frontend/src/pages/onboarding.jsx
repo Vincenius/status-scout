@@ -83,7 +83,7 @@ function Onboarding() {
         }).then(res => res.json())
 
         // trigger initial check for id
-        const initCheck = await fetch(`${import.meta.env.VITE_API_URL}/v1/check`, {
+        await fetch(`${import.meta.env.VITE_API_URL}/v1/check`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

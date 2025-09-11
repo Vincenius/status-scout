@@ -108,9 +108,10 @@ function Overview({ data, isLoading, flows = [], uptime, isQuickCheck, hasFailed
                   <Text fw="normal" size="sm">
                     Checked at:
                   </Text>
-                  <Text size="sm">
+                  {createdAt && <Text size="sm">
                     {dateString}
-                  </Text>
+                  </Text>}
+                  {!createdAt && <Skeleton height={8} radius="xl" w={150} />}
                 </Box>
               </Flex>}
 

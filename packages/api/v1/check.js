@@ -64,10 +64,49 @@ export default async function checkRoutes(fastify, opts) {
       const db = await connectDB()
       const website = await db.collection('websites').findOne({ _id: new ObjectId(websiteId), userId })
 
-      console.log({ userId, websiteId, website })
+      if (website) {
+        const { message, waitingIndex, jobId } = await runJob({ websiteId, type: 'full' })
+        await db.collection('websites').updateOne({ _id: website._id }, { $set: { lastCheckId: jobId } })
+
+        return { message, waitingIndex, jobId }
+      } else {
+        // return 404 error
+        reply.code(404).send({ error: 'Not Found' })
+      }
+    })
+
+  fastify.get('/check',
+    { preValidation: fastifyPassport.authenticate('session', { failureRedirect: '/login' }) },
+    async (request, reply) => {
+      const query = request.query || {}
+      const websiteId = query.id
+      const userId = request.user?._id
+
+      const db = await connectDB()
+      const website = await db.collection('websites').findOne({ index: websiteId, userId })
 
       if (website) {
-        return runJob({ websiteId, type: 'full' })
+        const status = await getJobStatus(website.lastCheckId)
+        const checks = await db.collection('checks').aggregate([
+          { $match: { websiteId: website._id } },
+          { $sort: { check: 1, createdAt: -1 } },
+          {
+            $group: {
+              _id: "$check",
+              entries: { $push: "$$ROOT" }
+            }
+          },
+          {
+            $project: {
+              _id: 0,
+              check: "$_id",
+              entries: { $slice: ["$entries", 1] }
+            }
+          },
+          { $unwind: "$entries" },
+          { $replaceRoot: { newRoot: "$entries" } }
+        ]).toArray();
+        return { checks, status };
       } else {
         // return 404 error
         reply.code(404).send({ error: 'Not Found' })
@@ -93,6 +132,7 @@ export default async function checkRoutes(fastify, opts) {
         const startOfToday = new Date();
         startOfToday.setHours(0, 0, 0, 0)
 
+        // todo improve handling of logged in user quickchecks
         const prevChecks = process.env.LIMIT_ENABLED !== 'true' || userId
           ? null // ignore prev checks if user is logged in or if env is set
           : await db.collection('quickchecks')
@@ -107,7 +147,7 @@ export default async function checkRoutes(fastify, opts) {
           console.log('START CHECK')
 
           const quickcheckId = uuidv4();
-          const { waitingIndex, jobId } = await runJob({ userId, type: 'free', quickcheckId, url: baseUrl })
+          const { waitingIndex, jobId } = await runJob({ type: 'free', quickcheckId, url: baseUrl })
           await db.collection('quickchecks').insertOne({ url: baseUrl, createdAt: new Date(), quickcheckId, jobId })
 
           return { statusCode, quickcheckId, waitingIndex }

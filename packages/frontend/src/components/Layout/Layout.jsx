@@ -97,6 +97,7 @@ const Layout = ({ children, title, isPublicRoute, redirectIfAuth }) => {
           active={window.location.pathname === '/'}
           component={Link}
           disabled={!menuEnabled}
+          to="/dashboard"
         />
         <NavLink
           label={<span>Logout {logoutLoading ? <Loader size="xs" /> : ""}</span>}

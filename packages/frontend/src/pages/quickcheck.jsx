@@ -134,7 +134,7 @@ function QuickCheck() {
             }}
             isLoading={false}
             isQuickCheck={true}
-            allChecksCompleted={allChecksCompleted}
+            // allChecksCompleted={allChecksCompleted}
             hasFailed={jobFailed || errorCount > 5}
           />
 
