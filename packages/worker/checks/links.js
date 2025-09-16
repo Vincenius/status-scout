@@ -5,7 +5,7 @@ const fileRegex = /\.[a-z0-9]+([?#].*)?$/i;
 const skipList = [] // todo dynamic
 let crawlCount = 0;
 
-export const runBrokenLinkCheck = async ({ uri, websiteId, createdAt, type, quickcheckId }) => {
+export const runBrokenLinkCheck = async ({ uri, id, websiteId, createdAt, type, quickcheckId }) => {
   console.log(`Running broken link check for ${uri}`)
   const url = new URL(uri);
   const baseUrl = url.origin;
@@ -37,5 +37,5 @@ export const runBrokenLinkCheck = async ({ uri, websiteId, createdAt, type, quic
     }))
   }
 
-  await createCheckResult({ websiteId, createdAt, check: 'links', result, quickcheckId })
+  await createCheckResult({ id, websiteId, createdAt, check: 'links', result, quickcheckId })
 }

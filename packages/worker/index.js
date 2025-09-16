@@ -10,7 +10,7 @@ import { runCustomChecks } from './checks/custom.js'
 import { runBrokenLinkCheck } from './checks/links.js'
 import { ObjectId } from 'mongodb'
 
-export const run = async ({ type = 'quick', websiteId, quickcheckId, url }) => {
+export const run = async ({ id, type = 'quick', websiteId, quickcheckId, url }) => {
   // type (of check) -> quick, extended, full
   try {
     const db = await connectDB()
@@ -18,14 +18,10 @@ export const run = async ({ type = 'quick', websiteId, quickcheckId, url }) => {
       ? await db.collection('websites').find({ _id: new ObjectId(websiteId) }).toArray()
       : [{ domain: url }] // quickcheck
 
-    if (website) {
-      // TODO strore last check id
-    }
-
     const createdAt = new Date().toISOString()
     console.log(createdAt, `run ${type} status check for`, website.domain)
 
-    const baseParams = { uri: website.domain, db, websiteId: website._id, quickcheckId, createdAt }
+    const baseParams = { id, uri: website.domain, db, websiteId: website._id, quickcheckId, createdAt } // todo maybe replace quickcheckid with id
 
     const checks = [
       runUptimeCheck(baseParams),

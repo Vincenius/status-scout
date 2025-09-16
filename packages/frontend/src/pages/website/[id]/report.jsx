@@ -1,12 +1,13 @@
 import Layout from '@/components/Layout/Layout'
 import { useParams } from 'react-router-dom';
-import { Card, Container, LoadingOverlay, Text, Title } from '@mantine/core'
+import { Button, Card, Container, Flex, LoadingOverlay, Text, Title } from '@mantine/core'
 import { useAuthSWR } from '@/utils/useAuthSWR'
 import Report from '@/components/Report/Report';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 function ReportPage() {
   const { id } = useParams();
+  const [loading, setLoading] = useState(false);
   const intervalRef = useRef(null);
   const { data: websites = [], isLoading: isLoadingWebsites } = useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/website`)
   const website = websites.find(w => w.index === id)
@@ -34,9 +35,23 @@ function ReportPage() {
     };
   }, [status?.state]);
 
+  const generateReport = async () => {
+    setLoading(true);
+    await fetch(`${import.meta.env.VITE_API_URL}/v1/check`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ id: website.id })
+    });
+    mutate();
+    setLoading(false);
+  }
+
   return (
     <Layout title="Website Report">
-      <Container size="md" py="md">
+      <Container size="md" py="md" px={{ base: "0", md: "md" }}>
         <Title size="h1" ta="center" mb="sm">Website Report</Title>
 
         {(isLoadingWebsites || isLoadingChecks) && <LoadingOverlay />}
@@ -47,10 +62,14 @@ function ReportPage() {
 
         {/* todo waiting */}
         {!isLoadingWebsites && !isLoadingChecks && <>
+          <Text size="lg" ta="center">For <a href={website?.domain} target='_blank' rel="noopener noreferrer">{new URL(website?.domain).hostname}</a> from <i>{new Date(checks.length ? checks[0].createdAt : null).toLocaleString()}</i></Text>
+          <Flex justify="flex-end" my="md">
+            {/* todo disabled while running */}
+            <Button onClick={generateReport} loading={loading} disabled={status?.state === 'active'}>Generate new Report</Button>
+          </Flex>
           <Report
             website={website}
             checks={checks}
-            createdAt={checks.length ? checks[0].createdAt : null}
           />
         </>}
       </Container>

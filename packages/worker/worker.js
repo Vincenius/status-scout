@@ -25,7 +25,10 @@ const worker = new Worker(
       const child = fork(path.resolve('./job-runner.js'), [], {
         env: {
           ...process.env,
-          JOB_DATA: JSON.stringify(job.data),
+          JOB_DATA: JSON.stringify({
+            id: job.id,
+            ...job.data,
+          }),
         }
       });
 

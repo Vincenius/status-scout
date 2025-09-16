@@ -1,10 +1,28 @@
-import { Flex, RingProgress, Center, Text } from '@mantine/core';
+import { Flex, RingProgress, Center, Text, Loader, Box } from '@mantine/core';
 import { IconCheck, IconX } from '@tabler/icons-react';
 
 const sizes = {
   md: { ring: 80, text: 'sm', thickness: 8 },
   lg: { ring: 120, text: 'lg', thickness: 12 },
 };
+
+export const LoadingChart = ({ size = 'md', label }) => {
+  const s = {
+    md: { ring: 64, padding: 8, text: 'sm' },
+    lg: { ring: 96, padding: 12, text: 'lg' },
+  }[size]
+
+  return (
+    <Flex direction="column" align="center">
+      <Box p={s.padding} pb="0">
+        <Loader size={s.ring} />
+      </Box>
+
+      <Text size={s.text}>{label}</Text>
+    </Flex>
+
+  );
+}
 
 export function SSLChart({ status, size = 'md' }) {
   const s = sizes[size] || sizes.md;

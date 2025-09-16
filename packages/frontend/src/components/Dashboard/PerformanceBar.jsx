@@ -37,7 +37,7 @@ function calculateMarkerLeft(metric, containerWidth) {
   return Math.min(leftProportion * containerWidth, containerWidth);
 }
 
-const PerformanceBar = ({ title, metric, isLoading, unit, mb = '0' }) => {
+const PerformanceBar = ({ title, metric, isLoading, mb = '0' }) => {
   if (!metric) return <Box mb={mb}>
     <Group justify="space-between" mb="2px">
       <Flex gap="4px" align="center">
@@ -90,7 +90,7 @@ const PerformanceBar = ({ title, metric, isLoading, unit, mb = '0' }) => {
           <Text fw={500} size="sm">{title}</Text>
         </Flex>
         <Text size="sm" c="dimmed">
-          {metric.percentile} {unit}
+          {metric.percentile} ms
         </Text>
       </Group>
 
@@ -127,7 +127,7 @@ const PerformanceBar = ({ title, metric, isLoading, unit, mb = '0' }) => {
               pointerEvents: 'none',
             }}
           >
-            <Tooltip label={`Percentile: ${metric.percentile} ${unit}`} withArrow>
+            <Tooltip label={`Percentile: ${metric.percentile} ms`} withArrow>
               <Box h={20} w={4} bg="white"></Box>
             </Tooltip>
           </Box>

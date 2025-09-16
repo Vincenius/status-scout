@@ -31,6 +31,7 @@ function Dashboard() {
             <Link key={website.domain} to={`/website/${website.index}/report`} style={{ textDecoration: 'none', flex: '1 1 calc(33% - 1rem)' }}>
               <Card key={website.domain} withBorder p="md" mb="md" shadow='md'>
                 <Title order={3}>{new URL(website.domain).hostname}</Title>
+                {/* todo last check maybe and some status? */}
               </Card>
             </Link>
           ))}

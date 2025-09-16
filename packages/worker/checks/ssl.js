@@ -11,7 +11,7 @@ const getHostFromUrl = (urlString) => {
   }
 };
 
-export const runSslCheck = async ({ uri, db, websiteId, createdAt, quickcheckId }) => {
+export const runSslCheck = async ({ uri, id, websiteId, createdAt, quickcheckId }) => {
   console.log(`Running SSL check for ${uri}`)
   const sslResult = await sslChecker(getHostFromUrl(uri), { method: 'GET', port: 443 });
   const result = {
@@ -19,5 +19,5 @@ export const runSslCheck = async ({ uri, db, websiteId, createdAt, quickcheckId 
     details: sslResult
   }
 
-  await createCheckResult({ db, websiteId, createdAt, check: 'ssl', result, quickcheckId })
+  await createCheckResult({ id, websiteId, createdAt, check: 'ssl', result, quickcheckId })
 }

@@ -87,25 +87,8 @@ export default async function checkRoutes(fastify, opts) {
 
       if (website) {
         const status = await getJobStatus(website.lastCheckId)
-        const checks = await db.collection('checks').aggregate([
-          { $match: { websiteId: website._id } },
-          { $sort: { check: 1, createdAt: -1 } },
-          {
-            $group: {
-              _id: "$check",
-              entries: { $push: "$$ROOT" }
-            }
-          },
-          {
-            $project: {
-              _id: 0,
-              check: "$_id",
-              entries: { $slice: ["$entries", 1] }
-            }
-          },
-          { $unwind: "$entries" },
-          { $replaceRoot: { newRoot: "$entries" } }
-        ]).toArray();
+        const checks = await db.collection('checks').find({ websiteId: website._id, jobId: website.lastCheckId }).toArray()
+
         return { checks, status };
       } else {
         // return 404 error
@@ -196,4 +179,25 @@ export default async function checkRoutes(fastify, opts) {
       reply.code(500).send({ error: 'Internal server error' });
     }
   })
+
+  // for history:
+  // const checks = await db.collection('checks').aggregate([
+  //   { $match: { websiteId: website._id } },
+  //   { $sort: { check: 1, createdAt: -1 } },
+  //   {
+  //     $group: {
+  //       _id: "$check",
+  //       entries: { $push: "$$ROOT" }
+  //     }
+  //   },
+  //   {
+  //     $project: {
+  //       _id: 0,
+  //       check: "$_id",
+  //       entries: { $slice: ["$entries", 1] }
+  //     }
+  //   },
+  //   { $unwind: "$entries" },
+  //   { $replaceRoot: { newRoot: "$entries" } }
+  // ]).toArray();
 }

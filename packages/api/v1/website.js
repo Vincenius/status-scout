@@ -34,6 +34,7 @@ export default async function userRoutes(fastify, opts) {
         const websites = await db.collection('websites').find({ userId: user._id }).toArray()
 
         return websites.map(w => ({
+          id: w._id.toString(),
           domain: w.domain,
           createdAt: w.createdAt,
           index: w.index,

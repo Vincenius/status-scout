@@ -19,7 +19,7 @@ const fetchPageSpeedData = (url) => new Promise((resolve, reject) => {
     });
 })
 
-export const runPerformanceCheck = async ({ uri, db, websiteId, createdAt, quickcheckId }) => {
+export const runPerformanceCheck = async ({ uri, id, websiteId, createdAt, quickcheckId }) => {
   console.log(`Running performance check for ${uri}`)
   const mobileUrl = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${uri}&strategy=mobile&key=${process.env.GOOGLE_PAGESPEED_API_KEY}`;
   const desktopUrl = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${uri}&strategy=desktop&key=${process.env.GOOGLE_PAGESPEED_API_KEY}`;
@@ -39,5 +39,5 @@ export const runPerformanceCheck = async ({ uri, db, websiteId, createdAt, quick
     },
   }
 
-  await createCheckResult({ db, websiteId, createdAt, check: 'performance', result, quickcheckId })
+  await createCheckResult({ id, websiteId, createdAt, check: 'performance', result, quickcheckId })
 }

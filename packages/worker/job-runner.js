@@ -3,6 +3,7 @@ import { run } from './index.js';
 const jobData = JSON.parse(process.env.JOB_DATA);
 
 run({
+  id: jobData.id,
   type: jobData.type,
   websiteId: jobData.websiteId,
   quickcheckId: jobData.quickcheckId,
