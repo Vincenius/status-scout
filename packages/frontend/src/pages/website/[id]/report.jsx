@@ -1,8 +1,9 @@
 import Layout from '@/components/Layout/Layout'
 import { useParams } from 'react-router-dom';
-import { Button, Card, Container, Flex, LoadingOverlay, Skeleton, Text, Title } from '@mantine/core'
+import { Button, Card, Container, Flex, LoadingOverlay, Text, Title } from '@mantine/core'
 import { useAuthSWR } from '@/utils/useAuthSWR'
 import Report from '@/components/Report/Report';
+import Website404 from '@/components/Website/Website404';
 import { useEffect, useRef, useState } from 'react';
 
 function ReportPage() {
@@ -49,10 +50,16 @@ function ReportPage() {
     setLoading(false);
   }
 
+  if (!isLoadingWebsites && !website) {
+    return (
+      <Website404 />
+    )
+  }
+
   return (
     <Layout title="Website Report">
       <Container size="md" py="md" px={{ base: "0", md: "md" }}>
-        <Title size="h1" ta="center" mb="sm">Website Report</Title>
+        <Title size="h1" ta="center" mb="sm">Report</Title>
 
         {(isLoadingWebsites || isLoadingChecks) && <LoadingOverlay />}
         {!isLoadingWebsites && !website && <Card p="md" withBorder maw={600}>

@@ -1,5 +1,5 @@
 import Layout from '@/components/Layout/Layout';
-import CreateWebsite from '@/components/CreateWebsite/CreateWebsite';
+import CreateWebsite from '@/components/Website/CreateWebsite';
 
 function NewWebsite() {
   return (

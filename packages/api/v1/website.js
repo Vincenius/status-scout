@@ -12,6 +12,13 @@ export default async function userRoutes(fastify, opts) {
       const baseUrl = url.origin;
 
       const db = await connectDB()
+
+      const existingWebsite = await db.collection('websites').findOne({ userId: user._id, domain: baseUrl, deleted: { $ne: true } })
+      if (existingWebsite) {
+        reply.code(400).send({ error: 'A website with this domain already exists' });
+        return;
+      }
+
       const count = await db.collection('websites').countDocuments({ userId: user._id })
       const newElemIndex = (count + 1).toString()
       const result = await db.collection('websites').insertOne({
@@ -31,7 +38,7 @@ export default async function userRoutes(fastify, opts) {
         const user = request.user
 
         const db = await connectDB()
-        const websites = await db.collection('websites').find({ userId: user._id }).toArray()
+        const websites = await db.collection('websites').find({ userId: user._id, deleted: { $ne: true } }).toArray()
 
         return websites.map(w => ({
           id: w._id.toString(),
@@ -39,6 +46,25 @@ export default async function userRoutes(fastify, opts) {
           createdAt: w.createdAt,
           index: w.index,
         }))
+      } catch (e) {
+        console.error(e)
+        reply.code(500).send({ error: 'Internal server error' });
+      }
+    })
+
+
+  fastify.delete('/',
+    { preValidation: fastifyPassport.authenticate('session', { failureRedirect: '/login' }) },
+    async (request, reply) => {
+      try {
+        const user = request.user
+
+        const db = await connectDB()
+        const query = request.query || {}
+        const websiteId = query.id
+        await db.collection('websites').updateOne({ _id: new ObjectId(websiteId), userId: user._id }, { $set: { deleted: true } })
+
+        return { success: true }
       } catch (e) {
         console.error(e)
         reply.code(500).send({ error: 'Internal server error' });

@@ -66,7 +66,7 @@ function CreateWebsite({ title }) {
 
       if (statusCode === 200) {
         // create website
-        const { id, index } = await fetch(`${import.meta.env.VITE_API_URL}/v1/website`, {
+        const { id, index, error } = await fetch(`${import.meta.env.VITE_API_URL}/v1/website`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -74,6 +74,12 @@ function CreateWebsite({ title }) {
           credentials: 'include',
           body: JSON.stringify({ url: finalUrl }),
         }).then(res => res.json())
+
+        if (error) {
+          form.setFieldError('url', error);
+          setLoading(false);
+          return;
+        }
 
         // trigger initial check for id
         await fetch(`${import.meta.env.VITE_API_URL}/v1/check`, {

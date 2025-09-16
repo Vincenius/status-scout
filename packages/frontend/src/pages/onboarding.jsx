@@ -1,6 +1,6 @@
 import Layout from '@/components/Layout/Layout';
 import { useState, useEffect } from 'react';
-import CreateWebsite from '@/components/CreateWebsite/CreateWebsite';
+import CreateWebsite from '@/components/Website/CreateWebsite';
 
 function Onboarding() {
   const { data: websites = [] } = useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/website`)
