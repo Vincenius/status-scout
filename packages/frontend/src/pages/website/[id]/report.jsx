@@ -1,6 +1,6 @@
 import Layout from '@/components/Layout/Layout'
 import { useParams } from 'react-router-dom';
-import { Button, Card, Container, Flex, LoadingOverlay, Text, Title } from '@mantine/core'
+import { Button, Card, Container, Flex, LoadingOverlay, Skeleton, Text, Title } from '@mantine/core'
 import { useAuthSWR } from '@/utils/useAuthSWR'
 import Report from '@/components/Report/Report';
 import { useEffect, useRef, useState } from 'react';
@@ -62,7 +62,8 @@ function ReportPage() {
 
         {/* todo waiting */}
         {!isLoadingWebsites && !isLoadingChecks && <>
-          <Text size="lg" ta="center">For <a href={website?.domain} target='_blank' rel="noopener noreferrer">{new URL(website?.domain).hostname}</a> from <i>{new Date(checks.length ? checks[0].createdAt : null).toLocaleString()}</i></Text>
+          <Text size="lg" ta="center">
+            For <a href={website?.domain} target='_blank' rel="noopener noreferrer">{new URL(website?.domain).hostname}</a> from {checks.length ? <i>{new Date(checks.length ? checks[0].createdAt : null).toLocaleString()}</i> : <></>}</Text>
           <Flex justify="flex-end" my="md">
             {/* todo disabled while running */}
             <Button onClick={generateReport} loading={loading} disabled={status?.state === 'active'}>Generate new Report</Button>
@@ -70,6 +71,7 @@ function ReportPage() {
           <Report
             website={website}
             checks={checks}
+            status={status}
           />
         </>}
       </Container>

@@ -68,7 +68,7 @@ const LinksTable = ({ items, updateIgnoreList, loading, ignoreAction }) => {
   </Table>
 }
 
-function Report({ website, checks }) {
+function Report({ website, checks, status }) {
   const {
     performanceCheck,
     fuzzCheck,
@@ -134,7 +134,14 @@ function Report({ website, checks }) {
   return (
     <div>
       <Card p="md" withBorder shadow="md">
+        {status?.waitingIndex !== null && <Card.Section py="xl" px={{ base: "md", md: "xl" }}>
+          <Title order={2} size="h1" ta="center" mb="md">You’re in the Queue</Title>
+
+          <Text size="xl" mb="md">Our system is handling a high volume of checks.<br />Hang tight — your website health check will begin shortly.</Text>
+          <Text size="xl">Current position in queue: <b>#{status?.waitingIndex + 1}</b></Text>
+        </Card.Section>}
         <Card.Section py="xl" px={{ base: "md", md: "xl" }}>
+
           <Flex gap="md" justify="space-around" wrap="wrap">
             <Flex direction="column" align="center" onClick={() => scrollToRef(sslRef)} style={{ cursor: 'pointer' }}>
               {sslCheck && <SSLChart status={sslCheck.result.status} />}

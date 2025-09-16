@@ -146,8 +146,7 @@ export function BrokenLinksChart({ brokenLinks, size = 'md' }) {
         sections={[{ value: 100, color: brokenLinks.length === 0 ? 'green' : 'yellow' }]}
         label={
           <Center>
-            {brokenLinks.length === 0 && <IconCheck size={s.icon} stroke={3} color="green" />}
-            {brokenLinks.length > 0 && <Text c="yellow" fw="bold" size={s.text}>{brokenLinks.length}</Text>}
+            <Text c={brokenLinks.length === 0 ? 'green' : 'yellow'} fw="bold" size={s.text}>{brokenLinks.length}</Text>
           </Center>
         }
       />

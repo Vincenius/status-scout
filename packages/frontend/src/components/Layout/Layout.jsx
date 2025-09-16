@@ -1,7 +1,7 @@
-import { Text, Flex, Burger, AppShell, NavLink, Box, Indicator, LoadingOverlay, Loader } from '@mantine/core'
+import { Text, Flex, Burger, AppShell, NavLink, Box, Indicator, LoadingOverlay, Loader, ActionIcon, Menu } from '@mantine/core'
 import { Helmet } from 'react-helmet-async';
 import { useDisclosure } from '@mantine/hooks';
-import { IconDashboard, IconHeartbeat, IconLogout } from '@tabler/icons-react';
+import { IconAppWindow, IconCirclePlus, IconDashboard, IconHeartbeat, IconLogout, IconPlus, IconSettings } from '@tabler/icons-react';
 import { Link, useNavigate } from 'react-router-dom';
 import ColorSchemeToggle from './ColorSchemeToggle.jsx';
 import { useEffect, useState } from 'react';
@@ -85,7 +85,44 @@ const Layout = ({ children, title, isPublicRoute, redirectIfAuth }) => {
               </Flex>
             </Indicator>
 
-            <ColorSchemeToggle />
+            <Flex gap="md">
+              <ColorSchemeToggle />
+
+              {user?.email && <Menu shadow="md" width={200}>
+                <Menu.Target>
+                  <ActionIcon
+                    variant="default"
+                    size="lg"
+                    radius="md"
+                    aria-label="Settings"
+                  >
+                    <IconSettings stroke={1.5} />
+                  </ActionIcon>
+                </Menu.Target>
+                <Menu.Dropdown>
+                  <Menu.Item
+                    leftSection={<IconSettings size={14} />}
+                    to={`/settings`}
+                    component={Link}
+                  >
+                    Settings
+                  </Menu.Item>
+                  <Menu.Item
+                    disabled={logoutLoading}
+                    leftSection={<IconLogout size={16} stroke={1.5} />}
+                    onClick={async () => {
+                      setLogoutLoading(true)
+                      await fetch(`${import.meta.env.VITE_API_URL}/v1/logout`, { credentials: 'include' })
+                      await new Promise(resolve => setTimeout(resolve, 500));
+                      setLogoutLoading(false)
+                      navigate('/login')
+                    }}>
+                    <span>Logout {logoutLoading ? <Loader size="xs" /> : ""}</span>
+                  </Menu.Item>
+                </Menu.Dropdown>
+              </Menu>}
+
+            </Flex>
           </Flex>
         </Flex>
       </AppShell.Header>
@@ -94,12 +131,51 @@ const Layout = ({ children, title, isPublicRoute, redirectIfAuth }) => {
         <NavLink
           label="Dashboard"
           leftSection={<IconDashboard size={16} stroke={1.5} />}
-          active={window.location.pathname === '/'}
+          active={window.location.pathname === '/dashboard'}
           component={Link}
           disabled={!menuEnabled}
           to="/dashboard"
         />
+        {websites.length > 0 && <Text size="sm" c="dimmed" mt="md" mb="xs" pl="sm">Websites</Text>}
+        {websites.map(w => (
+          <NavLink
+            key={w.id}
+            label={new URL(w?.domain).hostname}
+            leftSection={<IconAppWindow size={16} stroke={1.5} />}
+            disabled={!menuEnabled}
+            defaultOpened={window.location.pathname.startsWith(`/website/${w.index}`)}
+          >
+            <NavLink
+              label="Overview"
+              to={`/website/${w.index}`}
+              component={Link}
+              active={window.location.pathname === `/website/${w.index}`}
+            />
+            <NavLink
+              label="Report"
+              to={`/website/${w.index}/report`}
+              component={Link}
+              active={window.location.pathname === `/website/${w.index}/report`}
+            />
+            <NavLink
+              label="Settings"
+              to={`/website/${w.index}/settings`}
+              component={Link}
+              active={window.location.pathname === `/website/${w.index}/settings`}
+            />
+          </NavLink>
+        ))}
         <NavLink
+          label="Add Website"
+          leftSection={<IconCirclePlus size={16} stroke={1.5} />}
+          active={window.location.pathname === '/website/new'}
+          component={Link}
+          disabled={!menuEnabled}
+          to="/website/new"
+        />
+
+        {/* todo move logout / account handling to header */}
+        {/* <NavLink
           label={<span>Logout {logoutLoading ? <Loader size="xs" /> : ""}</span>}
           disabled={logoutLoading}
           leftSection={<IconLogout size={16} stroke={1.5} />}
@@ -110,7 +186,7 @@ const Layout = ({ children, title, isPublicRoute, redirectIfAuth }) => {
             setLogoutLoading(false)
             navigate('/login')
           }}
-        />
+        /> */}
         {/* <NavLink
           to="/custom-flows"
           label="Custom Test Flows"
@@ -128,17 +204,6 @@ const Layout = ({ children, title, isPublicRoute, redirectIfAuth }) => {
           {(!isLoadingUser && !isLoadingWebsite) && children}
         </Box>
       </AppShell.Main>
-
-      {/* <AppShell.Footer>
-        <Flex py="xs" px="md" w="100%" justify="space-between">
-          <Text size="sm" align="center">© {new Date().getFullYear()} StatusScout</Text>
-
-          <Flex gap="sm">
-            <Text size="sm" c="inherit"><Link to="/imprint">Imprint</Link></Text>
-            <Text size="sm"><Link to="/privacy">Privacy</Link></Text>
-          </Flex>
-        </Flex>
-      </AppShell.Footer> */}
     </AppShell>
   </>
 }
