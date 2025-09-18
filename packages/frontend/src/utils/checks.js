@@ -19,3 +19,14 @@ export const getRecentChecks = (checks) => {
     customChecks,
   }
 }
+
+export const checkNameMap = {
+  'performance': 'Performance',
+  'fuzz': 'Exposed Sensitive Files',
+  'headers': 'Missing Security Headers',
+  'lighthouse': 'Lighthouse',
+  'a11y': 'Accessibility Report',
+  'seo': 'SEO Report',
+  'custom': 'Custom Flows',
+  'links': 'Broken Links',
+}

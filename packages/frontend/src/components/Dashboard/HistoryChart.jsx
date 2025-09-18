@@ -1,7 +1,7 @@
-import { Card, SimpleGrid, Tooltip } from "@mantine/core";
+import { Card, SimpleGrid, Text, Tooltip } from "@mantine/core";
 import { useMediaQuery } from '@mantine/hooks'
 
-const Chart = ({ data = [] }) => {
+const Chart = ({ data = [], getLabel }) => {
   // figure out current screen size
   const isXxs = useMediaQuery('(max-width: 24em)');
   const isXs = useMediaQuery('(max-width: 36em)');
@@ -13,7 +13,7 @@ const Chart = ({ data = [] }) => {
   if (isXxs) visibleCount = 20;
   else if (isXs) visibleCount = 30;
   else if (isSm) visibleCount = 40;
-  else if (isMd) visibleCount = 20;
+  else if (isMd) visibleCount = 30;
   else if (isLg) visibleCount = 30;
 
   // take only last N items
@@ -32,12 +32,18 @@ const Chart = ({ data = [] }) => {
     >
       {paddedData.map((item, index) =>
         (item && item.result) ? (
-          <Tooltip key={index} label={new Date(item.createdAt).toLocaleString()}>
+          <Tooltip key={index} label={<>
+            <Text fs="italic">{new Date(item.createdAt).toLocaleString()}</Text>
+            {getLabel && <Text>{getLabel(item)}</Text>}
+          </>}>
             <Card
               h={40}
               w={10}
               p="0"
-              bg={item.result?.status === 'success' ? 'green' : 'red'}
+              bg={item.result?.status === 'success'
+                ? 'green'
+                : item.result?.status === 'warning' ? 'yellow' : 'red'
+              }
             />
           </Tooltip>
         ) : (

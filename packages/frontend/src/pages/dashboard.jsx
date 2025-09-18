@@ -21,14 +21,13 @@ function Dashboard() {
 
   return (
     <Layout title="Dashboard">
-      <Title mb="xl" order={1} fw="normal">Dashboard</Title>
+      <Title order={1} size="h1" ta="center" mb="xl" mt="md">Dashboard</Title>
 
       <Box maw={1800} mx="auto">
         <Title order={2} mb="md" fw="normal">Your Websites:</Title>
         <Flex gap="md" direction="row" wrap="wrap" justify="space-between" mb="md">
           {websites.map(website => (
-            // todo change link to overview instead of report
-            <Link key={website.domain} to={`/website/${website.index}/report`} style={{ textDecoration: 'none', flex: '1 1 calc(33% - 1rem)' }}>
+            <Link key={website.domain} to={`/website/${website.index}`} style={{ textDecoration: 'none', flex: '1 1 calc(33% - 1rem)' }}>
               <Card key={website.domain} withBorder p="md" mb="md" shadow='md'>
                 <Title order={3}>{new URL(website.domain).hostname}</Title>
                 {/* todo last check maybe and some status? */}

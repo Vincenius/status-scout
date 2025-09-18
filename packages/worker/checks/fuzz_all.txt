@@ -613,14 +613,11 @@
 .zip
 .zsh_history
 .zshrc
-/api-doc
-/api-docs
 /api.html
 /api.json
 /api.yaml
 /api.yml
 /api/2/explore/
-/api/docs
 /api/package_search/v4/documentation
 /api/swagger
 /api/swagger-resources
@@ -639,16 +636,11 @@
 /api/v3/api-docs
 /api/v3/documentation
 /api/v3/swagger.json
-/apidoc
-/apidocs
-/application
 /backoffice/v1/ui
 /build/reference/web-api/explore
 /classicapi/doc/
 /core/latest/swagger-ui/index.html
 /csp/gateway/slc/api/swagger-ui.html
-/doc
-/docs
 /documentation/swagger-ui
 /documentation/swagger-ui.html
 /documentation/swagger.json
@@ -677,8 +669,6 @@
 /swagger/v2/api-docs
 /swagger/v3/api-docs
 /swaggerui
-/ui
-/ui/
 /v1
 /v1.0
 /v1.1
@@ -1428,7 +1418,6 @@ apc.php
 apc/
 apc/apc.php
 apc/index.php
-api
 api-doc
 api-docs
 api.log
@@ -1437,7 +1426,6 @@ api.py
 api.tar.gz
 api.tgz
 api.zip
-api/
 api/2/explore/
 api/error_log
 api/graphiql
@@ -1540,7 +1528,6 @@ application/configs/application.ini
 application/logs/
 apply.cgi
 AppPackages/
-apps/
 apps/__pycache__/
 apps/frontend/config/app.yml
 apps/frontend/config/databases.yml
@@ -2349,9 +2336,7 @@ debug/pprof
 debug/routes
 debug_error.jsp
 delete.php
-demo
 demo.php
-demo/
 demo/ejb/index.html
 demo/ojspext/events/globals.jsa
 demo/sql/index.jsp
@@ -2403,8 +2388,6 @@ dlldata.c
 dms/AggreSpy
 dms/DMSDump
 dns.alpha.kubernetes.io
-doc
-doc/
 doc/api/
 docker-compose-dev.yml
 docker-compose.yml
@@ -2413,9 +2396,7 @@ Dockerfile
 DocProject/buildhelp/
 DocProject/Help/html
 DocProject/Help/Html2
-docs
 docs.json
-docs/
 docs/_build/
 docs/api-docs.json
 doctrine/
@@ -2668,8 +2649,6 @@ eula.txt
 eula_en.txt
 ews/
 example.php
-examples
-examples/
 examples/jsp/%252e%252e/%252e%252e/manager/html/
 examples/jsp/snp/snoop.jsp
 examples/servlet/SnoopServlet
@@ -2974,7 +2953,6 @@ id_rsa
 id_rsa.pub
 iiasdmpwd/
 iisadmin/
-images/
 images/c99.php
 images/Sym.php
 import.php
@@ -3014,8 +2992,6 @@ includes/tiny_mce/
 includes/tinymce/
 index-bak
 index-test.php
-index.htm
-index.html
 index.php
 index.php-bak
 index.php.bak
@@ -3231,7 +3207,6 @@ lib/flex/varien/.settings
 lib/tiny_mce/
 lib/tinymce/
 lib64/
-libraries/
 libraries/phpmailer/
 libraries/tiny_mce/
 libraries/tinymce/
@@ -3475,10 +3450,7 @@ media.tar
 media.tar.bz2
 media.tar.gz
 media.zip
-media/
 media/export-criteo.xml
-meet/
-meeting/
 member
 member.php
 member/
@@ -4087,9 +4059,7 @@ player.swf
 playground
 playground.xcworkspace
 plugin.xml
-plugins
 plugins.log
-plugins/
 plugins/editors/fckeditor
 plugins/fckeditor
 plugins/sfSWFUploadPlugin/web/sfSWFUploadPlugin/swf/swfupload.swf
@@ -4282,7 +4252,6 @@ requirements.txt
 rerun.txt
 reseller
 resources.xml
-resources/
 resources/.arch-internal-preview.css
 resources/fckeditor
 resources/sass/.sass-cache/
@@ -4423,7 +4392,6 @@ settings.php.txt
 settings.php~
 settings.py
 settings.xml
-settings/
 Settings/ui.plist
 setup
 setup.data
@@ -4732,8 +4700,6 @@ temp.php
 temp.sql
 temp/
 TEMP/
-template/
-templates/
 templates/beez/index.php
 templates/beez3/
 templates/index.html
@@ -4858,9 +4824,7 @@ token.json
 tokenlite.zip
 tomcat-docs/appdev/sample/web/hello.jsp
 tomcat/axis/
-tools
 tools.php
-tools/
 tools/_backups/
 tools/phpMyAdmin/index.php
 trace

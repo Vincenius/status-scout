@@ -180,24 +180,45 @@ export default async function checkRoutes(fastify, opts) {
     }
   })
 
-  // for history:
-  // const checks = await db.collection('checks').aggregate([
-  //   { $match: { websiteId: website._id } },
-  //   { $sort: { check: 1, createdAt: -1 } },
-  //   {
-  //     $group: {
-  //       _id: "$check",
-  //       entries: { $push: "$$ROOT" }
-  //     }
-  //   },
-  //   {
-  //     $project: {
-  //       _id: 0,
-  //       check: "$_id",
-  //       entries: { $slice: ["$entries", 1] }
-  //     }
-  //   },
-  //   { $unwind: "$entries" },
-  //   { $replaceRoot: { newRoot: "$entries" } }
-  // ]).toArray();
+  fastify.get('/history', { config: { auth: false } }, async (request, reply) => {
+    const { id } = request.query;
+
+    if (!id) {
+      return {}
+    }
+
+    const db = await connectDB()
+
+    const [uptime, checks, firstCheck] = await Promise.all([
+      db.collection('checks').find({ websiteId: new ObjectId(id), check: 'uptime' })
+        .sort({ createdAt: 1 })
+        .limit(40)
+        .toArray(),
+      db.collection('checks').aggregate([
+        { $match: { websiteId: new ObjectId(id), check: { $ne: 'uptime' } } },
+        { $sort: { check: 1, createdAt: -1 } },
+        {
+          $group: {
+            _id: "$check",
+            entries: { $push: "$$ROOT" }
+          }
+        },
+        {
+          $project: {
+            _id: 0,
+            check: "$_id",
+            entries: { $slice: ["$entries", 40] }
+          }
+        },
+        { $unwind: "$entries" },
+        { $replaceRoot: { newRoot: "$entries" } }
+      ]).toArray(),
+      db.collection('checks').find({ websiteId: new ObjectId(id) })
+        .sort({ createdAt: 1 })
+        .limit(1)
+        .toArray(),
+    ])
+
+    return { uptime, checks, initialCheckDate: firstCheck[0]?.createdAt }
+  })
 }

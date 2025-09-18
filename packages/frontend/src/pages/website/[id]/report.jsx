@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from 'react';
 
 function ReportPage() {
   const { id } = useParams();
+  // todo report by jobid
   const [loading, setLoading] = useState(false);
   const intervalRef = useRef(null);
   const { data: websites = [], isLoading: isLoadingWebsites } = useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/website`)
