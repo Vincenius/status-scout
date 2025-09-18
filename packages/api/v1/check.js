@@ -80,6 +80,7 @@ export default async function checkRoutes(fastify, opts) {
     async (request, reply) => {
       const query = request.query || {}
       const websiteId = query.id
+      const jobId = query.jobId
       const userId = request.user?._id
 
       const db = await connectDB()
@@ -87,7 +88,7 @@ export default async function checkRoutes(fastify, opts) {
 
       if (website) {
         const status = await getJobStatus(website.lastCheckId)
-        const checks = await db.collection('checks').find({ websiteId: website._id, jobId: website.lastCheckId }).toArray()
+        const checks = await db.collection('checks').find({ websiteId: website._id, jobId: jobId || website.lastCheckId }).toArray()
 
         return { checks, status };
       } else {

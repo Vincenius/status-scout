@@ -22,11 +22,11 @@ export const getRecentChecks = (checks) => {
 
 export const checkNameMap = {
   'performance': 'Performance',
-  'fuzz': 'Exposed Sensitive Files',
-  'headers': 'Missing Security Headers',
+  'fuzz': 'Exposed Sensitive File',
+  'headers': 'Missing Security Header',
   'lighthouse': 'Lighthouse',
   'a11y': 'Accessibility Report',
   'seo': 'SEO Report',
-  'custom': 'Custom Flows',
-  'links': 'Broken Links',
+  'custom': 'Custom Flow',
+  'links': 'Broken Link',
 }

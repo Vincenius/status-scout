@@ -5,15 +5,17 @@ import { useAuthSWR } from '@/utils/useAuthSWR'
 import Report from '@/components/Report/Report';
 import Website404 from '@/components/Website/Website404';
 import { useEffect, useRef, useState } from 'react';
+import { useSearchParams } from "react-router-dom";
 
 function ReportPage() {
   const { id } = useParams();
-  // todo report by jobid
+  const [searchParams] = useSearchParams();
+  const jobId = searchParams.get("j_id");
   const [loading, setLoading] = useState(false);
   const intervalRef = useRef(null);
   const { data: websites = [], isLoading: isLoadingWebsites } = useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/website`)
   const website = websites.find(w => w.index === id)
-  const { data: checkData = {}, isLoading: isLoadingChecks, mutate } = useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/check?id=${id}`)
+  const { data: checkData = {}, isLoading: isLoadingChecks, mutate } = useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/check?id=${id}${jobId ? `&jobId=${jobId}` : ''}`)
 
   const { checks = [], status = {} } = checkData
 
