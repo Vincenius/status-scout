@@ -40,6 +40,11 @@ function ReportPage() {
   }, [status?.state]);
 
   const generateReport = async () => {
+    if (jobId) {
+      searchParams.delete("j_id");
+      window.history.replaceState({}, '', `${window.location.pathname}?${searchParams.toString()}`);
+    }
+
     setLoading(true);
     await fetch(`${import.meta.env.VITE_API_URL}/v1/check`, {
       method: 'POST',
