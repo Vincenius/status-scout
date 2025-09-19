@@ -1,11 +1,12 @@
-import { Text, Flex, Burger, AppShell, NavLink, Box, Indicator, LoadingOverlay, Loader, ActionIcon, Menu } from '@mantine/core'
+import { Text, Flex, Burger, AppShell, NavLink, Box, Indicator, LoadingOverlay, Loader, ActionIcon, Menu, ScrollArea, Blockquote } from '@mantine/core'
 import { Helmet } from 'react-helmet-async';
 import { useDisclosure } from '@mantine/hooks';
-import { IconAppWindow, IconCirclePlus, IconDashboard, IconHeartbeat, IconLogout, IconPlus, IconSettings } from '@tabler/icons-react';
+import { IconAppWindow, IconCirclePlus, IconDashboard, IconHeartbeat, IconLogout, IconSettings } from '@tabler/icons-react';
 import { Link, useNavigate } from 'react-router-dom';
 import ColorSchemeToggle from './ColorSchemeToggle.jsx';
 import { useEffect, useState } from 'react';
 import { useAuthSWR } from '@/utils/useAuthSWR'
+import FeedbackButton from '@/components/Feedbackbutton/Feedbackbutton.jsx';
 
 const Layout = ({ children, title, isPublicRoute, redirectIfAuth }) => {
   const [opened, { toggle }] = useDisclosure();
@@ -20,6 +21,8 @@ const Layout = ({ children, title, isPublicRoute, redirectIfAuth }) => {
     : { data: [], error: null, isLoading: false };
 
   const menuEnabled = user.confirmed && websites.length > 0;
+  const expiresAt = new Date(user?.subscription?.expiresAt);
+  const now = new Date();
 
   // set head info on initial load
   useEffect(() => {
@@ -67,9 +70,9 @@ const Layout = ({ children, title, isPublicRoute, redirectIfAuth }) => {
         breakpoint: 'sm',
         collapsed: { mobile: !opened },
       }}
-      padding="md"
+      p="md"
     >
-      <AppShell.Header>
+      <AppShell.Header px="md">
         <Flex align="center" h="100%" gap="lg">
           {!isPublicRoute && <Burger
             opened={opened}
@@ -77,7 +80,7 @@ const Layout = ({ children, title, isPublicRoute, redirectIfAuth }) => {
             hiddenFrom="sm"
             size="sm"
           />}
-          <Flex justify="space-between" w="100%" px="md">
+          <Flex justify="space-between" w="100%">
             <Indicator inline label="Beta" size={16}>
               <Flex gap="xs" align="center" component={Link} to="/" c="inherit" td="none">
                 <IconHeartbeat size={26} stroke={0.8} />
@@ -100,6 +103,8 @@ const Layout = ({ children, title, isPublicRoute, redirectIfAuth }) => {
                   </ActionIcon>
                 </Menu.Target>
                 <Menu.Dropdown>
+                  <Menu.Label>{user.email}</Menu.Label>
+                  <Menu.Divider />
                   <Menu.Item
                     leftSection={<IconSettings size={14} />}
                     to={`/settings`}
@@ -128,72 +133,68 @@ const Layout = ({ children, title, isPublicRoute, redirectIfAuth }) => {
       </AppShell.Header>
 
       {!isPublicRoute && <AppShell.Navbar p="sm">
-        <NavLink
-          label="Dashboard"
-          leftSection={<IconDashboard size={16} stroke={1.5} />}
-          active={window.location.pathname === '/dashboard'}
-          component={Link}
-          disabled={!menuEnabled}
-          to="/dashboard"
-        />
-        {websites.length > 0 && <Text size="sm" c="dimmed" mt="md" mb="xs" pl="sm">Websites</Text>}
-        {websites.map(w => (
+        <AppShell.Section grow component={ScrollArea}>
           <NavLink
-            key={w.id}
-            label={new URL(w?.domain).hostname}
-            leftSection={<IconAppWindow size={16} stroke={1.5} />}
+            label="Dashboard"
+            leftSection={<IconDashboard size={16} stroke={1.5} />}
+            active={window.location.pathname === '/dashboard'}
+            component={Link}
             disabled={!menuEnabled}
-            defaultOpened={window.location.pathname.startsWith(`/website/${w.index}`)}
-          >
+            to="/dashboard"
+          />
+          {websites.length > 0 && <Text size="sm" c="dimmed" mt="md" mb="xs" pl="sm">Websites</Text>}
+          {websites.map(w => (
             <NavLink
-              label="Overview"
-              to={`/website/${w.index}`}
+              key={w.id}
+              label={new URL(w?.domain).hostname}
+              leftSection={<IconAppWindow size={16} stroke={1.5} />}
+              disabled={!menuEnabled}
+              defaultOpened={window.location.pathname.startsWith(`/website/${w.index}`)}
+            >
+              <NavLink
+                label="Overview"
+                to={`/website/${w.index}`}
+                component={Link}
+                active={window.location.pathname === `/website/${w.index}`}
+              />
+              <NavLink
+                label="Report"
+                to={`/website/${w.index}/report`}
+                component={Link}
+                active={window.location.pathname === `/website/${w.index}/report`}
+              />
+              {/* <NavLink
+              to="/custom-flows"
+              label="Custom Test Flows"
+              leftSection={<IconReorder size={16} stroke={1.5} />}
+              active={window.location.pathname === '/custom-flows'}
               component={Link}
-              active={window.location.pathname === `/website/${w.index}`}
-            />
-            <NavLink
-              label="Report"
-              to={`/website/${w.index}/report`}
-              component={Link}
-              active={window.location.pathname === `/website/${w.index}/report`}
-            />
-            <NavLink
-              label="Settings"
-              to={`/website/${w.index}/settings`}
-              component={Link}
-              active={window.location.pathname === `/website/${w.index}/settings`}
-            />
-          </NavLink>
-        ))}
-        <NavLink
-          label="Add Website"
-          leftSection={<IconCirclePlus size={16} stroke={1.5} />}
-          active={window.location.pathname === '/website/new'}
-          component={Link}
-          disabled={!menuEnabled}
-          to="/website/new"
-        />
+            /> */}
+              <NavLink
+                label="Settings"
+                to={`/website/${w.index}/settings`}
+                component={Link}
+                active={window.location.pathname === `/website/${w.index}/settings`}
+              />
+            </NavLink>
+          ))}
+          <NavLink
+            label="Add Website"
+            leftSection={<IconCirclePlus size={16} stroke={1.5} />}
+            active={window.location.pathname === '/website/new'}
+            component={Link}
+            disabled={!menuEnabled}
+            to="/website/new"
+          />
+        </AppShell.Section>
+        <AppShell.Section>
+          {user?.subscription?.status === 'trial' && <Blockquote p="sm" mb="md">
+            {expiresAt < now ? "Your free trial ended" : `Trial active until ${expiresAt.toLocaleDateString()}`}<br />
+            <Link to="/checkout">Upgrade Plan</Link>
+          </Blockquote>}
+          <FeedbackButton fullWidth variant="outline">Feedback</FeedbackButton>
+        </AppShell.Section>
 
-        {/* todo move logout / account handling to header */}
-        {/* <NavLink
-          label={<span>Logout {logoutLoading ? <Loader size="xs" /> : ""}</span>}
-          disabled={logoutLoading}
-          leftSection={<IconLogout size={16} stroke={1.5} />}
-          onClick={async () => {
-            setLogoutLoading(true)
-            await fetch(`${import.meta.env.VITE_API_URL}/v1/logout`, { credentials: 'include' })
-            await new Promise(resolve => setTimeout(resolve, 500));
-            setLogoutLoading(false)
-            navigate('/login')
-          }}
-        /> */}
-        {/* <NavLink
-          to="/custom-flows"
-          label="Custom Test Flows"
-          leftSection={<IconReorder size={16} stroke={1.5} />}
-          active={window.location.pathname === '/custom-flows'}
-          component={Link}
-        /> */}
         {/* Manual Tests */}
         {/* Alerts */}
       </AppShell.Navbar>}
