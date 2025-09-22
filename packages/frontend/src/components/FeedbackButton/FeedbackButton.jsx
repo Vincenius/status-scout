@@ -3,7 +3,7 @@ import { useDisclosure } from '@mantine/hooks';
 import getFormData from '@/utils/getFormData'
 import { useState } from 'react';
 
-function FeedbackButton({ children, ...props }) {
+function FeedbackButton({ children, email, ...props }) {
   const [opened, { open, close }] = useDisclosure(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -12,7 +12,10 @@ function FeedbackButton({ children, ...props }) {
     e.preventDefault()
 
     setLoading(true)
-    const formData = getFormData(e)
+    const formData = {
+      email,
+      ...getFormData(e)
+    }
 
     fetch(`${import.meta.env.VITE_API_URL}/v1/feedback`, {
       method: 'POST',
@@ -35,7 +38,7 @@ function FeedbackButton({ children, ...props }) {
         <form onSubmit={handleSubmit}>
           <Textarea name="feedback" label="Your Feedback / Bugreport" required mb="sm" placeholder="Write your feedback here" autosize minRows={5} />
           <TextInput name="website" label="Website (optional)" description="The website you used for your check" mb="md" placeholder="example.com" />
-          <TextInput name="email" label="Email (optional)" type="email" description="Your email so I can get back to you" mb="md" placeholder="you@example.com" />
+          {!email && <TextInput name="email" label="Email (optional)" type="email" description="Your email so I can get back to you" mb="md" placeholder="you@example.com" />}
 
           {success && <Blockquote color="indigo" mb="md" p="sm">
             <b>Thanks for your feedback</b><br />

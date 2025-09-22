@@ -1,12 +1,12 @@
 import { Text, Flex, Burger, AppShell, NavLink, Box, Indicator, LoadingOverlay, Loader, ActionIcon, Menu, ScrollArea, Blockquote } from '@mantine/core'
 import { Helmet } from 'react-helmet-async';
 import { useDisclosure } from '@mantine/hooks';
-import { IconAppWindow, IconCirclePlus, IconDashboard, IconHeartbeat, IconLogout, IconSettings } from '@tabler/icons-react';
+import { IconAppWindow, IconCirclePlus, IconDashboard, IconHeartbeat, IconLogout, IconReorder, IconSettings } from '@tabler/icons-react';
 import { Link, useNavigate } from 'react-router-dom';
 import ColorSchemeToggle from './ColorSchemeToggle.jsx';
 import { useEffect, useState } from 'react';
 import { useAuthSWR } from '@/utils/useAuthSWR'
-import FeedbackButton from '@/components/Feedbackbutton/Feedbackbutton.jsx';
+import FeedbackButton from '@/components/FeedbackButton/FeedbackButton.jsx';
 
 const Layout = ({ children, title, isPublicRoute, redirectIfAuth }) => {
   const [opened, { toggle }] = useDisclosure();
@@ -163,13 +163,12 @@ const Layout = ({ children, title, isPublicRoute, redirectIfAuth }) => {
                 component={Link}
                 active={window.location.pathname === `/website/${w.index}/report`}
               />
-              {/* <NavLink
-              to="/custom-flows"
-              label="Custom Test Flows"
-              leftSection={<IconReorder size={16} stroke={1.5} />}
-              active={window.location.pathname === '/custom-flows'}
-              component={Link}
-            /> */}
+              <NavLink
+                to={`/website/${w.index}/custom-flows`}
+                label="Custom Test Flows"
+                active={window.location.pathname === `/website/${w.index}/custom-flows`}
+                component={Link}
+              />
               <NavLink
                 label="Settings"
                 to={`/website/${w.index}/settings`}
@@ -192,7 +191,7 @@ const Layout = ({ children, title, isPublicRoute, redirectIfAuth }) => {
             {expiresAt < now ? "Your free trial ended" : `Trial active until ${expiresAt.toLocaleDateString()}`}<br />
             <Link to="/checkout">Upgrade Plan</Link>
           </Blockquote>}
-          <FeedbackButton fullWidth variant="outline">Feedback</FeedbackButton>
+          <FeedbackButton fullWidth variant="outline" email={user?.email}>Send Feedback</FeedbackButton>
         </AppShell.Section>
 
         {/* Manual Tests */}

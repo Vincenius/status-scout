@@ -21,7 +21,9 @@
     "react-helmet-async": "^2.0.5",
     "react-markdown": "^10.1.0",
     "react-router-dom": "^7.6.3",
+    "react-sortablejs": "^6.1.4",
     "recharts": "2",
+    "sortablejs": "^1.15.6",
     "swr": "^2.3.4",
     "zustand": "^5.0.7"
   },
