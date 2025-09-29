@@ -7,6 +7,7 @@ import { useParams } from 'react-router-dom';
 import { getIssueHistory } from '@/utils/findIssues'
 import { checkNameMap } from '@/utils/checks';
 import { Link } from 'react-router-dom';
+import Website404 from '@/components/Website/Website404';
 
 function WebsiteOverview() {
   const { id } = useParams();

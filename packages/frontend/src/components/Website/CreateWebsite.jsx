@@ -5,28 +5,7 @@ import { useForm } from '@mantine/form';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'
 import { useAuthSWR } from '@/utils/useAuthSWR';
-
-function isValidUrl(value) {
-  try {
-    const url = new URL(normalizeUrl(value));
-    const isHttp = url.protocol === 'http:' || url.protocol === 'https:';
-    const hasValidHostname =
-      /^[a-z0-9.-]+\.[a-z]{2,}$/i.test(url.hostname) ||
-      /^[\d.]+$/.test(url.hostname);
-
-    return isHttp && hasValidHostname;
-  } catch (_) {
-    return false;
-  }
-}
-
-function normalizeUrl(value) {
-  // If user entered without scheme, default to https
-  if (!/^https?:\/\//i.test(value)) {
-    return `https://${value}`;
-  }
-  return value;
-}
+import { isValidUrl, normalizeUrl } from '@/utils/helper';
 
 function CreateWebsite({ title }) {
   const navigate = useNavigate();
