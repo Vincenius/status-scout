@@ -87,18 +87,18 @@ const defaultItems = [
   {
     title: "Monitoring",
     description: "Get notified instantly when something breaks on your site.",
-    icon: <IconBellRinging size={18} color="orange" />,
-    completed: false,
+    icon: <IconBellRinging size={18} color="green" />,
+    completed: true,
   },
   {
     title: "Custom Test Flows",
     description: "Simulate critical user journeys to ensure smooth experiences.",
-    icon: <IconCode size={18} color="orange" />,
-    completed: false,
+    icon: <IconCode size={18} color="green" />,
+    completed: true,
   },
   {
     title: "Advanced Security Checks",
-    description: "Add DNS checks and codebase vulnerability scans.",
+    description: "DNS checks and codebase vulnerability scans.",
     icon: <IconShieldLock size={18} color="orange" />,
     completed: false,
   },

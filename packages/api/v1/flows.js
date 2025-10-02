@@ -1,6 +1,7 @@
 import { ObjectId } from 'mongodb'
 import fastifyPassport from '@fastify/passport';
 import { connectDB } from '../db.js'
+import { getJobStatus, runJob } from '../utils/worker.js'
 
 export default async function flowRoutes(fastify, opts) {
   fastify.get('/flows',
@@ -27,7 +28,22 @@ export default async function flowRoutes(fastify, opts) {
           .find({ websiteId: website._id.toString() })
           .toArray();
 
-        return flows;
+        // Get latest check result for each flow
+        const flowResults = await Promise.all(flows.map(async (flow) => {
+          const latestCheck = await db.collection('checks').findOne({ flowId: flow._id.toString() });
+          const status = flow.lastCheckId ? await getJobStatus(flow.lastCheckId) : {}
+          
+          return {
+            ...flow,
+            status,
+            latestResult: {
+              createdAt: latestCheck?.createdAt,
+              ...(latestCheck?.result || {})
+            }
+          };
+        }));
+
+        return flowResults;
       } catch (e) {
         console.error(e);
         reply.code(500).send({ error: 'Internal server error' });
@@ -66,7 +82,17 @@ export default async function flowRoutes(fastify, opts) {
           steps,
         });
 
-        return { id: result.insertedId };
+        const { message, waitingIndex, jobId } = await runJob({
+          type: 'custom-flow',
+          flowId: result.insertedId.toString()
+        })
+
+        await db.collection('flows').updateOne(
+          { _id: result.insertedId },
+          { $set: { lastCheckId: jobId } }
+        )
+
+        return { id: result.insertedId, message, waitingIndex, jobId };
       } catch (e) {
         console.error(e)
         reply.code(500).send({ error: 'Internal server error' });

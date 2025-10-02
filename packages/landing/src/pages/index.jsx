@@ -4,6 +4,7 @@ import Features from '@/components/Landing/Features';
 import Hero from '@/components/Landing/Hero';
 import SocialProof from '@/components/Landing/SocialProof';
 import Roadmap from '@/components/Landing/Roadmap';
+import Pricing from '@/components/Landing/Pricing';
 
 function QuickCheck() {
   return (
@@ -15,6 +16,8 @@ function QuickCheck() {
       <Features />
 
       {/* <SocialProof /> */}
+
+      <Pricing />
 
       <Roadmap />
 

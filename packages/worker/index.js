@@ -32,8 +32,14 @@ export const run = async ({ id, type = 'quick', websiteId, quickcheckId, url }) 
     if (type === 'extended' || type === 'full' || type === 'free') {
       checks.push(
         runFuzzCheck({ ...baseParams, type }),
-        runCustomChecks(baseParams)
       )
+    }
+
+    if (type === 'full' || type === 'extended') {
+      // todo
+      // checks.push(
+      //   runCustomChecks(baseParams)
+      // )
     }
 
     if (type === 'full' || type === 'free') {
@@ -88,6 +94,21 @@ export const run = async ({ id, type = 'quick', websiteId, quickcheckId, url }) 
     }
 
     console.log('finished all checks')
+  } catch (e) {
+    console.error('unexpected error', e)
+  }
+}
+
+export const runCustomFlow = async ({ flowId }) => {
+  try {
+    const db = await connectDB()
+
+    const createdAt = new Date().toISOString()
+    console.log(createdAt, `run custom flow for`, flowId)
+
+    await runCustomChecks({ flowId, db, createdAt })
+
+    console.log('finished custom flow')
   } catch (e) {
     console.error('unexpected error', e)
   }

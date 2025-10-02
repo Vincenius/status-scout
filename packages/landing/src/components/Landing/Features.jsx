@@ -40,17 +40,15 @@ export default function Features() {
     },
     {
       icon: <IconChartBar style={{ width: '70%', height: '70%' }} />,
-      title: "Monitoring - coming soon",
+      title: "Monitoring",
       description:
-        "Know the moment when anything on your site breaks",
-      disabled: true,
+        "Monitor your website and get alerts when anything on your site breaks.",
     },
     {
       icon: <IconArrowsShuffle style={{ width: '70%', height: '70%' }} />,
-      title: "Custom Test Flows - coming soon",
+      title: "Custom Test Flows",
       description:
-        "Simulate user journeys and ensure critical paths keep working.",
-      disabled: true,
+        "Simulate user journeys and ensure critical paths keep working. Create your own test flows or choose from pre-built templates.",
     },
   ];
 

@@ -27,12 +27,13 @@ export async function disconnectDB() {
   }
 }
 
-export const createCheckResult = async ({ id, websiteId, createdAt, check, result, quickcheckId }) => {
+export const createCheckResult = async ({ id, websiteId, createdAt, check, result, quickcheckId, flowId }) => {
   await db.collection('checks').insertOne({
     jobId: id,
     websiteId,
     check,
     result,
+    flowId,
     createdAt,
     quickcheckId
   });
