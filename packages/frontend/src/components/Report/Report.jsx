@@ -18,6 +18,7 @@ import Markdown from 'react-markdown'
 import { Link } from 'react-router-dom'
 import { STEP_TYPES } from '@/utils/customFlows';
 import { IconCheck, IconX } from '@tabler/icons-react'
+import { useAuthSWR } from '@/utils/useAuthSWR'
 
 const MarkdownElem = ({ children }) => {
   return <Markdown components={{
@@ -84,6 +85,7 @@ function Report({ website, checks, status }) {
     customChecks,
   } = getRecentChecks(checks)
 
+  const { data: flows = [], isLoading: isLoadingFlows } = useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/flows?websiteId=${website.index}`)
   const [loading, setLoading] = useState(null)
   const { ignore = [] } = website // todo
   const updateIgnoreList = async ({ item, type, action }) => {
@@ -102,6 +104,10 @@ function Report({ website, checks, status }) {
       setLoading(null)
     })
   } // todo
+
+  const customFlowLength = (status?.state === 'completed' || isLoadingFlows)
+    ? customChecks.length
+    : flows.length
 
   const performances = [
     performanceCheck?.result?.details?.desktopResult?.LCP?.category,
@@ -181,8 +187,8 @@ function Report({ website, checks, status }) {
             </Flex>
 
             <Flex direction="column" align="center" onClick={() => scrollToRef(customFlowsRef)} style={{ cursor: 'pointer' }}>
-              {linkCheck && <CustomFlowsChart checks={customChecks} />}
-              {!linkCheck && <LoadingChart label="Custom Flows" />}
+              {customChecks && <CustomFlowsChart checks={customChecks} customFlowLength={customFlowLength} />}
+              {!customChecks && <LoadingChart label="Custom Flows" />}
             </Flex>
           </Flex>
         </Card.Section>
@@ -399,13 +405,13 @@ function Report({ website, checks, status }) {
         </Card.Section>
 
         <Card.Section withBorder py="xl" px={{ base: "md", md: "xl" }} ref={customFlowsRef}>
-          {linkCheck && <>
-            <CustomFlowsChart checks={customChecks} size="lg" />
+          {customChecks && <>
+            <CustomFlowsChart checks={customChecks} customFlowLength={customFlowLength} size="lg" />
           </>}
-          {!linkCheck && <LoadingChart label="Custom Flows" size="lg" />}
+          {!customChecks && <LoadingChart label="Custom Flows" size="lg" />}
           <Blockquote p="md" my="md" maw={600} mx="auto">Custom test flows allow you to define a series of actions and assertions to be executed on your website.</Blockquote>
 
-          {customChecks.length === 0 && <>
+          {customFlowLength === 0 && <>
             <Text size="md" ta="center" fs="italic">No custom flows have been defined for this Report.</Text>
             <Button component={Link} to="/custom-checks" mt="md" mx="auto" display="block" w={300}>
               Create Custom Test Flow
