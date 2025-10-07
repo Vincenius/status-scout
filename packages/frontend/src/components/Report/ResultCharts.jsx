@@ -176,3 +176,28 @@ export function AccessibilityChart({ score, size = 'md' }) {
     </Flex>
   );
 }
+
+export function CustomFlowsChart({ checks, size = 'md' }) {
+  const s = sizes[size] || sizes.md;
+  return (
+    <Flex direction="column" align="center">
+      <RingProgress
+        size={s.ring}
+        roundCaps
+        thickness={s.thickness}
+        sections={[
+          { value: (checks.filter(c => c?.result?.status === 'success').length / checks.length) * 100, color: 'green' },
+          { value: (checks.filter(c => c?.result?.status !== 'success').length / checks.length) * 100, color: 'red' },
+        ].filter(s => s.value > 0)}
+        label={
+          <Center>
+            <Text fw="bold" size={s.text}>
+              {checks.filter(c => c?.result?.status === 'success').length} / {checks.length}
+            </Text>
+          </Center>
+        }
+      />
+      <Text size={s.text}>Custom Flows</Text>
+    </Flex>
+  );
+}

@@ -1,4 +1,4 @@
-import { Accordion, Badge, Blockquote, Button, Card, Center, Flex, List, Table, Text, Title } from '@mantine/core'
+import { Accordion, Badge, Blockquote, Button, Card, Center, Flex, List, Table, Text, ThemeIcon, Title } from '@mantine/core'
 import {
   SSLChart,
   HeaderChart,
@@ -7,13 +7,17 @@ import {
   SEOChart,
   BrokenLinksChart,
   AccessibilityChart,
-  LoadingChart
+  LoadingChart,
+  CustomFlowsChart
 } from './ResultCharts'
 import { getRecentChecks } from '@/utils/checks'
 import recommendedHeaders from '@/utils/headers'
 import { useRef, useState } from 'react'
 import PerformanceBar from '@/components/Dashboard/PerformanceBar';
 import Markdown from 'react-markdown'
+import { Link } from 'react-router-dom'
+import { STEP_TYPES } from '@/utils/customFlows';
+import { IconCheck, IconX } from '@tabler/icons-react'
 
 const MarkdownElem = ({ children }) => {
   return <Markdown components={{
@@ -77,7 +81,7 @@ function Report({ website, checks, status }) {
     a11yCheck,
     seoCheck,
     linkCheck,
-    customChecks, // todo
+    customChecks,
   } = getRecentChecks(checks)
 
   const [loading, setLoading] = useState(null)
@@ -126,6 +130,7 @@ function Report({ website, checks, status }) {
   const seoRef = useRef(null);
   const a11yRef = useRef(null);
   const linksRef = useRef(null);
+  const customFlowsRef = useRef(null);
 
   const scrollToRef = (ref) => {
     ref.current?.scrollIntoView({ behavior: 'smooth' });
@@ -141,7 +146,6 @@ function Report({ website, checks, status }) {
           <Text size="xl">Current position in queue: <b>#{status?.waitingIndex + 1}</b></Text>
         </Card.Section>}
         <Card.Section py="xl" px={{ base: "md", md: "xl" }}>
-
           <Flex gap="md" justify="space-around" wrap="wrap">
             <Flex direction="column" align="center" onClick={() => scrollToRef(sslRef)} style={{ cursor: 'pointer' }}>
               {sslCheck && <SSLChart status={sslCheck.result.status} />}
@@ -174,6 +178,11 @@ function Report({ website, checks, status }) {
             <Flex direction="column" align="center" onClick={() => scrollToRef(linksRef)} style={{ cursor: 'pointer' }}>
               {linkCheck && <BrokenLinksChart brokenLinks={brokenLinks} />}
               {!linkCheck && <LoadingChart label="Broken Links" />}
+            </Flex>
+
+            <Flex direction="column" align="center" onClick={() => scrollToRef(customFlowsRef)} style={{ cursor: 'pointer' }}>
+              {linkCheck && <CustomFlowsChart checks={customChecks} />}
+              {!linkCheck && <LoadingChart label="Custom Flows" />}
             </Flex>
           </Flex>
         </Card.Section>
@@ -387,6 +396,65 @@ function Report({ website, checks, status }) {
               }
             </List>
           }
+        </Card.Section>
+
+        <Card.Section withBorder py="xl" px={{ base: "md", md: "xl" }} ref={customFlowsRef}>
+          {linkCheck && <>
+            <CustomFlowsChart checks={customChecks} size="lg" />
+          </>}
+          {!linkCheck && <LoadingChart label="Custom Flows" size="lg" />}
+          <Blockquote p="md" my="md" maw={600} mx="auto">Custom test flows allow you to define a series of actions and assertions to be executed on your website.</Blockquote>
+
+          {customChecks.length === 0 && <>
+            <Text size="md" ta="center" fs="italic">No custom flows have been defined for this Report.</Text>
+            <Button component={Link} to="/custom-checks" mt="md" mx="auto" display="block" w={300}>
+              Create Custom Test Flow
+            </Button>
+          </>}
+
+          {customChecks.length > 0 && <>
+            {customChecks.map((check, index) => (
+              <Accordion key={`custom-${index}`} my="md" variant="contained">
+                <Accordion.Item value={`custom-${index}`}>
+                  <Accordion.Control>
+                    <Flex gap="sm" align="center">
+                      {check.result.status === 'success' ? <Badge color="green">Success</Badge> : <Badge color="red">Fail</Badge>} <Text>{check?.result?.name}</Text>
+                    </Flex>
+                  </Accordion.Control>
+                  <Accordion.Panel>
+                    <List pl="xs">
+                      {check.result.details.steps.map((stepResult, idx) => {
+                        const stepDetails = STEP_TYPES.find(s => s.value === stepResult.type)
+
+                        return (
+                          <List.Item
+                            key={`flow-${stepResult.flowId}-step-${idx}`}
+                            icon={<ThemeIcon color={stepResult.error ? 'red' : 'green'} size="xs" radius="sm" mt="4px">
+                              {stepResult.error ? <IconX /> : <IconCheck />}
+                            </ThemeIcon>}
+                            styles={{ itemWrapper: { alignItems: 'flex-start' } }}
+                          >
+                            <Text>
+                              {stepDetails.label}: {stepDetails.getDescription ? stepDetails.getDescription(stepResult) : ''}
+                            </Text>
+                            {stepResult.error && (
+                              <List>
+                                <List.Item c="red">
+                                  Error: {stepResult.error}
+                                </List.Item>
+                              </List>
+                            )}
+                          </List.Item>
+                        )
+                      })}
+                    </List>
+                  </Accordion.Panel>
+                </Accordion.Item>
+              </Accordion>
+            ))}
+          </>}
+
+          {/* todo link to register if quickcheck / not logged in */}
         </Card.Section>
       </Card>
     </div >

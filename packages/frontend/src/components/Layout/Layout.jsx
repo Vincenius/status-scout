@@ -1,4 +1,4 @@
-import { Text, Flex, Burger, AppShell, NavLink, Box, Indicator, LoadingOverlay, Loader, ActionIcon, Menu, ScrollArea, Blockquote } from '@mantine/core'
+import { Text, Flex, Burger, AppShell, NavLink, Box, Indicator, LoadingOverlay, Loader, ActionIcon, Menu, ScrollArea, Blockquote, Button } from '@mantine/core'
 import { Helmet } from 'react-helmet-async';
 import { useDisclosure } from '@mantine/hooks';
 import { IconAppWindow, IconCirclePlus, IconDashboard, IconHeartbeat, IconLogout, IconReorder, IconSettings } from '@tabler/icons-react';
@@ -10,6 +10,7 @@ import FeedbackButton from '@/components/FeedbackButton/FeedbackButton.jsx';
 
 const Layout = ({ children, title, isPublicRoute, redirectIfAuth }) => {
   const [opened, { toggle }] = useDisclosure();
+  const [menuOpened, setMenuOpened] = useState(false);
   const [logoutLoading, setLogoutLoading] = useState(false);
   const navigate = useNavigate();
   const isAnalyticsEnabled = import.meta.env.VITE_ENABLE_ANALYTICS === 'true' || import.meta.env.VITE_ENABLE_ANALYTICS === true;
@@ -88,8 +89,32 @@ const Layout = ({ children, title, isPublicRoute, redirectIfAuth }) => {
               </Flex>
             </Indicator>
 
-            <Flex gap="md">
+            <Flex gap="md" align="center">
+              {!user?.email && <Flex gap="md" display={{ base: 'none', xs: 'flex' }}>
+                <Button size="xs" component={Link} to="/login" variant="outline">Login</Button>
+                <Button size="xs" component={Link} to="/register">Sign-up</Button>
+              </Flex>}
+
               <ColorSchemeToggle />
+
+              {!user?.email && <Menu shadow="md" width={200} display={{ base: 'block', xs: 'none' }} opened={menuOpened} onChange={setMenuOpened}>
+                <Menu.Target>
+                  <Burger opened={menuOpened} aria-label="Toggle navigation" />
+                </Menu.Target>
+
+                <Menu.Dropdown>
+                  <Menu.Item>
+                    <Button size="xs" component="a" href={`${import.meta.env.VITE_APP_URL}/login`} variant="outline" fullWidth>
+                      Login
+                    </Button>
+                  </Menu.Item>
+                  <Menu.Item>
+                    <Button size="xs" component="a" href={`${import.meta.env.VITE_APP_URL}/register`} fullWidth>
+                      Sign-up
+                    </Button>
+                  </Menu.Item>
+                </Menu.Dropdown>
+              </Menu>}
 
               {user?.email && <Menu shadow="md" width={200}>
                 <Menu.Target>

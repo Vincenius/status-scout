@@ -11,7 +11,9 @@ export const runCustomChecks = async ({ uri, id, db, websiteId, flowId, createdA
   try {
     const checks = flowId
       ? await db.collection('flows').find({ _id: new ObjectId(flowId) }).toArray()
-      : await db.collection('flows').find({ websiteId }).toArray()
+      : await db.collection('flows').find({ websiteId: websiteId.toString() }).toArray()
+
+    const results = []
 
     if (checks.length) {
       for (const check of checks) {
@@ -100,25 +102,28 @@ export const runCustomChecks = async ({ uri, id, db, websiteId, flowId, createdA
           }
 
           if (errorMsg) {
-            stepResults.push({ success: false, error: errorMsg })
+            stepResults.push({ ...step, success: false, error: errorMsg })
             console.log('error in step', step, errorMsg)
             break
           } else {
-            stepResults.push({ success: true })
+            stepResults.push({ ...step, success: true })
             console.log('step succeeded', step)
           }
         }
 
         const result = {
+          status: stepResults.some(result => !result.success) ? 'fail' : 'success',
           name: check.name,
-          result: {
-            status: stepResults.some(result => !result.success) ? 'fail' : 'success',
-            details: {
-              steps: stepResults,
-            }
+          details: {
+            steps: stepResults,
           }
         }
-        await createCheckResult({ id, websiteId, createdAt, check: 'custom', result, quickcheckId, flowId })
+
+        await createCheckResult({ id, websiteId, createdAt, check: 'custom', result, quickcheckId, flowId: check._id.toString() })
+        await db.collection('flows').updateOne(
+          { _id: check._id },
+          { $set: { lastCheckId: id } }
+        )
       }
     }
   }

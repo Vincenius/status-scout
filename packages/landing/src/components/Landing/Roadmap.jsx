@@ -1,5 +1,5 @@
 import { Table, Text, Title, Stack, Box, Flex, List, Card } from "@mantine/core";
-import { IconCheck, IconCode, IconBellRinging, IconShieldLock } from "@tabler/icons-react";
+import { IconCheck, IconCode, IconBellRinging, IconShieldLock, IconDeviceLaptop } from "@tabler/icons-react";
 import classes from "./Landing.module.css";
 
 export default function Roadmap({
@@ -100,6 +100,12 @@ const defaultItems = [
     title: "Advanced Security Checks",
     description: "DNS checks and codebase vulnerability scans.",
     icon: <IconShieldLock size={18} color="orange" />,
+    completed: false,
+  },
+  {
+    title: "API Access",
+    description: "Trigger checks via API and access data programmatically.",
+    icon: <IconDeviceLaptop size={18} color="orange" />,
     completed: false,
   },
 ];

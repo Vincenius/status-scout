@@ -3,5 +3,5 @@ a {
 }
 
 [data-mantine-color-scheme="dark"] a {
-  color: var(--mantine-primary-color-2);
+  color: var(--mantine-primary-color-0);
 }

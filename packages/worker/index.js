@@ -36,10 +36,9 @@ export const run = async ({ id, type = 'quick', websiteId, quickcheckId, url }) 
     }
 
     if (type === 'full' || type === 'extended') {
-      // todo
-      // checks.push(
-      //   runCustomChecks(baseParams)
-      // )
+      checks.push(
+        runCustomChecks(baseParams)
+      )
     }
 
     if (type === 'full' || type === 'free') {

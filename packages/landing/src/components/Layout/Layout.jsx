@@ -1,12 +1,13 @@
-import { Text, Flex, Box, Indicator, Divider, ThemeIcon } from '@mantine/core'
+import { Text, Flex, Box, Indicator, Divider, ThemeIcon, Button, Menu, Burger } from '@mantine/core'
 import { Helmet } from 'react-helmet-async';
 import { IconBrandBluesky, IconBrandGithub, IconHeartbeat, IconMug } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import ColorSchemeToggle from './ColorSchemeToggle.jsx';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 const Layout = ({ children, title }) => {
   const isAnalyticsEnabled = import.meta.env.VITE_ENABLE_ANALYTICS === 'true' || import.meta.env.VITE_ENABLE_ANALYTICS === true;
+  const [opened, setOpened] = useState(false);
 
   // set head info on initial load
   useEffect(() => {
@@ -36,7 +37,37 @@ const Layout = ({ children, title }) => {
         </Flex>
       </Indicator>
 
-      <ColorSchemeToggle />
+      <Flex gap="md" align="center">
+        <Flex gap="md" display={{ base: 'none', xs: 'flex' }}>
+          <Button size="xs" component="a" href={`${import.meta.env.VITE_APP_URL}/login`} variant="outline">
+            Login
+          </Button>
+          <Button size="xs" component="a" href={`${import.meta.env.VITE_APP_URL}/register`}>
+            Sign-up
+          </Button>
+        </Flex>
+
+        <ColorSchemeToggle />
+
+        <Menu shadow="md" width={200} display={{ base: 'block', xs: 'none' }} opened={opened} onChange={setOpened}>
+          <Menu.Target>
+            <Burger opened={opened} aria-label="Toggle navigation" />
+          </Menu.Target>
+
+          <Menu.Dropdown>
+            <Menu.Item>
+              <Button size="xs" component="a" href={`${import.meta.env.VITE_APP_URL}/login`} variant="outline" fullWidth>
+                Login
+              </Button>
+            </Menu.Item>
+            <Menu.Item>
+              <Button size="xs" component="a" href={`${import.meta.env.VITE_APP_URL}/register`} fullWidth>
+                Sign-up
+              </Button>
+            </Menu.Item>
+          </Menu.Dropdown>
+        </Menu>
+      </Flex>
     </Flex>
 
     <Divider my="0" />

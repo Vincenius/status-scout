@@ -30,7 +30,7 @@ export default async function flowRoutes(fastify, opts) {
 
         // Get latest check result for each flow
         const flowResults = await Promise.all(flows.map(async (flow) => {
-          const latestCheck = await db.collection('checks').findOne({ flowId: flow._id.toString() });
+          const latestCheck = flow.lastCheckId ? await db.collection('checks').findOne({ jobId: flow.lastCheckId, flowId: flow._id.toString() }) : {};
           const status = flow.lastCheckId ? await getJobStatus(flow.lastCheckId) : {}
           
           return {
