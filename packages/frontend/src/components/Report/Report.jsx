@@ -404,6 +404,7 @@ function Report({ website, checks, status }) {
           }
         </Card.Section>
 
+        {/* todo variant for quickcheck */}
         <Card.Section withBorder py="xl" px={{ base: "md", md: "xl" }} ref={customFlowsRef}>
           {customChecks && <>
             <CustomFlowsChart checks={customChecks} customFlowLength={customFlowLength} size="lg" />

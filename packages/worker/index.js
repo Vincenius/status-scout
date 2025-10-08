@@ -98,14 +98,14 @@ export const run = async ({ id, type = 'quick', websiteId, quickcheckId, url }) 
   }
 }
 
-export const runCustomFlow = async ({ flowId }) => {
+export const runCustomFlow = async ({ flowId, id }) => {
   try {
     const db = await connectDB()
 
     const createdAt = new Date().toISOString()
     console.log(createdAt, `run custom flow for`, flowId)
 
-    await runCustomChecks({ flowId, db, createdAt })
+    await runCustomChecks({ flowId, db, createdAt, id })
 
     console.log('finished custom flow')
   } catch (e) {

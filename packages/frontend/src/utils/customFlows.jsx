@@ -1,5 +1,5 @@
 import { isValidUrl } from '@/utils/helper';
-import { NumberInput, Select, Textarea, TextInput } from '@mantine/core';
+import { Divider, NumberInput, Select, Textarea, TextInput } from '@mantine/core';
 
 export const STEP_TYPES = [
   {

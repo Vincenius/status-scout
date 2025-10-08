@@ -29,6 +29,31 @@ const getIssues = ({ checks, type, getCurrIssues }) => {
   return issues
 }
 
+const getCustomIssues = ({ checks }) => {
+  const customChecks = checks.filter(c => c.check === 'custom')
+  const groupedChecks = customChecks.reduce((acc, curr) => {
+    if (!curr.flowId) return acc
+    if (acc[curr.flowId]) {
+      acc[curr.flowId].push(curr)
+    } else {
+      acc[curr.flowId] = [curr]
+    }
+    return acc
+  }, {})
+
+  const customIssues = Object.values(groupedChecks).map(flowChecks => {
+    return getIssues({
+      checks: flowChecks,
+      type: 'custom',
+      getCurrIssues: curr => {
+        return (curr?.result?.status === 'fail' ? [curr?.result?.name] : [])
+      }
+    })
+  }).flat()
+
+  return customIssues
+}
+
 export const getIssueHistory = (checks) => {
   const sslIssues = getIssues({ checks, type: 'ssl', getCurrIssues: curr => (curr?.result?.details?.valid ? [] : ['Invalid SSL Certificate']) })
   const headerIssues = getIssues({ checks, type: 'headers', getCurrIssues: curr => (curr?.result?.details?.missingHeaders || []) })
@@ -36,8 +61,10 @@ export const getIssueHistory = (checks) => {
   const seoIssues = getIssues({ checks, type: 'seo', getCurrIssues: curr => (curr?.result?.details?.items || []).map(i => i.title) })
   const a11yIssues = getIssues({ checks, type: 'a11y', getCurrIssues: curr => (curr?.result?.details?.items || []).map(i => i.title) })
   const linkIssues = getIssues({ checks, type: 'links', getCurrIssues: curr => (curr?.result?.details || []).map(i => `${i.parent} -> ${i.url}`) })
+  const customIssues = getCustomIssues({ checks })
+
   // todo performance?
-  const allIssues = [...sslIssues, ...headerIssues, ...fuzzIssues, ...seoIssues, ...a11yIssues, ...linkIssues]
+  const allIssues = [...sslIssues, ...headerIssues, ...fuzzIssues, ...seoIssues, ...a11yIssues, ...linkIssues, ...customIssues]
   const checkDates = checks.map(c => c.createdAt)
   const uniqueDates = [...new Set(checkDates)].sort((a, b) => a - b)
 

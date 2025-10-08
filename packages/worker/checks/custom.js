@@ -119,6 +119,8 @@ export const runCustomChecks = async ({ uri, id, db, websiteId, flowId, createdA
           }
         }
 
+        console.log('YOYO', check._id, { id })
+
         await createCheckResult({ id, websiteId, createdAt, check: 'custom', result, quickcheckId, flowId: check._id.toString() })
         await db.collection('flows').updateOne(
           { _id: check._id },
@@ -128,7 +130,7 @@ export const runCustomChecks = async ({ uri, id, db, websiteId, flowId, createdA
     }
   }
   catch (err) {
-    console.error(`Error fetching ${uri}:`, err.message);
+    console.error(`Error on custom check:`, err.message);
   } finally {
     await browser.close()
   }
