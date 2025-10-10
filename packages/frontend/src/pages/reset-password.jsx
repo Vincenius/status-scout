@@ -57,7 +57,7 @@ function ResetPassword() {
 									Set new password
 								</Button>
 
-								{error && <Text c="red.9">{error}</Text>}
+								{error && <Text c="red">{error}</Text>}
 							</form>
 						)}
 					</Box>

@@ -1,5 +1,6 @@
 import { SESv2Client, SendEmailCommand } from '@aws-sdk/client-sesv2';
 import nodemailer from 'nodemailer';
+import mjml2html from 'mjml'
 
 const sesClient = new SESv2Client({
   region: 'eu-central-1',
@@ -8,6 +9,11 @@ const sesClient = new SESv2Client({
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   }
 });
+
+export const getHtml = (mjml) => {
+  const { html } = mjml2html(mjml);
+  return html;
+}
 
 export const sendEmail = async ({ to, subject, html }) => {
   const transporter = nodemailer.createTransport({

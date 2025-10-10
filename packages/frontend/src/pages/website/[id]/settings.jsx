@@ -42,6 +42,22 @@ function WebsiteSettings() {
         <Title size="h1" ta="center" mb="sm">Settings for {host}</Title>
 
         {/* todo alert settings */}
+        {/* <Card.Section p="md" withBorder>
+            <Title order={3} mb="md" fw="normal">Notification Settings:</Title>
+
+            <List>
+              <List.Item>
+                <Text>Critical Issue Alert</Text>
+              </List.Item>
+              <List.Item>
+                <Text>Daily Issue E-Mail</Text>
+              </List.Item>
+            </List>
+          </Card.Section> */}
+
+        {/* settings per check expandable */}
+        {/* notification settings -> critical, warning, info, disabled */}
+        {/* info can be customized per website in website settings */}
 
         <Button color="red" variant="outline" mt="xl" onClick={open}>Delete Website</Button>
       </Container>

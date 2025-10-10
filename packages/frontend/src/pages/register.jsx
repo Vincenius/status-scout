@@ -72,7 +72,7 @@ function Register() {
 
               <Button size="lg" mb={error ? "md" : "0"} fullWidth type="submit" loading={isLoading}>Register</Button>
 
-              {error && <Text c="red.9">{error}</Text>}
+              {error && <Text c="red">{error}</Text>}
             </form>
             <Text ta="center" mt="md">
               Already have an account? <Link to="/login">Login</Link>

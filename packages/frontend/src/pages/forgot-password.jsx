@@ -36,7 +36,7 @@ function ForgotPassword() {
 	};
 
 	return (
-		<Layout title="Forgot Password" isPublicRoute redirectIfAuth>
+		<Layout title="Forgot Password" isPublicRoute>
 			<Flex px="lg" py="3rem" align="center" justify="center">
 				<Card shadow="md" padding="lg" radius="md" withBorder w="100%" maw="400px" pos="rel" style={{ overflow: "visible" }}>
 					<Box>
@@ -54,7 +54,7 @@ function ForgotPassword() {
 									Send reset link
 								</Button>
 
-								{error && <Text c="red.9">{error}</Text>}
+								{error && <Text c="red">{error}</Text>}
 							</form>
 						)}
 					</Box>

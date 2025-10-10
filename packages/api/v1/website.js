@@ -39,12 +39,25 @@ export default async function userRoutes(fastify, opts) {
 
         const db = await connectDB()
         const websites = await db.collection('websites').find({ userId: user._id, deleted: { $ne: true } }).toArray()
+        const websiteIds = websites.map(w => w._id)
+        const recentChecks = await db.collection('checks').aggregate([
+          { $match: { websiteId: { $in: websiteIds } } },
+          { $sort: { createdAt: -1 } },
+          {
+            $group: {
+              _id: "$websiteId",
+              recentCheck: { $first: "$$ROOT" }
+            }
+          },
+          { $replaceRoot: { newRoot: "$recentCheck" } }
+        ]).toArray()
 
         return websites.map(w => ({
           id: w._id.toString(),
           domain: w.domain,
           createdAt: w.createdAt,
           index: w.index,
+          recentCheck: recentChecks.find(c => c.websiteId.toString() === w._id.toString())?.createdAt
         }))
       } catch (e) {
         console.error(e)

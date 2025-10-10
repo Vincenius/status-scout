@@ -50,7 +50,7 @@ function Login() {
 
               <Button size="lg" mb={error ? "md" : "0"} fullWidth type="submit" loading={isLoading}>Login</Button>
 
-              {error && <Text c="red.9">{error}</Text>}
+              {error && <Text c="red">{error}</Text>}
             </form>
           </Box>
 
