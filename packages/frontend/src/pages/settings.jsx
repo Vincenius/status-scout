@@ -1,9 +1,9 @@
 import Layout from '@/components/Layout/Layout'
-import { ActionIcon, Box, Button, Card, Flex, List, Modal, PasswordInput, Select, Table, Text, TextInput, ThemeIcon, Title } from '@mantine/core'
-import { IconBell, IconLock, IconMail, IconPhone, IconPlus, IconTrash, IconUser } from '@tabler/icons-react'
+import { ActionIcon, Box, Button, Card, Flex, List, Modal, PasswordInput, PinInput, Select, Table, Text, TextInput, ThemeIcon, Title } from '@mantine/core'
+import { IconBell, IconBrandPowershell, IconLock, IconMail, IconPhone, IconPlus, IconTrash, IconUser } from '@tabler/icons-react'
 import { useAuthSWR } from '@/utils/useAuthSWR'
 import getFormData from '@/utils/getFormData'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useDisclosure } from '@mantine/hooks'
 import { Link } from 'react-router-dom'
 import { notifications } from '@mantine/notifications';
@@ -11,6 +11,13 @@ import { notifications } from '@mantine/notifications';
 const ChannelIconMap = {
   email: IconMail,
   sms: IconPhone,
+  ntfy: IconBrandPowershell
+}
+
+const inputMap = {
+  email: { label: 'E-Mail Address', placeholder: 'you@example.com', type: 'email' },
+  sms: { label: 'Phone Number', placeholder: '123-456-7890', type: 'text' },
+  ntfy: { label: 'ntfy Topic', placeholder: 'your-topic', type: 'text' },
 }
 
 function Settings() {
@@ -22,6 +29,29 @@ function Settings() {
   const [pwModalOpened, { open: openPwModal, close: closePwModal }] = useDisclosure(false);
   const [error, setError] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState();
+  const [verificationStep, setVerificationStep] = useState(false);
+
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const verifiedChannel = url.searchParams.get('verifiedChannel');
+    if (verifiedChannel !== null) {
+      if (verifiedChannel === 'true') {
+        notifications.show({
+          title: 'Channel verified',
+          message: 'Your notification channel has been verified successfully.',
+          color: 'green',
+        });
+      } else {
+        notifications.show({
+          title: 'Verification failed',
+          message: 'Channel verification failed. Please try again or contact support.',
+          color: 'red',
+        });
+      }
+      url.searchParams.delete('verifiedChannel');
+      window.history.replaceState({}, '', url.pathname + url.search);
+    }
+  }, []);
 
   const openModal = e => {
     e.preventDefault();
@@ -45,10 +75,48 @@ function Settings() {
       if (res.error) {
         setError(res.error)
       } else {
+        if (formData.type === 'sms') {
+          setVerificationStep(formData.value)
+        } else {
+          close()
+          notifications.show({
+            title: 'Channel added',
+            message: 'Your notification channel has been added successfully.',
+            color: 'green',
+          })
+          mutate()
+        }
+      }
+    }).finally(() => {
+      setLoading(false)
+    })
+  }
+
+  const handleVerifySubmit = (e) => {
+    e.preventDefault()
+
+    const formData = getFormData(e)
+    setError(null)
+    setLoading(true)
+    fetch(`${import.meta.env.VITE_API_URL}/v1/user/verify-phone-number`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        code: formData.verificationCode,
+        number: verificationStep
+      }),
+    }).then(res => res.json()).then(res => {
+      if (res.error) {
+        setError(res.error)
+      } else {
         close()
+        setVerificationStep(null)
         notifications.show({
           title: 'Channel added',
-          message: 'Your notification channel has been added successfully.',
+          message: 'Your notification channel has been added and verified successfully.',
           color: 'green',
         })
         mutate()
@@ -57,6 +125,7 @@ function Settings() {
       setLoading(false)
     })
   }
+
   const deleteChannel = (index) => {
     setDeleteLoading(index)
     fetch(`${import.meta.env.VITE_API_URL}/v1/user/notification-channel?index=${index}`, {
@@ -220,7 +289,7 @@ function Settings() {
         </Card>
       </Box>
       <Modal size="sm" title="Add New Notification Channel" opened={opened} onClose={close}>
-        <form onSubmit={handleSubmit}>
+        {!verificationStep && <form onSubmit={handleSubmit}>
           <Select
             name="type"
             required
@@ -232,8 +301,10 @@ function Settings() {
             data={[
               { value: 'email', label: 'E-Mail' },
               { value: 'sms', label: 'SMS' },
+              { value: 'ntfy', label: 'ntfy' },
               { value: 'slack', label: 'Slack (coming soon)', disabled: true },
               { value: 'discord', label: 'Discord (coming soon)', disabled: true },
+              { value: 'whatsapp', label: 'WhatsApp (coming soon)', disabled: true },
             ]}
           />
 
@@ -241,15 +312,23 @@ function Settings() {
             name="value"
             required
             mb="lg"
-            label={channel === 'email' ? 'E-Mail Address' : channel === 'sms' ? 'Phone Number' : 'Value'}
-            placeholder={channel === 'email' ? 'you@example.com' : channel === 'sms' ? '123-456-7890' : 'Enter value'}
-            type={channel === 'email' ? 'email' : 'text'}
+            label={inputMap[channel]?.label || 'Value'}
+            placeholder={inputMap[channel]?.placeholder || 'Enter value'}
+            type={inputMap[channel]?.type || 'text'}
           />
 
           {error && <Text c="red" mb="md">{error}</Text>}
 
           <Button type="submit" loading={loading}>Add Channel</Button>
-        </form>
+        </form>}
+        {verificationStep && <form onSubmit={handleVerifySubmit}>
+          <Text mb="md">A verification code has been sent to your phone. Please enter it below to verify your phone number.</Text>
+          <PinInput type="number" length={6} name="verificationCode" mb="md" />
+
+          {error && <Text c="red" mb="md">{error}</Text>}
+
+          <Button type="submit" loading={loading} mt="lg">Submit Code</Button>
+        </form>}
       </Modal>
 
       <Modal size="sm" title="Change Password" opened={pwModalOpened} onClose={closePwModal}>

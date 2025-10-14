@@ -5,6 +5,7 @@ import { mapUser } from '../utils/user.js';
 import { connectDB } from '../db.js';
 import confirmChannel from '../utils/templates/confirmChannel.js';
 import { getHtml, sendEmail } from '../utils/email.js';
+import { sendVerification, checkVerification } from '../utils/bird.js';
 
 export default async function userRoutes(fastify, opts) {
   fastify.get('/',
@@ -42,6 +43,8 @@ export default async function userRoutes(fastify, opts) {
           return reply.code(409).send({ error: 'This channel already exists' })
         } else {
           let verificationToken = null
+          let verified = false
+
           if (type === 'email') {
             verificationToken = uuidv4()
             const emailMjml = confirmChannel({ token: verificationToken })
@@ -52,7 +55,17 @@ export default async function userRoutes(fastify, opts) {
               html: emailHtml
             })
           }
-          const updatedChannels = [...prevChannels, { type, value, verificationToken, verified: false }]
+
+          if (type === 'sms') {
+            const { id } = await sendVerification({ phonenumber: value })
+            verificationToken = id
+          }
+
+          if (type === 'ntfy') {
+            verified = true
+          }
+
+          const updatedChannels = [...prevChannels, { type, value, verificationToken, verified }]
 
           await db.collection('users').updateOne({ _id: user._id }, {
             $set: { notificationChannels: updatedChannels }
@@ -82,7 +95,7 @@ export default async function userRoutes(fastify, opts) {
 
         const prevChannels = user.notificationChannels || []
 
-        if (idx < 0 || idx  >= prevChannels.length) {
+        if (idx < 0 || idx >= prevChannels.length) {
           return reply.code(404).send({ error: 'This channel does not exist' })
         } else {
           const updatedChannels = prevChannels.filter((_, i) => i !== idx)
@@ -98,6 +111,83 @@ export default async function userRoutes(fastify, opts) {
         reply.code(500).send({ error: 'Internal server error' });
       }
     })
+
+  fastify.post('/verify-channel', { config: { auth: false } }, async (request, reply) => {
+    try {
+      const { token } = request.body
+
+      if (!token) {
+        return reply.code(400).send({ error: 'Invalid input' })
+      }
+
+      const db = await connectDB()
+      const user = await db.collection('users').findOne({ 'notificationChannels.verificationToken': token })
+
+      if (!user) {
+        return reply.code(404).send({ error: 'This channel does not exist' })
+      } else {
+        const updatedChannels = (user.notificationChannels || []).map(c => {
+          if (c.verificationToken === token) {
+            return { ...c, verified: true, verificationToken: null }
+          }
+          return c
+        })
+
+        await db.collection('users').updateOne({ _id: user._id }, {
+          $set: { notificationChannels: updatedChannels }
+        }, { returnDocument: 'after' })
+
+        return { success: true }
+      }
+    } catch (e) {
+      console.error(e)
+      reply.code(500).send({ error: 'Internal server error' });
+    }
+  })
+
+  fastify.post('/verify-phone-number', { config: { auth: false } }, async (request, reply) => {
+    try {
+      const { number, code } = request.body
+
+      if (!number || !code) {
+        return reply.code(400).send({ error: 'Invalid input' })
+      }
+
+      const db = await connectDB()
+      const user = await db.collection('users').findOne({
+        'notificationChannels.value': number,
+        'notificationChannels.type': 'sms',
+        'notificationChannels.verified': false
+      })
+
+      if (!user) {
+        return reply.code(404).send({ error: 'This channel does not exist' })
+      } else {
+        const verificationId = user.notificationChannels.find(c => c.value === number).verificationToken
+        const result = await checkVerification({ verificationId, code })
+
+        if (result?.status === 'verified') {
+          const updatedChannels = (user.notificationChannels || []).map(c => {
+            if (c.value === number) {
+              return { ...c, verified: true, verificationToken: null }
+            }
+            return c
+          })
+
+          await db.collection('users').updateOne({ _id: user._id }, {
+            $set: { notificationChannels: updatedChannels }
+          }, { returnDocument: 'after' })
+
+          return { success: true }
+        } else {
+          return { success: false, error: result?.message || 'Verification failed'}
+        }
+      }
+    } catch (e) {
+      console.error(e)
+      reply.code(500).send({ error: 'Internal server error' });
+    }
+  })
 
   fastify.put('/password',
     { preValidation: fastifyPassport.authenticate('session', { failureRedirect: '/login' }) },
