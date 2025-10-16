@@ -57,7 +57,10 @@ export default async function userRoutes(fastify, opts) {
           domain: w.domain,
           createdAt: w.createdAt,
           index: w.index,
-          recentCheck: recentChecks.find(c => c.websiteId.toString() === w._id.toString())?.createdAt
+          recentCheck: recentChecks.find(c => c.websiteId.toString() === w._id.toString())?.createdAt,
+          dailyChannel: w.dailyChannel || 'disabled',
+          criticalChannel: w.criticalChannel || 'disabled',
+          notifications: w.notifications || {},
         }))
       } catch (e) {
         console.error(e)
@@ -76,6 +79,62 @@ export default async function userRoutes(fastify, opts) {
         const query = request.query || {}
         const websiteId = query.id
         await db.collection('websites').updateOne({ _id: new ObjectId(websiteId), userId: user._id }, { $set: { deleted: true } })
+
+        return { success: true }
+      } catch (e) {
+        console.error(e)
+        reply.code(500).send({ error: 'Internal server error' });
+      }
+    })
+
+  fastify.put('/notification-channel',
+    { preValidation: fastifyPassport.authenticate('session', { failureRedirect: '/login' }) },
+    async (request, reply) => {
+      try {
+        const user = request.user
+        const body = request.body || {}
+
+        const db = await connectDB()
+        if (body.type === 'dailyChannel') {
+          await db.collection('websites').updateOne(
+            { _id: new ObjectId(body.websiteId), userId: user._id },
+            { $set: { dailyChannel: body.channel } }
+          )
+        } else if (body.type === 'criticalChannel') {
+          await db.collection('websites').updateOne(
+            { _id: new ObjectId(body.websiteId), userId: user._id },
+            { $set: { criticalChannel: body.channel } }
+          )
+        }
+
+        return { success: true }
+      } catch (e) {
+        console.error(e)
+        reply.code(500).send({ error: 'Internal server error' });
+      }
+    })
+
+  fastify.put('/notifications',
+    { preValidation: fastifyPassport.authenticate('session', { failureRedirect: '/login' }) },
+    async (request, reply) => {
+      try {
+        const user = request.user
+        const body = request.body || {}
+
+        const db = await connectDB()
+        const prevWebsite = await db.collection('websites').findOne({ _id: new ObjectId(body.websiteId), userId: user._id })
+        if (!prevWebsite) {
+          reply.code(404).send({ error: 'Website not found' });
+          return;
+        }
+
+        const prios = prevWebsite.notifications || {}
+        prios[body.check] = body.value
+
+        await db.collection('websites').updateOne(
+          { _id: new ObjectId(body.websiteId), userId: user._id },
+          { $set: { notifications: prios } }
+        )
 
         return { success: true }
       } catch (e) {

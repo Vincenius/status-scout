@@ -3,6 +3,7 @@ import { Box, Button, Card, Checkbox, Flex, PasswordInput, Text, TextInput, Titl
 import { useState } from 'react';
 import Layout from "@/components/Layout/Layout";
 import getFormData from "@/utils/getFormData";
+import InlineLink from "@/components/InlineLink/InlineLink";
 
 function Register() {
   const navigate = useNavigate();
@@ -75,7 +76,7 @@ function Register() {
               {error && <Text c="red">{error}</Text>}
             </form>
             <Text ta="center" mt="md">
-              Already have an account? <Link to="/login">Login</Link>
+              Already have an account? <InlineLink to="/login">Login</InlineLink>
             </Text>
           </Box>
         </Card>

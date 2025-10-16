@@ -1,8 +1,8 @@
-import { Link } from "react-router-dom";
 import { Box, Button, Card, Flex, Text, TextInput, Title } from '@mantine/core';
 import { useState } from 'react';
 import Layout from "@/components/Layout/Layout";
 import getFormData from "@/utils/getFormData";
+import InlineLink from "@/components/InlineLink/InlineLink";
 
 function ForgotPassword() {
 	const [isLoading, setIsLoading] = useState(false);
@@ -60,7 +60,7 @@ function ForgotPassword() {
 					</Box>
 
 					<Text ta="center" mt="md">
-						<Link to="/login">Back to login</Link>
+						<InlineLink to="/login">Back to login</InlineLink>
 					</Text>
 				</Card>
 			</Flex>

@@ -22,12 +22,33 @@ export const getRecentChecks = (checks) => {
 }
 
 export const checkNameMap = {
+  'uptime': 'Uptime',
+  'ssl': 'SSL Certificate',
   'performance': 'Performance',
   'fuzz': 'Exposed Sensitive File',
   'headers': 'Missing Security Header',
   'lighthouse': 'Lighthouse',
-  'a11y': 'Accessibility Report',
-  'seo': 'SEO Report',
-  'custom': 'Custom Flow',
+  'a11y': 'Accessibility',
+  'seo': 'SEO',
   'links': 'Broken Link',
+  'custom': 'Custom Flow',
+}
+
+export const checkDefaultNotifications = {
+  'uptime': 'critical',
+  'ssl': 'critical',
+  'fuzz': 'daily',
+  'headers': 'daily',
+  'lighthouse': 'daily',
+  'a11y': 'daily',
+  'seo': 'daily',
+  'performance': 'daily',
+  'links': 'daily',
+  // 'custom': 'daily', todo
+}
+
+export const notificationMap = {
+  email: { label: 'E-Mail Address', placeholder: 'you@example.com', type: 'email' },
+  sms: { label: 'Phone Number', placeholder: '123-456-7890', type: 'text' },
+  ntfy: { label: 'ntfy Topic', placeholder: 'your-topic', type: 'text' },
 }

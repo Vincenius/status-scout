@@ -43,7 +43,7 @@ export default function Pricing() {
           </Button>
         </Card>
 
-        <Card shadow="sm" radius="md" p="lg" withBorder>
+        <Card shadow="sm" radius="md" p="lg" withBorder style={{ borderColor: 'var(--mantine-primary-color-6)' }}>
           {/* Cloud (head -> switch between monthly and yearly billing) */}
           <Card.Section mb="md" p="md" withBorder>
             <Flex justify="space-between" align="center" mb="sm">
@@ -77,7 +77,7 @@ export default function Pricing() {
           </Card.Section>
 
           <Button component="a" href={`${import.meta.env.VITE_APP_URL}/register`} target="_blank" rel="noopener" fullWidth>
-            Start free trial
+            Start Free 7-Day Trial
           </Button>
           <Text c="dimmed" fz="sm" mt="xs">
             * No credit card required. Cancel anytime.

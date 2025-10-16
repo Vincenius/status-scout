@@ -5,7 +5,7 @@ import classes from './ColorSchemeToggle.module.css';
 
 export default function ColorSchemeToggle() {
   const { setColorScheme } = useMantineColorScheme();
-  const computedColorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true });
+  const computedColorScheme = useComputedColorScheme('dark', { getInitialValueInEffect: true });
 
   return (
     <Group justify="center">

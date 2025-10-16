@@ -59,7 +59,7 @@ export default async function flowRoutes(fastify, opts) {
       // todo validate body
 
       const { websiteId, check } = body
-      const { name, steps } = check
+      const { name, steps, notification } = check
 
       const db = await connectDB()
 
@@ -79,6 +79,7 @@ export default async function flowRoutes(fastify, opts) {
           websiteId: websiteId,
           createdAt: new Date(),
           name,
+          notification: notification || 'daily',
           steps,
         });
 
@@ -143,7 +144,7 @@ export default async function flowRoutes(fastify, opts) {
       // todo validate body
 
       const { websiteId, check } = body
-      const { name, steps, editId } = check
+      const { name, steps, editId, notification } = check
 
       const db = await connectDB()
 
@@ -174,7 +175,7 @@ export default async function flowRoutes(fastify, opts) {
 
         await db.collection('flows').updateOne(
           { _id: new ObjectId(editId) },
-          { $set: { name, steps } }
+          { $set: { name, steps, notification } }
         );
 
         return { id: editId };

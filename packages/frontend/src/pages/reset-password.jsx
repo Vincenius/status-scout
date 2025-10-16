@@ -1,8 +1,8 @@
-import { Link } from "react-router-dom";
 import { Box, Button, Card, Flex, PasswordInput, Text, Title } from '@mantine/core';
 import { useState } from 'react';
 import Layout from "@/components/Layout/Layout";
 import getFormData from "@/utils/getFormData";
+import InlineLink from "@/components/InlineLink/InlineLink";
 
 function ResetPassword() {
 	const [isLoading, setIsLoading] = useState(false);
@@ -47,7 +47,7 @@ function ResetPassword() {
 
 						{success ? (
 							<Text ta="center" mb="lg" c="green.7">
-								Your password has been reset. You can now <Link to="/login">login</Link> with your new password.
+								Your password has been reset. You can now <InlineLink to="/login">login</InlineLink> with your new password.
 							</Text>
 						) : (
 							<form onSubmit={handleSubmit}>
@@ -63,7 +63,7 @@ function ResetPassword() {
 					</Box>
 
 					<Text ta="center" mt="md">
-						<Link to="/login">Back to login</Link>
+						<InlineLink to="/login">Back to login</InlineLink>
 					</Text>
 				</Card>
 			</Flex>

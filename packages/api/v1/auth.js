@@ -36,7 +36,7 @@ export default async function authRoutes(fastify, opts) {
       const subscription = {
         plan: 'paid',
         status: 'trial', // active, inactive, cancelled
-        expiresAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000) // 14 days
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
       }
       await db.collection('users').insertOne({
         email,

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Card, TextInput, Button, Title, Divider, Text, Modal, ThemeIcon, Blockquote, SimpleGrid, Flex, Box, ActionIcon, Accordion, Input, Textarea, NumberInput, Select, Tooltip, LoadingOverlay, List, Loader } from '@mantine/core';
+import { Card, TextInput, Button, Title, Divider, Text, Modal, ThemeIcon, Blockquote, SimpleGrid, Flex, Box, ActionIcon, Accordion, Input, Textarea, NumberInput, Select, Tooltip, LoadingOverlay, List, Loader, SegmentedControl } from '@mantine/core';
 import Layout from '@/components/Layout/Layout'
 import { IconCheck, IconMenuOrder, IconPencil, IconPlaylistAdd, IconTrash, IconX } from '@tabler/icons-react';
 import { ReactSortable } from "react-sortablejs";
@@ -28,6 +28,7 @@ function CustomFlows() {
   const [steps, setSteps] = useState([]);
   const [editId, setEditId] = useState(null);
   const [modalOpenStep, setModalOpenStep] = useState(null);
+  const [notification, setNotification] = useState('daily')
 
   useEffect(() => {
     if (flows.find(f => f.status?.state === 'waiting' || f.status?.state === 'active')) {
@@ -44,6 +45,7 @@ function CustomFlows() {
     setValidation([])
     setModalOpen(false)
     setModalOpenStep(null)
+    setNotification('daily')
   }
 
   const openNewFlowModal = () => {
@@ -69,6 +71,7 @@ function CustomFlows() {
     if (valid.every(v => v)) {
       const newCheck = {
         name: formData.name,
+        notification: notification,
         steps: steps.map(s => ({ type: s.type, values: s.values })),
         editId,
       }
@@ -106,6 +109,7 @@ function CustomFlows() {
     setSteps(flow.steps)
     setEditId(flow._id)
     setModalOpen(true)
+    setNotification(flow.notification || 'daily')
   }
 
   const addStep = (value) => {
@@ -252,6 +256,18 @@ function CustomFlows() {
             mb="md"
             defaultValue={editId && flows.find(f => f._id === editId)?.name}
           />
+
+          <Text size="sm" fw={500} mb="2px">Notification Frequency</Text>
+          <Text size="xs" mb="xs">"Critical" will trigger an immediate notification, while daily notifications are sent once per day.</Text>
+
+          <SegmentedControl
+            data={[{ value: 'critical', label: 'Critical' }, { value: 'daily', label: 'Daily' }, { value: 'disabled', label: 'Disabled' }]}
+            value={notification}
+            onChange={setNotification}
+            name="notification"
+          />
+
+          <Divider my="md" />
 
           {steps.length > 0 && <Text mb="xs" size="sm">Steps</Text>}
           <Accordion

@@ -65,7 +65,9 @@ export default async function userRoutes(fastify, opts) {
             verified = true
           }
 
-          const updatedChannels = [...prevChannels, { type, value, verificationToken, verified }]
+          const channelId = uuidv4()
+
+          const updatedChannels = [...prevChannels, { id: channelId, type, value, verificationToken, verified }]
 
           await db.collection('users').updateOne({ _id: user._id }, {
             $set: { notificationChannels: updatedChannels }
@@ -83,10 +85,9 @@ export default async function userRoutes(fastify, opts) {
     { preValidation: fastifyPassport.authenticate('session', { failureRedirect: '/login' }) },
     async (request, reply) => {
       try {
-        const { index } = request.query
-        const idx = Number(index)
+        const { id } = request.query
 
-        if (isNaN(idx)) {
+        if (!id) {
           return reply.code(400).send({ error: 'Invalid input' })
         }
 
@@ -95,10 +96,12 @@ export default async function userRoutes(fastify, opts) {
 
         const prevChannels = user.notificationChannels || []
 
-        if (idx < 0 || idx >= prevChannels.length) {
+        const channelIndex = prevChannels.findIndex(c => c.id === id)
+
+        if (channelIndex < 0) {
           return reply.code(404).send({ error: 'This channel does not exist' })
         } else {
-          const updatedChannels = prevChannels.filter((_, i) => i !== idx)
+          const updatedChannels = prevChannels.filter(c => c.id !== id)
 
           await db.collection('users').updateOne({ _id: user._id }, {
             $set: { notificationChannels: updatedChannels }

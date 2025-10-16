@@ -4,6 +4,7 @@ import { IconBrandBluesky, IconBrandGithub, IconHeartbeat, IconMug } from '@tabl
 import { Link } from 'react-router-dom';
 import ColorSchemeToggle from './ColorSchemeToggle.jsx';
 import { useEffect, useState } from 'react';
+import InlineLink from '@/components/InlineLink/InlineLink.jsx';
 
 const Layout = ({ children, title }) => {
   const isAnalyticsEnabled = import.meta.env.VITE_ENABLE_ANALYTICS === 'true' || import.meta.env.VITE_ENABLE_ANALYTICS === true;
@@ -93,8 +94,8 @@ const Layout = ({ children, title }) => {
 
         <Flex gap="lg" direction="column">
           <Flex gap="sm" justify={{ base: 'center', xs: 'flex-end' }} wrap="wrap">
-            <Text size="sm" c="inherit"><Link to="/imprint">Imprint</Link></Text>
-            <Text size="sm"><Link to="/privacy">Privacy</Link></Text>
+            <Text size="sm" c="inherit"><InlineLink to="/imprint">Imprint</InlineLink></Text>
+            <Text size="sm"><InlineLink to="/privacy">Privacy</InlineLink></Text>
           </Flex>
           <Flex gap="sm" justify={{ base: 'center', xs: 'flex-end' }}>
             <a href="https://github.com/vincenius/status-scout" target="_blank" rel="noopener noreferrer">

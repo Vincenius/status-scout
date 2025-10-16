@@ -1,5 +1,5 @@
 import Layout from '@/components/Layout/Layout'
-import { ActionIcon, Box, Button, Card, Flex, List, Modal, PasswordInput, PinInput, Select, Table, Text, TextInput, ThemeIcon, Title } from '@mantine/core'
+import { ActionIcon, Box, Button, Card, Flex, Modal, PasswordInput, Table, Text, ThemeIcon, Title } from '@mantine/core'
 import { IconBell, IconBrandPowershell, IconLock, IconMail, IconPhone, IconPlus, IconTrash, IconUser } from '@tabler/icons-react'
 import { useAuthSWR } from '@/utils/useAuthSWR'
 import getFormData from '@/utils/getFormData'
@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react'
 import { useDisclosure } from '@mantine/hooks'
 import { Link } from 'react-router-dom'
 import { notifications } from '@mantine/notifications';
+import NewNotificationChannelModal from '@/components/NewNotificationChannelModal/NewNotificationChannelModal'
 
 const ChannelIconMap = {
   email: IconMail,
@@ -14,22 +15,13 @@ const ChannelIconMap = {
   ntfy: IconBrandPowershell
 }
 
-const inputMap = {
-  email: { label: 'E-Mail Address', placeholder: 'you@example.com', type: 'email' },
-  sms: { label: 'Phone Number', placeholder: '123-456-7890', type: 'text' },
-  ntfy: { label: 'ntfy Topic', placeholder: 'your-topic', type: 'text' },
-}
-
 function Settings() {
   const { data: user = {}, mutate } = useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/user`)
   const [opened, { open, close }] = useDisclosure(false);
-  const [loading, setLoading] = useState(false);
   const [pwLoading, setPwLoading] = useState(false);
-  const [channel, setChannel] = useState('email');
   const [pwModalOpened, { open: openPwModal, close: closePwModal }] = useDisclosure(false);
   const [error, setError] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState();
-  const [verificationStep, setVerificationStep] = useState(false);
 
   useEffect(() => {
     const url = new URL(window.location.href);
@@ -58,77 +50,9 @@ function Settings() {
     open();
   }
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-
-    setLoading(true)
-    const formData = getFormData(e)
-
-    fetch(`${import.meta.env.VITE_API_URL}/v1/user/notification-channel`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-      body: JSON.stringify(formData),
-    }).then(res => res.json()).then(res => {
-      if (res.error) {
-        setError(res.error)
-      } else {
-        if (formData.type === 'sms') {
-          setVerificationStep(formData.value)
-        } else {
-          close()
-          notifications.show({
-            title: 'Channel added',
-            message: 'Your notification channel has been added successfully.',
-            color: 'green',
-          })
-          mutate()
-        }
-      }
-    }).finally(() => {
-      setLoading(false)
-    })
-  }
-
-  const handleVerifySubmit = (e) => {
-    e.preventDefault()
-
-    const formData = getFormData(e)
-    setError(null)
-    setLoading(true)
-    fetch(`${import.meta.env.VITE_API_URL}/v1/user/verify-phone-number`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-      body: JSON.stringify({
-        code: formData.verificationCode,
-        number: verificationStep
-      }),
-    }).then(res => res.json()).then(res => {
-      if (res.error) {
-        setError(res.error)
-      } else {
-        close()
-        setVerificationStep(null)
-        notifications.show({
-          title: 'Channel added',
-          message: 'Your notification channel has been added and verified successfully.',
-          color: 'green',
-        })
-        mutate()
-      }
-    }).finally(() => {
-      setLoading(false)
-    })
-  }
-
-  const deleteChannel = (index) => {
-    setDeleteLoading(index)
-    fetch(`${import.meta.env.VITE_API_URL}/v1/user/notification-channel?index=${index}`, {
+  const deleteChannel = (id) => {
+    setDeleteLoading(id)
+    fetch(`${import.meta.env.VITE_API_URL}/v1/user/notification-channel?id=${id}`, {
       method: 'DELETE',
       credentials: 'include',
     }).then(res => res.json()).then(res => {
@@ -267,8 +191,8 @@ function Settings() {
                             )}
                           </Flex>
                         </Table.Td>
-                        <Table.Td>
-                          <ActionIcon loading={deleteLoading === index} color="red" variant="outline" size="sm" onClick={() => deleteChannel(index)}>
+                        <Table.Td w={42}>
+                          <ActionIcon loading={deleteLoading === channel.id} color="red" variant="outline" size="sm" onClick={() => deleteChannel(channel.id)}>
                             <IconTrash size={16} />
                           </ActionIcon>
                         </Table.Td>
@@ -278,7 +202,7 @@ function Settings() {
                 }
                 <Table.Tr>
                   <Table.Td colSpan={3}>
-                    <Button mt="xs" variant="outline" leftIcon={<IconPlus size={16} />} onClick={openModal}>
+                    <Button mt="xs" variant="outline" leftSection={<IconPlus size={16} />} onClick={openModal}>
                       Add New Channel
                     </Button>
                   </Table.Td>
@@ -288,48 +212,8 @@ function Settings() {
           </Card.Section>
         </Card>
       </Box>
-      <Modal size="sm" title="Add New Notification Channel" opened={opened} onClose={close}>
-        {!verificationStep && <form onSubmit={handleSubmit}>
-          <Select
-            name="type"
-            required
-            mb="md"
-            label="Channel Type"
-            placeholder="Pick value"
-            value={channel}
-            onChange={setChannel}
-            data={[
-              { value: 'email', label: 'E-Mail' },
-              { value: 'sms', label: 'SMS' },
-              { value: 'ntfy', label: 'ntfy' },
-              { value: 'slack', label: 'Slack (coming soon)', disabled: true },
-              { value: 'discord', label: 'Discord (coming soon)', disabled: true },
-              { value: 'whatsapp', label: 'WhatsApp (coming soon)', disabled: true },
-            ]}
-          />
 
-          <TextInput
-            name="value"
-            required
-            mb="lg"
-            label={inputMap[channel]?.label || 'Value'}
-            placeholder={inputMap[channel]?.placeholder || 'Enter value'}
-            type={inputMap[channel]?.type || 'text'}
-          />
-
-          {error && <Text c="red" mb="md">{error}</Text>}
-
-          <Button type="submit" loading={loading}>Add Channel</Button>
-        </form>}
-        {verificationStep && <form onSubmit={handleVerifySubmit}>
-          <Text mb="md">A verification code has been sent to your phone. Please enter it below to verify your phone number.</Text>
-          <PinInput type="number" length={6} name="verificationCode" mb="md" />
-
-          {error && <Text c="red" mb="md">{error}</Text>}
-
-          <Button type="submit" loading={loading} mt="lg">Submit Code</Button>
-        </form>}
-      </Modal>
+      <NewNotificationChannelModal opened={opened} close={close} />
 
       <Modal size="sm" title="Change Password" opened={pwModalOpened} onClose={closePwModal}>
         <form onSubmit={handlePwChange}>

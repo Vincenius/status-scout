@@ -7,6 +7,7 @@ import ColorSchemeToggle from './ColorSchemeToggle.jsx';
 import { useEffect, useState } from 'react';
 import { useAuthSWR } from '@/utils/useAuthSWR'
 import FeedbackButton from '@/components/FeedbackButton/FeedbackButton.jsx';
+import InlineLink from '@/components/InlineLink/InlineLink.jsx';
 
 const Layout = ({ children, title, isPublicRoute, redirectIfAuth }) => {
   const [opened, { toggle }] = useDisclosure();
@@ -214,7 +215,7 @@ const Layout = ({ children, title, isPublicRoute, redirectIfAuth }) => {
         <AppShell.Section>
           {user?.subscription?.status === 'trial' && <Blockquote p="sm" mb="md">
             {expiresAt < now ? "Your free trial ended" : `Trial active until ${expiresAt.toLocaleDateString()}`}<br />
-            <Link to="/checkout">Upgrade Plan</Link>
+            <InlineLink to="/checkout">Upgrade Plan</InlineLink>
           </Blockquote>}
           <FeedbackButton fullWidth variant="outline" email={user?.email}>Send Feedback</FeedbackButton>
         </AppShell.Section>

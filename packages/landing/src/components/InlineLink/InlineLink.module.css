@@ -1,0 +1,7 @@
+.link {
+  color: var(--mantine-primary-color-9);
+}
+
+[data-mantine-color-scheme="dark"] .link {
+  color: var(--mantine-primary-color-2);
+}

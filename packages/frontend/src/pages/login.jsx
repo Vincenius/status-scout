@@ -3,6 +3,7 @@ import { Box, Button, Card, Flex, PasswordInput, Text, TextInput, Title } from '
 import { useState } from 'react';
 import Layout from "@/components/Layout/Layout";
 import getFormData from "@/utils/getFormData";
+import InlineLink from "@/components/InlineLink/InlineLink";
 
 function Login() {
   const navigate = useNavigate();
@@ -46,7 +47,7 @@ function Login() {
               <TextInput name="email" size="md" placeholder="you@example.com" label="Email" mb="md" required />
               <PasswordInput name="password" size="md" label="Password" type="password" mb="xs" required />
 
-              <Text size="xs" mb="lg"><Link to="/forgot-password">Forgot password?</Link></Text>
+              <Text size="xs" mb="lg"><InlineLink to="/forgot-password">Forgot password?</InlineLink></Text>
 
               <Button size="lg" mb={error ? "md" : "0"} fullWidth type="submit" loading={isLoading}>Login</Button>
 
@@ -57,7 +58,7 @@ function Login() {
           {(import.meta.env.VITE_FEATURE_REGISTRATION === 'true' || import.meta.env.VITE_FEATURE_REGISTRATION === true) && (
             <>
               <Text ta="center" mt="md">
-                Don't have an account? <Link to="/register">Register</Link>
+                Don't have an account? <InlineLink to="/register">Register</InlineLink>
               </Text>
             </>
 
