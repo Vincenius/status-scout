@@ -9,6 +9,7 @@ import { runPerformanceCheck } from './checks/performance.js'
 import { runCustomChecks } from './checks/custom.js'
 import { runBrokenLinkCheck } from './checks/links.js'
 import { ObjectId } from 'mongodb'
+import runNotifications from './notification.js'
 
 export const run = async ({ id, type = 'quick', websiteId, quickcheckId, url }) => {
   // type (of check) -> quick, extended, full
@@ -51,48 +52,10 @@ export const run = async ({ id, type = 'quick', websiteId, quickcheckId, url }) 
 
     await Promise.all(checks)
 
-    // tmp notifications
-    if (process.env.NOTIFICATION_ENABLED === 'true') {
-      const newChecks = await db
-        .collection('checks')
-        .find({ websiteId: website._id, createdAt })
-        .toArray();
-
-      const failedChecks = newChecks.filter(c => c.result.status === 'fail');
-      const failedMap = new Map((website.failedChecks || []).map(fc => [fc.check, fc]));
-      const notifications = []
-
-      for (const failedCheck of failedChecks) {
-        if (failedMap.has(failedCheck.check)) {
-          failedMap.set(failedCheck.check, failedCheck);
-        } else {
-          failedMap.set(failedCheck.check, failedCheck);
-          notifications.push(failedCheck)
-        }
-      }
-
-      // TODO remove old failed checks that succeeded now
-
-      // Save updated failed checks
-      const updatedFailedChecks = Array.from(failedMap.values());
-
-      if (updatedFailedChecks.length > 0) {
-        await db.collection('websites').updateOne(
-          { _id: website._id },
-          { $set: { failedChecks: updatedFailedChecks } }
-        );
-      }
-
-      if (notifications.length > 0) {
-        console.log('sending notifications');
-        await fetch(process.env.NTFY_URL, {
-          method: 'POST',
-          body: 'Error: ' + notifications.map(n => n.check).join(', ')
-        })
-      }
-    }
-
     console.log('finished all checks')
+
+    // todo check if not manual trigger
+    await runNotifications({ db, website, check: type })
   } catch (e) {
     console.error('unexpected error', e)
   }

@@ -1,10 +1,10 @@
 import Layout from '@/components/Layout/Layout';
-import { Box, Card, Container, Flex, Table, Text, ThemeIcon, Title } from '@mantine/core';
+import { Card, Container, Flex, Table, Text, ThemeIcon, Title } from '@mantine/core';
 import { useAuthSWR } from '@/utils/useAuthSWR'
-import { IconAlertSquareRounded, IconChartBar, IconCheck } from '@tabler/icons-react';
+import { IconAlertSquareRounded, IconChartBar } from '@tabler/icons-react';
 import HistoryChart from '@/components/Dashboard/HistoryChart';
 import { useParams } from 'react-router-dom';
-import { getIssueHistory } from '@/utils/findIssues'
+import { getIssueHistory } from '@statusscout/shared'
 import { checkNameMap } from '@/utils/checks';
 import { Link } from 'react-router-dom';
 import Website404 from '@/components/Website/Website404';
@@ -13,7 +13,7 @@ function WebsiteOverview() {
   const { id } = useParams();
   const { data: websites = [], isLoading: isLoadingWebsites } = useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/website`)
   const website = websites.find(w => w.index === id)
-  const { data = {}, isLoading } = useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/history?id=${website?.id || ''}`)
+  const { data = {} } = useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/history?id=${website?.id || ''}`)
   const { uptime = [], checks = [], initialCheckDate } = data
   const issues = getIssueHistory(checks)
   const sortedIssues = issues.sort((d1, d2) => new Date(d1.createdAt) - new Date(d2.createdAt))

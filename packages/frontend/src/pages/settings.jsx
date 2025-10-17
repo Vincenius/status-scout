@@ -1,5 +1,5 @@
 import Layout from '@/components/Layout/Layout'
-import { ActionIcon, Box, Button, Card, Flex, Modal, PasswordInput, Table, Text, ThemeIcon, Title } from '@mantine/core'
+import { ActionIcon, Box, Button, Card, Flex, List, Modal, PasswordInput, Table, Text, ThemeIcon, Title } from '@mantine/core'
 import { IconBell, IconBrandPowershell, IconLock, IconMail, IconPhone, IconPlus, IconTrash, IconUser } from '@tabler/icons-react'
 import { useAuthSWR } from '@/utils/useAuthSWR'
 import getFormData from '@/utils/getFormData'
@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react'
 import { useDisclosure } from '@mantine/hooks'
 import { Link } from 'react-router-dom'
 import { notifications } from '@mantine/notifications';
-import NewNotificationChannelModal from '@/components/NewNotificationChannelModal/NewNotificationChannelModal'
+import NewNotificationChannelModal from '@/components/Notifications/NewNotificationChannelModal'
 
 const ChannelIconMap = {
   email: IconMail,
@@ -17,8 +17,10 @@ const ChannelIconMap = {
 
 function Settings() {
   const { data: user = {}, mutate } = useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/user`)
+  const { data: websites = [] } = useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/website`)
   const [opened, { open, close }] = useDisclosure(false);
   const [pwLoading, setPwLoading] = useState(false);
+  const [channelDeleteWarning, setChannelDeleteWarning] = useState(null);
   const [pwModalOpened, { open: openPwModal, close: closePwModal }] = useDisclosure(false);
   const [error, setError] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState();
@@ -48,6 +50,16 @@ function Settings() {
   const openModal = e => {
     e.preventDefault();
     open();
+  }
+
+  const handleDeleteChannel = id => {
+    const usedInWebsites = websites.filter(w => w.criticalChannel === id || w.dailyChannel === id)
+
+    if (usedInWebsites.length > 0) {
+      setChannelDeleteWarning(id)
+    } else {
+      deleteChannel(id)
+    }
   }
 
   const deleteChannel = (id) => {
@@ -192,7 +204,7 @@ function Settings() {
                           </Flex>
                         </Table.Td>
                         <Table.Td w={42}>
-                          <ActionIcon loading={deleteLoading === channel.id} color="red" variant="outline" size="sm" onClick={() => deleteChannel(channel.id)}>
+                          <ActionIcon loading={deleteLoading === channel.id} color="red" variant="outline" size="sm" onClick={() => handleDeleteChannel(channel.id)}>
                             <IconTrash size={16} />
                           </ActionIcon>
                         </Table.Td>
@@ -241,6 +253,25 @@ function Settings() {
 
           <Button type="submit" loading={pwLoading}>Change Password</Button>
         </form>
+      </Modal>
+
+      <Modal size="sm" title="Delete Notification Channel" opened={!!channelDeleteWarning} onClose={() => setChannelDeleteWarning(null)}>
+        <Text mb="md">This notification channel is still in use by one or more websites. Are you sure you want to delete it? Following websites are affected:</Text>
+
+        <List mb="xl">
+          {websites
+            .filter(w => w.criticalChannel === channelDeleteWarning || w.dailyChannel === channelDeleteWarning)
+            .map((website) => (
+              <List.Item key={`delete-warning-${website.id}`}>{website.domain}</List.Item>
+            ))}
+        </List>
+        <Flex justify="flex-end" gap="sm">
+          <Button variant="outline" onClick={() => setChannelDeleteWarning(null)}>Cancel</Button>
+          <Button color="red" loading={deleteLoading === channelDeleteWarning} onClick={() => {
+            deleteChannel(channelDeleteWarning)
+            setChannelDeleteWarning(null)
+          }}>Delete Channel</Button>
+        </Flex>
       </Modal>
     </Layout>
   )

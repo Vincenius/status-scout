@@ -16,6 +16,7 @@
     "@mantine/form": "^8.2.2",
     "@mantine/hooks": "8.1.2",
     "@mantine/notifications": "^8.3.3",
+    "@statusscout/shared": "*",
     "@tabler/icons-react": "^3.34.0",
     "mjml": "^4.16.1",
     "react": "^19.1.0",

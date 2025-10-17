@@ -12,6 +12,14 @@ function NewNotificationChannelModal({ opened, close }) {
   const [verificationStep, setVerificationStep] = useState(false);
   const [error, setError] = useState(null);
 
+  const closeModal = () => {
+    setVerificationStep(null)
+    setError(null)
+    setLoading(false)
+    setChannel('email')
+    close()
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault()
 
@@ -29,10 +37,10 @@ function NewNotificationChannelModal({ opened, close }) {
       if (res.error) {
         setError(res.error)
       } else {
-        if (formData.type === 'sms') {
-          setVerificationStep(formData.value)
+        if (formData.type === 'sms' || formData.type === 'email') {
+          setVerificationStep(formData)
         } else {
-          close()
+          closeModal()
           notifications.show({
             title: 'Channel added',
             message: 'Your notification channel has been added successfully.',
@@ -60,13 +68,13 @@ function NewNotificationChannelModal({ opened, close }) {
       credentials: 'include',
       body: JSON.stringify({
         code: formData.verificationCode,
-        number: verificationStep
+        number: verificationStep.value
       }),
     }).then(res => res.json()).then(res => {
       if (res.error) {
         setError(res.error)
       } else {
-        close()
+        closeModal()
         setVerificationStep(null)
         notifications.show({
           title: 'Channel added',
@@ -81,7 +89,7 @@ function NewNotificationChannelModal({ opened, close }) {
   }
 
   return (
-    <Modal size="sm" title="Add New Notification Channel" opened={opened} onClose={close}>
+    <Modal size="sm" title="Add New Notification Channel" opened={opened} onClose={closeModal}>
       {!verificationStep && <form onSubmit={handleSubmit}>
         <Select
           name="type"
@@ -114,7 +122,7 @@ function NewNotificationChannelModal({ opened, close }) {
 
         <Button type="submit" loading={loading}>Add Channel</Button>
       </form>}
-      {verificationStep && <form onSubmit={handleVerifySubmit}>
+      {verificationStep?.type === 'sms' && <form onSubmit={handleVerifySubmit}>
         <Text mb="md">A verification code has been sent to your phone. Please enter it below to verify your phone number.</Text>
         <PinInput type="number" length={6} name="verificationCode" mb="md" />
 
@@ -122,6 +130,11 @@ function NewNotificationChannelModal({ opened, close }) {
 
         <Button type="submit" loading={loading} mt="lg">Submit Code</Button>
       </form>}
+
+      {verificationStep?.type === 'email' && <div>
+        <Text mb="md">We've sent a verification link to your email. Please check your inbox and click the link to verify your email address.</Text>
+        <Button onClick={closeModal}>Close</Button>
+      </div>}
     </Modal>
   )
 }

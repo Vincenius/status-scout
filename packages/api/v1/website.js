@@ -26,6 +26,8 @@ export default async function userRoutes(fastify, opts) {
         domain: baseUrl,
         createdAt: new Date(),
         index: newElemIndex,
+        dailyChannel: 'email',
+        criticalChannel: 'email'
       })
 
       return { id: result.insertedId, index: newElemIndex }
@@ -184,33 +186,33 @@ export default async function userRoutes(fastify, opts) {
       }
     })
 
-  fastify.post('/ignore',
-    { preValidation: fastifyPassport.authenticate('session', { failureRedirect: '/login' }) },
-    async (request, reply) => {
-      const body = request.body
-      // request.user // todo use logged in user
+  // fastify.post('/ignore',
+  //   { preValidation: fastifyPassport.authenticate('session', { failureRedirect: '/login' }) },
+  //   async (request, reply) => {
+  //     const body = request.body
+  //     // request.user // todo use logged in user
 
-      const db = await connectDB()
+  //     const db = await connectDB()
 
-      try {
-        if (body.action === 'add') {
-          await db.collection('users').updateOne(
-            { _id: new ObjectId(process.env.TMP_USER_ID) },
-            { $addToSet: { ignore: { item: body.item, type: body.type } } }
-          )
-        } else if (body.action === 'remove') {
-          await db.collection('users').updateOne(
-            { _id: new ObjectId(process.env.TMP_USER_ID) },
-            { $pull: { ignore: { item: body.item, type: body.type } } }
-          )
-        }
+  //     try {
+  //       if (body.action === 'add') {
+  //         await db.collection('users').updateOne(
+  //           { _id: new ObjectId(process.env.TMP_USER_ID) },
+  //           { $addToSet: { ignore: { item: body.item, type: body.type } } }
+  //         )
+  //       } else if (body.action === 'remove') {
+  //         await db.collection('users').updateOne(
+  //           { _id: new ObjectId(process.env.TMP_USER_ID) },
+  //           { $pull: { ignore: { item: body.item, type: body.type } } }
+  //         )
+  //       }
 
-        return {}
-      } catch (e) {
-        console.error(e)
-        reply.code(500).send({ error: 'Internal server error' });
-      }
+  //       return {}
+  //     } catch (e) {
+  //       console.error(e)
+  //       reply.code(500).send({ error: 'Internal server error' });
+  //     }
 
-      return {}
-    })
+  //     return {}
+  //   })
 }

@@ -13,8 +13,6 @@ export const runCustomChecks = async ({ uri, id, db, websiteId, flowId, createdA
       ? await db.collection('flows').find({ _id: new ObjectId(flowId) }).toArray()
       : await db.collection('flows').find({ websiteId: websiteId.toString() }).toArray()
 
-    const results = []
-
     if (checks.length) {
       for (const check of checks) {
         const stepResults = []
@@ -118,8 +116,6 @@ export const runCustomChecks = async ({ uri, id, db, websiteId, flowId, createdA
             steps: stepResults,
           }
         }
-
-        console.log('YOYO', check._id, { id })
 
         await createCheckResult({ id, websiteId, createdAt, check: 'custom', result, quickcheckId, flowId: check._id.toString() })
         await db.collection('flows').updateOne(
