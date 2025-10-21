@@ -36,3 +36,31 @@ export const checkVerification = async ({ verificationId, code }) => {
 
   return response.json();
 };
+
+// todo try this!
+export const sendSms = async ({ phoneNumber, message }) => {
+  const response = await fetch(`https://api.bird.com/workspaces/${process.env.BIRD_WORKSPACE_ID}/channels/${process.env.BIRD_CHANNEL_ID}/messages`, {
+    method: 'POST',
+    headers: {
+      "Authorization": `AccessKey ${process.env.BIRD_API_KEY}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      "receiver": {
+        "contacts": [
+          {
+            "identifierKey": "phonenumber",
+            "identifierValue": phoneNumber
+          }
+        ]
+      },
+      "body": {
+        "type": "text",
+        "text": {
+          "text": message
+        }
+      }
+    })
+  })
+  return response.json();
+}

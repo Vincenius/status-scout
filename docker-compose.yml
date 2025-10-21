@@ -28,6 +28,7 @@ services:
       - FRONTEND_URL=${FRONTEND_URL}
       - API_URL=${API_URL}
       - APP_URL=${APP_URL}
+      - API_KEY=${API_KEY}
       - MONGODB_URI=${MONGODB_URI}
       - ADMIN_USER=${ADMIN_USER}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
@@ -67,7 +68,7 @@ services:
       context: ./packages/frontend
       args:
         VITE_BASE_URL: ${VITE_BASE_URL}
-        VITE_API_URL: ${VITE_API_URL}
+        VITE_API_URL: ${API_URL}
         VITE_ENABLE_ANALYTICS: ${VITE_ENABLE_ANALYTICS}
     container_name: status-scout-frontend
     restart: always
@@ -87,6 +88,9 @@ services:
       - REDIS_PORT=${REDIS_PORT}
       - CONCURRENT_RUNS=${CONCURRENT_RUNS}
       - NOTIFICATION_ENABLED=${NOTIFICATION_ENABLED}
+      - API_KEY=${API_KEY}
+      - API_URL=${API_URL}
+      - APP_URL=${APP_URL}
     depends_on:
       - mongodb
       - redis

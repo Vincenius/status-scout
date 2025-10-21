@@ -19,8 +19,6 @@ export default async function feedbackRoutes(fastify, opts) {
   fastify.post('/', { config: { auth: false } }, async (request, reply) => {
     const body = request.body || {}
 
-    console.log('send feedback', body, emailTemplate(body))
-
     await sendEmail({
       to: process.env.FEEDBACK_EMAIL,
       subject: 'StatusScout Feedback',

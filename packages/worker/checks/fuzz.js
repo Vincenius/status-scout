@@ -13,7 +13,7 @@ export const runFuzzCheck = async ({ uri, id, db, websiteId, createdAt, type, qu
 
   const prevFiles = (prevCheck?.result?.details?.files || []).map(f => f.file)
   const file = type === 'full' ? 'fuzz_all.txt' : 'fuzz_base.txt' // https://github.com/Bo0oM/fuzz.txt
-  const fuzzPath = path.join(process.cwd(), `checks/${file}`)
+  const fuzzPath = path.join(process.cwd(), `utils/${file}`)
   const fuzzFile = fs.readFileSync(fuzzPath).toString()
   const fuzzFiles = fuzzFile.split('\n')
   const files = [...new Set([...fuzzFiles, ...prevFiles])]

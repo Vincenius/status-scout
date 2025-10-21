@@ -101,11 +101,9 @@ export const runCustomChecks = async ({ uri, id, db, websiteId, flowId, createdA
 
           if (errorMsg) {
             stepResults.push({ ...step, success: false, error: errorMsg })
-            console.log('error in step', step, errorMsg)
             break
           } else {
             stepResults.push({ ...step, success: true })
-            console.log('step succeeded', step)
           }
         }
 

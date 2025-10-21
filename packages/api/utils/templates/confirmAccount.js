@@ -1,4 +1,4 @@
-import baseTemplate from "./baseTemplate"
+import { baseTemplate } from "./baseTemplate"
 
 // todo use
 const confirmAccount = ({ verificationLink }) => baseTemplate({

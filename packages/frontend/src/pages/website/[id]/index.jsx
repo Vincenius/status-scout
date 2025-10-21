@@ -4,8 +4,7 @@ import { useAuthSWR } from '@/utils/useAuthSWR'
 import { IconAlertSquareRounded, IconChartBar } from '@tabler/icons-react';
 import HistoryChart from '@/components/Dashboard/HistoryChart';
 import { useParams } from 'react-router-dom';
-import { getIssueHistory } from '@statusscout/shared'
-import { checkNameMap } from '@/utils/checks';
+import { getIssueHistory, getNotificationMessage } from '@statusscout/shared'
 import { Link } from 'react-router-dom';
 import Website404 from '@/components/Website/Website404';
 
@@ -74,7 +73,7 @@ function WebsiteOverview() {
               {sortedIssues.filter(i => i.createdAt !== initialCheckDate).reverse().map((item, index) => item.issues.map((issue, i) => (
                 <Table.Tr key={`issues-${index}-${i}`}>
                   <Table.Td>{i === 0 ? <Link to={`/website/${website.index}/report?j_id=${item.jobId}`}>{new Date(item.createdAt).toLocaleString()}</Link> : ''}</Table.Td>
-                  <Table.Td>[{checkNameMap[issue.check]}] {issue.title}</Table.Td>
+                  <Table.Td>{getNotificationMessage({ type: issue.check, details: issue.title })}</Table.Td>
                 </Table.Tr>
               )))}
               {sortedIssues.filter(i => i.createdAt === initialCheckDate).map((item, index) =>

@@ -4,7 +4,8 @@ import { useDisclosure } from '@mantine/hooks';
 import { useState } from 'react';
 import { IconBell, IconCheck, IconPencil } from '@tabler/icons-react';
 import getFormData from '@/utils/getFormData'
-import { checkDefaultNotifications, checkNameMap, notificationMap } from '@/utils/checks';
+import { notificationMap } from '@/utils/checks';
+import { checkDefaultNotifications, checkNameMap } from '@statusscout/shared';
 import NewNotificationChannelModal from '@/components/Notifications/NewNotificationChannelModal'
 
 const NotificationChannel = ({ website, user, edit, setEdit, channelLoading, handleChannelChange, channelType, description, name, onlyEmail, openChannel }) => {

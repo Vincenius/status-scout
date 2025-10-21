@@ -1,1 +1,2 @@
-export * from './utils/findIssues.js';
+export * from './utils/issues.js';
+export * from './utils/notifications.js';
