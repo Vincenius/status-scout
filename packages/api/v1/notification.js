@@ -26,7 +26,7 @@ export default async function notificationRoutes(fastify, opts) {
 
         await sendEmail({
           to: channel.value,
-          subject: `[StatusScout] ${capitalize(type)} Issues for ${website?.domain}`,
+          subject: `[StatusScout] ${capitalize(type)} Issue Report for ${website?.domain}`,
           html: emailHtml
         })
       }

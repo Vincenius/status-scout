@@ -32,6 +32,8 @@ export const sendNotifications = async ({ db, type, website, notifications }) =>
         notifications,
         website
       })
+    }).catch(err => {
+      console.error('Error sending notification:', err)
     })
   } else if (activeChannel.type === 'ntfy') {
     await fetch(`https://ntfy.sh/${activeChannel.value}`, {

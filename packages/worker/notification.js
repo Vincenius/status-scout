@@ -19,8 +19,8 @@ import { sendNotifications } from './utils/sendNotifications.js';
 // }
 
 
-const runNotifications = async ({ db, website }) => {
-  console.log('checking for notifications for', website.domain)
+export const runNotifications = async ({ db, website }) => {
+  console.log('checking critical notifications for', website.domain)
 
   const [uptime, checks] = await Promise.all([
     db.collection('checks').find({ websiteId: website._id, check: 'uptime' })
@@ -77,9 +77,80 @@ const runNotifications = async ({ db, website }) => {
   }
 }
 
-// new function for daily trigger
 
-// check if any new issues in last 24h
-// check if issues still active (using resolvedAt)
+export const runDailyNotification = async ({ db, website }) => {
+  console.log('checking daily notifications for', website.domain)
 
-export default runNotifications;
+  // only consider checks from the last 24 hours
+  const since = new Date(Date.now() - 24 * 60 * 60 * 1000)
+
+  const [uptime, checks, latestCheck] = await Promise.all([
+    db.collection('checks').find({ websiteId: website._id, check: 'uptime', createdAt: { $gte: since.toISOString() } })
+      .sort({ createdAt: -1 })
+      .limit(2)
+      .toArray(),
+    db.collection('checks').aggregate([
+      { $match: { websiteId: website._id, check: { $ne: 'uptime' }, createdAt: { $gte: since.toISOString() } } },
+      { $sort: { check: 1, createdAt: -1 } },
+      {
+        $group: {
+          _id: "$check",
+          entries: { $push: "$$ROOT" }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          check: "$_id",
+          entries: { $slice: ["$entries", 144] } // 6 samples per hour for 24h
+        }
+      },
+      { $unwind: "$entries" },
+      { $replaceRoot: { newRoot: "$entries" } }
+    ]).toArray(),
+    db.collection('checks').aggregate([
+      { $match: { websiteId: website._id, check: { $ne: 'uptime' }, createdAt: { $lt: since.toISOString() } } },
+      { $sort: { check: 1, createdAt: -1 } },
+      {
+        $group: {
+          _id: "$check",
+          latest: { $first: "$$ROOT" }
+        }
+      },
+      {
+        $replaceRoot: { newRoot: "$latest" }
+      }
+    ]).toArray(),
+  ])
+
+  const issues = getIssueHistory([...checks, ...latestCheck])
+  issues.pop()
+
+  const notifications = {
+    ...checkDefaultNotifications,
+    ...(website?.notifications || {})
+  }
+
+  const dailyNotifications = []
+
+  if (notifications.uptime === 'daily') {
+    if (uptime.length >= 2) {
+      const [prev, recent] = uptime
+      if (prev?.result?.status === 'success' && recent?.result?.status !== 'success') {
+        dailyNotifications.push({ type: 'uptime', createdAt: recent.createdAt, jobId: recent.jobId, details: 'Uptime check failed' })
+      }
+    }
+  }
+
+  const allIssues = issues.map(issueGroup => issueGroup.issues).flat()
+
+  for (const issue of allIssues) {
+    if (notifications[issue.check] === 'daily') {
+      dailyNotifications.push({ type: issue.check, createdAt: issue.createdAt, jobId: issue.jobId, details: issue.title })
+    }
+  }
+
+  if (dailyNotifications.length) {
+    await sendNotifications({ db, type: 'daily', website, notifications: dailyNotifications })
+  }
+}

@@ -14,11 +14,59 @@ const queue = new Queue('checks', { connection })
 async function tryRun(type) {
   try {
     const db = await connectDB()
-    const users = await db.collection('users').find({}).toArray()
+    const now = new Date()
+    const users = await db.collection('users').find({
+      confirmed: true,
+      'subscription.plan': 'paid',
+      'subscription.expiresAt': { $gt: now },
+    }).toArray()
 
     for (const user of users) {
-      const job = await queue.add('cron-triggered-job', { userId: user._id.toString(), type })
-      console.log(`Enqueued ${type} for domain ${user.domain}, job: ${job.id}`)
+      const websites = await db.collection('websites').find({
+        userId: user._id,
+        deleted: { $ne: true }
+      }).toArray()
+
+      for (const website of websites) {
+        const jobData = {
+          type,
+          websiteId: website._id,
+        }
+        const job = await queue.add('cron-triggered-job', jobData)
+        console.log(`Enqueued ${type} for domain ${website.domain}, job: ${job.id}`)
+      }
+    }
+  } catch (e) {
+    console.error(e)
+  } finally {
+    await disconnectDB()
+  }
+}
+
+async function runNotifications() {
+  try {
+    const db = await connectDB()
+    const now = new Date()
+    const users = await db.collection('users').find({
+      confirmed: true,
+      'subscription.plan': 'paid',
+      'subscription.expiresAt': { $gt: now },
+    }).toArray()
+
+    for (const user of users) {
+      const websites = await db.collection('websites').find({
+        userId: user._id,
+        deleted: { $ne: true }
+      }).toArray()
+
+      for (const website of websites) {
+        const jobData = {
+          type: 'daily-notification',
+          websiteId: website._id,
+        }
+        const job = await queue.add('cron-triggered-job', jobData)
+        console.log(`Enqueued daily-notification for domain ${website.domain}, job: ${job.id}`)
+      }
     }
   } catch (e) {
     console.error(e)
@@ -60,6 +108,9 @@ cron.schedule('0 0 3 * * *', () => cleanUp())
 // once a day at 04:00:00 — full
 cron.schedule('0 0 4 * * *', () => tryRun('full'))
 
+// once a day at 05:00:00 — daily
+cron.schedule('0 0 5 * * *', () => runNotifications())
+
 // every 2 hours at :00:10 — extended
 cron.schedule('10 0 */2 * * *', () => tryRun('extended'))
 
@@ -67,5 +118,6 @@ cron.schedule('10 0 */2 * * *', () => tryRun('extended'))
 cron.schedule('20 */10 * * * *', () => tryRun('quick'))
 
 // run once immediately
-tryRun('quick')
-cleanUp()
+// tryRun('quick')
+// cleanUp()
+runNotifications()
