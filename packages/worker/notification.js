@@ -143,6 +143,7 @@ export const runDailyNotification = async ({ db, website }) => {
   }
 
   const allIssues = issues.map(issueGroup => issueGroup.issues).flat()
+    .filter(i => !i.resolvedAt)
 
   for (const issue of allIssues) {
     if (notifications[issue.check] === 'daily') {
