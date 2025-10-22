@@ -17,6 +17,8 @@
     "@mantine/hooks": "8.1.2",
     "@mantine/notifications": "^8.3.3",
     "@statusscout/shared": "*",
+    "@stripe/react-stripe-js": "^5.2.0",
+    "@stripe/stripe-js": "^8.1.0",
     "@tabler/icons-react": "^3.34.0",
     "mjml": "^4.16.1",
     "react": "^19.1.0",

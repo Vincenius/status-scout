@@ -1,4 +1,4 @@
-import { Accordion, Badge, Blockquote, Button, Card, Center, Flex, List, Table, Text, ThemeIcon, Title } from '@mantine/core'
+import { Accordion, Badge, Blockquote, Button, Card, Center, Flex, List, Loader, Overlay, Table, Text, ThemeIcon, Title } from '@mantine/core'
 import {
   SSLChart,
   HeaderChart,
@@ -73,7 +73,7 @@ const LinksTable = ({ items, updateIgnoreList, loading, ignoreAction }) => {
   </Table>
 }
 
-function Report({ website, checks, status }) {
+function Report({ website, checks, status, isQuickCheck = false }) {
   const {
     performanceCheck,
     fuzzCheck,
@@ -85,7 +85,9 @@ function Report({ website, checks, status }) {
     customChecks,
   } = getRecentChecks(checks)
 
-  const { data: flows = [], isLoading: isLoadingFlows } = useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/flows?websiteId=${website.index}`)
+  const { data: flows = [], isLoading: isLoadingFlows } = !isQuickCheck
+    ? useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/flows?websiteId=${website.index}`)
+    : { data: [], isLoading: false };
   const [loading, setLoading] = useState(null)
   const { ignore = [] } = website // todo
   const updateIgnoreList = async ({ item, type, action }) => {
@@ -138,6 +140,8 @@ function Report({ website, checks, status }) {
   const linksRef = useRef(null);
   const customFlowsRef = useRef(null);
 
+  const checkFailed = status?.state === 'failed'
+
   const scrollToRef = (ref) => {
     ref.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -145,51 +149,61 @@ function Report({ website, checks, status }) {
   return (
     <div>
       <Card p="md" withBorder shadow="md">
-        {status?.waitingIndex !== null && <Card.Section py="xl" px={{ base: "md", md: "xl" }}>
-          <Title order={2} size="h1" ta="center" mb="md">You’re in the Queue</Title>
+        {status?.waitingIndex !== null && <Card.Section py="xl" px={{ base: "md", md: "xl" }} >
+          <Blockquote p="md" my="md" maw={600} mx="auto">
+            <Title order={2} size="h2" ta="center" mb="md">You’re in the Queue</Title>
 
-          <Text size="xl" mb="md">Our system is handling a high volume of checks.<br />Hang tight — your website health check will begin shortly.</Text>
-          <Text size="xl">Current position in queue: <b>#{status?.waitingIndex + 1}</b></Text>
+            <Text size="md" mb="md">Our system is handling a high volume of checks.<br />Hang tight — your website health check will begin shortly.</Text>
+            <Text size="md">Current position in queue: <b>#{status?.waitingIndex + 1}</b></Text>
+          </Blockquote>
+        </Card.Section>}
+        {status?.state === 'failed' && <Card.Section py="xl" px={{ base: "md", md: "xl" }} >
+          <Blockquote p="md" my="md" maw={600} mx="auto" color="red">
+            <Title order={2} size="h2" ta="center" mb="md">Check Failed</Title>
+
+            <Text size="md" mb="md">Unfortunately, we encountered an error while processing your website health check.</Text>
+            <Text size="md">Please try again later or contact support if the issue persists.</Text>
+          </Blockquote>
         </Card.Section>}
         <Card.Section py="xl" px={{ base: "md", md: "xl" }}>
           <Flex gap="md" justify="space-around" wrap="wrap">
             <Flex direction="column" align="center" onClick={() => scrollToRef(sslRef)} style={{ cursor: 'pointer' }}>
               {sslCheck && <SSLChart status={sslCheck.result.status} />}
-              {!sslCheck && <LoadingChart label="SSL Certificate" />}
+              {!sslCheck && <LoadingChart label="SSL Certificate" checkFailed={checkFailed} />}
             </Flex>
             <Flex direction="column" align="center" onClick={() => scrollToRef(headersRef)} style={{ cursor: 'pointer' }}>
               {headersCheck && <HeaderChart status={headersCheck.result.status} missingHeaders={headersCheck.result.details.missingHeaders} />}
-              {!headersCheck && <LoadingChart label="HTTP Headers" />}
+              {!headersCheck && <LoadingChart label="HTTP Headers" checkFailed={checkFailed} />}
             </Flex>
             {/* TODO DNS CHECK here */}
             <Flex direction="column" align="center" onClick={() => scrollToRef(fuzzRef)} style={{ cursor: 'pointer' }}>
               {fuzzCheck && <FuzzChart status={fuzzCheck.result.status} files={fuzzCheck.result.details.files} />}
-              {!fuzzCheck && <LoadingChart label="Sensitive Files" />}
+              {!fuzzCheck && <LoadingChart label="Sensitive Files" checkFailed={checkFailed} />}
             </Flex>
             <Flex direction="column" align="center" onClick={() => scrollToRef(performanceRef)} style={{ cursor: 'pointer' }}>
               {performanceCheck && <PerformanceChart performances={performances} />}
-              {!performanceCheck && <LoadingChart label="Performance" />}
+              {!performanceCheck && <LoadingChart label="Performance" checkFailed={checkFailed} />}
             </Flex>
 
             <Flex direction="column" align="center" onClick={() => scrollToRef(seoRef)} style={{ cursor: 'pointer' }}>
-              {seoCheck && <SEOChart score={seoCheck.result.details.score} />}
-              {!seoCheck && <LoadingChart label="SEO Score" />}
+              {seoCheck && <SEOChart score={seoCheck.result.details.score.toFixed(0)} />}
+              {!seoCheck && <LoadingChart label="SEO Score" checkFailed={checkFailed} />}
             </Flex>
 
             <Flex direction="column" align="center" onClick={() => scrollToRef(a11yRef)} style={{ cursor: 'pointer' }}>
-              {a11yCheck && <AccessibilityChart score={a11yCheck.result.details.score} />}
-              {!a11yCheck && <LoadingChart label="Accessibility" />}
+              {a11yCheck && <AccessibilityChart score={a11yCheck.result.details.score.toFixed(0)} />}
+              {!a11yCheck && <LoadingChart label="Accessibility" checkFailed={checkFailed} />}
             </Flex>
 
             <Flex direction="column" align="center" onClick={() => scrollToRef(linksRef)} style={{ cursor: 'pointer' }}>
               {linkCheck && <BrokenLinksChart brokenLinks={brokenLinks} />}
-              {!linkCheck && <LoadingChart label="Broken Links" />}
+              {!linkCheck && <LoadingChart label="Broken Links" checkFailed={checkFailed} />}
             </Flex>
 
-            <Flex direction="column" align="center" onClick={() => scrollToRef(customFlowsRef)} style={{ cursor: 'pointer' }}>
+            {!isQuickCheck && <Flex direction="column" align="center" onClick={() => scrollToRef(customFlowsRef)} style={{ cursor: 'pointer' }}>
               {customChecks && <CustomFlowsChart checks={customChecks} customFlowLength={customFlowLength} />}
-              {!customChecks && <LoadingChart label="Custom Flows" />}
-            </Flex>
+              {!customChecks && <LoadingChart label="Custom Flows" checkFailed={checkFailed} />}
+            </Flex>}
           </Flex>
         </Card.Section>
         <Card.Section withBorder py="xl" px={{ base: "md", md: "xl" }} ref={sslRef}>
@@ -197,7 +211,7 @@ function Report({ website, checks, status }) {
             <SSLChart status={sslCheck.result.status} size="lg" />
             {sslCheck.result.status === 'success' && <Text size="md" ta="center" fs="italic">Valid until {new Date(sslCheck.result.details.validTo).toLocaleDateString()}</Text>}
           </>}
-          {!sslCheck && <LoadingChart label="SSL Certificate" size="lg" />}
+          {!sslCheck && <LoadingChart label="SSL Certificate" size="lg" checkFailed={checkFailed} />}
 
           <Blockquote p="md" my="md" maw={600} mx="auto">An SSL certificate ensures encrypted data transmission, signals trust to users with the padlock symbol, and may enhance search engine rankings.</Blockquote>
 
@@ -207,7 +221,7 @@ function Report({ website, checks, status }) {
             <HeaderChart status={headersCheck.result.status} missingHeaders={headersCheck.result.details.missingHeaders} size="lg" />
             {headersCheck.result.details.missingHeaders.length === 0 && <Text size="md" ta="center" fs="italic">All important security headers are present.</Text>}
           </>}
-          {!headersCheck && <LoadingChart label="HTTP Headers" size="lg" />}
+          {!headersCheck && <LoadingChart label="HTTP Headers" size="lg" checkFailed={checkFailed} />}
 
           <Blockquote p="md" my="md" maw={600} mx="auto">HTTP security headers help protect websites from common attacks, strengthen user trust, and can improve security compliance.</Blockquote>
 
@@ -247,7 +261,7 @@ function Report({ website, checks, status }) {
             <FuzzChart status={fuzzCheck.result.status} files={fuzzCheck.result.details.files} size="lg" />
             {exposedFiles.length === 0 && <Text size="md" ta="center" fs="italic">No exposed files found.</Text>}
           </>}
-          {!fuzzCheck && <LoadingChart label="Sensitive Files" />}
+          {!fuzzCheck && <LoadingChart label="Sensitive Files" size="lg" checkFailed={checkFailed} />}
           <Blockquote p="md" my="md" maw={600} mx="auto">The sensitive files check identifies publicly accessible files that may contain confidential information, helping to prevent data breaches and enhance website security.</Blockquote>
 
           {fuzzCheck && exposedFiles.length > 0 && <>
@@ -283,7 +297,7 @@ function Report({ website, checks, status }) {
 
         <Card.Section withBorder py="xl" px={{ base: "md", md: "xl" }} ref={performanceRef}>
           {performanceCheck && <PerformanceChart performances={performances} size="lg" />}
-          {!performanceCheck && <LoadingChart label="Performance" size="lg" />}
+          {!performanceCheck && <LoadingChart label="Performance" size="lg" checkFailed={checkFailed} />}
 
           <Blockquote p="md" my="md" maw={600} mx="auto">Good Core Web Vitals enhance user experience, improve search rankings, and boost engagement by ensuring fast, responsive, and stable web pages.</Blockquote>
 
@@ -303,7 +317,7 @@ function Report({ website, checks, status }) {
             <SEOChart score={seoCheck.result.details.score} size="lg" />
             {seoCheck.result.details.items.length === 0 && <Text size="md" ta="center" fs="italic">No SEO issues were found.</Text>}
           </>}
-          {!seoCheck && <LoadingChart label="SEO Score" size="lg" />}
+          {!seoCheck && <LoadingChart label="SEO Score" size="lg" checkFailed={checkFailed} />}
 
           <Blockquote p="md" my="md" maw={600} mx="auto">A good SEO score improves search engine rankings, increases organic traffic, and enhances online visibility, leading to greater reach and potential customer engagement.</Blockquote>
 
@@ -337,7 +351,7 @@ function Report({ website, checks, status }) {
             <AccessibilityChart score={a11yCheck.result.details.score} size="lg" />
             {a11yCheck.result.details.items.length === 0 && <Text size="md" ta="center" fs="italic">No accessibility issues were found.</Text>}
           </>}
-          {!a11yCheck && <LoadingChart label="Accessibility" size="lg" />}
+          {!a11yCheck && <LoadingChart label="Accessibility" size="lg" checkFailed={checkFailed} />}
 
           <Blockquote p="md" my="md" maw={600} mx="auto">A high accessibility score ensures inclusivity, enhances user experience for all visitors, and helps meet legal compliance standards, broadening your audience reach.</Blockquote>
 
@@ -370,7 +384,7 @@ function Report({ website, checks, status }) {
             <BrokenLinksChart brokenLinks={brokenLinks} size="lg" />
             {linkCheck.result.details.filter(item => !ignore.map(i => i.item).includes(item.url)).length === 0 && <Text size="md" ta="center" fs="italic">No broken links were found.</Text>}
           </>}
-          {!linkCheck && <LoadingChart label="Broken Links" size="lg" />}
+          {!linkCheck && <LoadingChart label="Broken Links" size="lg" checkFailed={checkFailed} />}
           <Blockquote p="md" my="md" maw={600} mx="auto">Fixing broken links improves user experience, enhances SEO rankings, and maintains website credibility by ensuring all links lead to valid destinations.</Blockquote>
 
           {linkCheck && linkCheck.result.details.length > 0 &&
@@ -404,65 +418,64 @@ function Report({ website, checks, status }) {
           }
         </Card.Section>
 
-        {/* todo variant for quickcheck */}
-        <Card.Section withBorder py="xl" px={{ base: "md", md: "xl" }} ref={customFlowsRef}>
-          {customChecks && <>
-            <CustomFlowsChart checks={customChecks} customFlowLength={customFlowLength} size="lg" />
-          </>}
-          {!customChecks && <LoadingChart label="Custom Flows" size="lg" />}
-          <Blockquote p="md" my="md" maw={600} mx="auto">Custom test flows allow you to define a series of actions and assertions to be executed on your website.</Blockquote>
+        {!isQuickCheck &&
+          <Card.Section withBorder py="xl" px={{ base: "md", md: "xl" }} ref={customFlowsRef}>
+            {customChecks && <>
+              <CustomFlowsChart checks={customChecks} customFlowLength={customFlowLength} size="lg" />
+            </>}
+            {!customChecks && <LoadingChart label="Custom Flows" size="lg" checkFailed={checkFailed} />}
+            <Blockquote p="md" my="md" maw={600} mx="auto">Custom test flows allow you to define a series of actions and assertions to be executed on your website.</Blockquote>
 
-          {customFlowLength === 0 && <>
-            <Text size="md" ta="center" fs="italic">No custom flows have been defined for this Report.</Text>
-            <Button component={Link} to="/custom-checks" mt="md" mx="auto" display="block" w={300}>
-              Create Custom Test Flow
-            </Button>
-          </>}
+            {customFlowLength === 0 && <>
+              <Text size="md" ta="center" fs="italic">No custom flows have been defined for this Report.</Text>
+              <Button component={Link} to="/custom-checks" mt="md" mx="auto" display="block" w={300}>
+                Create Custom Test Flow
+              </Button>
+            </>}
 
-          {customChecks.length > 0 && <>
-            {customChecks.map((check, index) => (
-              <Accordion key={`custom-${index}`} my="md" variant="contained">
-                <Accordion.Item value={`custom-${index}`}>
-                  <Accordion.Control>
-                    <Flex gap="sm" align="center">
-                      {check.result.status === 'success' ? <Badge color="green">Success</Badge> : <Badge color="red">Fail</Badge>} <Text>{check?.result?.name}</Text>
-                    </Flex>
-                  </Accordion.Control>
-                  <Accordion.Panel>
-                    <List pl="xs">
-                      {check.result.details.steps.map((stepResult, idx) => {
-                        const stepDetails = STEP_TYPES.find(s => s.value === stepResult.type)
+            {customChecks.length > 0 && <>
+              {customChecks.map((check, index) => (
+                <Accordion key={`custom-${index}`} my="md" variant="contained">
+                  <Accordion.Item value={`custom-${index}`}>
+                    <Accordion.Control>
+                      <Flex gap="sm" align="center">
+                        {check.result.status === 'success' ? <Badge color="green">Success</Badge> : <Badge color="red">Fail</Badge>} <Text>{check?.result?.name}</Text>
+                      </Flex>
+                    </Accordion.Control>
+                    <Accordion.Panel>
+                      <List pl="xs">
+                        {check.result.details.steps.map((stepResult, idx) => {
+                          const stepDetails = STEP_TYPES.find(s => s.value === stepResult.type)
 
-                        return (
-                          <List.Item
-                            key={`flow-${stepResult.flowId}-step-${idx}`}
-                            icon={<ThemeIcon color={stepResult.error ? 'red' : 'green'} size="xs" radius="sm" mt="4px">
-                              {stepResult.error ? <IconX /> : <IconCheck />}
-                            </ThemeIcon>}
-                            styles={{ itemWrapper: { alignItems: 'flex-start' } }}
-                          >
-                            <Text>
-                              {stepDetails.label}: {stepDetails.getDescription ? stepDetails.getDescription(stepResult) : ''}
-                            </Text>
-                            {stepResult.error && (
-                              <List>
-                                <List.Item c="red">
-                                  Error: {stepResult.error}
-                                </List.Item>
-                              </List>
-                            )}
-                          </List.Item>
-                        )
-                      })}
-                    </List>
-                  </Accordion.Panel>
-                </Accordion.Item>
-              </Accordion>
-            ))}
-          </>}
-
-          {/* todo link to register if quickcheck / not logged in */}
-        </Card.Section>
+                          return (
+                            <List.Item
+                              key={`flow-${stepResult.flowId}-step-${idx}`}
+                              icon={<ThemeIcon color={stepResult.error ? 'red' : 'green'} size="xs" radius="sm" mt="4px">
+                                {stepResult.error ? <IconX /> : <IconCheck />}
+                              </ThemeIcon>}
+                              styles={{ itemWrapper: { alignItems: 'flex-start' } }}
+                            >
+                              <Text>
+                                {stepDetails.label}: {stepDetails.getDescription ? stepDetails.getDescription(stepResult) : ''}
+                              </Text>
+                              {stepResult.error && (
+                                <List>
+                                  <List.Item c="red">
+                                    Error: {stepResult.error}
+                                  </List.Item>
+                                </List>
+                              )}
+                            </List.Item>
+                          )
+                        })}
+                      </List>
+                    </Accordion.Panel>
+                  </Accordion.Item>
+                </Accordion>
+              ))}
+            </>}
+          </Card.Section>
+        }
       </Card>
     </div >
   )

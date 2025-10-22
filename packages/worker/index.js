@@ -9,7 +9,7 @@ import { runPerformanceCheck } from './checks/performance.js'
 import { runCustomChecks } from './checks/custom.js'
 import { runBrokenLinkCheck } from './checks/links.js'
 import { ObjectId } from 'mongodb'
-import { runDailyNotification } from './notification.js'
+import { runNotifications, runDailyNotification } from './notification.js'
 
 export const run = async ({ id, type = 'quick', websiteId, quickcheckId, url }) => {
   // type (of check) -> quick, extended, full

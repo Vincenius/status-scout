@@ -14,9 +14,9 @@ import flowsRoutes from './v1/flows.js'
 import websiteRoutes from './v1/website.js'
 import checkRoutes from './v1/check.js'
 import feedbackRoutes from './v1/feedback.js';
-import waitlistRoutes from './v1/waitlist.js';
 import userRoutes from './v1/user.js';
 import notificationRoutes from './v1/notification.js';
+import checkoutRoutes from './v1/checkout.js';
 
 const fastify = Fastify({
   logger: true,
@@ -98,9 +98,9 @@ fastify.register(flowsRoutes, { prefix: '/v1' })
 fastify.register(websiteRoutes, { prefix: '/v1/website' })
 fastify.register(userRoutes, { prefix: '/v1/user' })
 fastify.register(checkRoutes, { prefix: '/v1' })
+fastify.register(checkoutRoutes, { prefix: '/v1/checkout' })
 
 fastify.register(feedbackRoutes, { prefix: '/v1/feedback' })
-fastify.register(waitlistRoutes, { prefix: '/v1/waitlist' })
 fastify.register(notificationRoutes, { prefix: '/v1/notification' })
 
 fastify.addHook('onClose', async (instance, done) => {

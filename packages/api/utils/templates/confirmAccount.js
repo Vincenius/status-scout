@@ -1,6 +1,5 @@
-import { baseTemplate } from "./baseTemplate"
+import baseTemplate from "./baseTemplate.js"
 
-// todo use
 const confirmAccount = ({ verificationLink }) => baseTemplate({
   content: `<mj-column>
     <mj-text font-size="28px" font-weight="bold" padding-bottom="20px">

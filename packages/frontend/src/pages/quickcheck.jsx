@@ -1,11 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLocation } from "react-router-dom";
 import Layout from '@/components/Layout/Layout'
-import { Blockquote, Box, Button, Card, Flex, Loader, Overlay, Text, Title } from '@mantine/core'
-import Overview from '@/components/Dashboard/Overview';
+import { Blockquote, Box, Button, Card, Container, Flex, List, Loader, Overlay, Text, Title } from '@mantine/core'
 import { trackEvent } from '@/utils/trackEvent'
 import { useNavigate, Link } from 'react-router-dom'
-import MockHistoryCharts from '@/components/Dashboard/MockHistoryCharts';
+import Report from '@/components/Report/Report';
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -35,7 +34,6 @@ function QuickCheck() {
           }
         });
     } else {
-      // redirect??
       navigate('/')
     }
 
@@ -93,54 +91,42 @@ function QuickCheck() {
     )
   }
 
-  const { checks = [], waitingIndex, quickcheckId } = result
-  const allChecksCompleted = result.statusCode === 200 && result.state === 'completed'
-  const isInQueue = quickcheckId && waitingIndex !== null
-  const statusFailed = result.statusCode && result.statusCode !== 200
-  const jobFailed = result.state === 'failed'
+  const { checks = [], quickcheckId } = result
 
   return (
     <Layout title="Quick Check" isPublicRoute>
-      <Box maw={1800} mx="auto">
+      <Container size="md" py="md" px={{ base: "0", md: "md" }}>
         <Box>
-          <Title order={1} mb="md" fw="normal">Your Quickcheck Results:</Title>
-          
-          {isInQueue && <>
-            <Overlay backgroundOpacity={0.45} blur={4} zIndex={200} />
-            <Flex
-              style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 201 }}
-              w="100vw" h="100vh" align="center"
-              p="md"
-              bg=""
-            >
-              <Card withBorder shadow="md" mx="auto" p="md">
-                <Flex gap="md" align="center" mb="md">
-                  <Loader type="bars" size="sm" />
-                  <Title order={2} size="h1" ta="center">You’re in the Queue</Title>
-                </Flex>
+           <Title size="h1" ta="center" mb="sm">Your Quickcheck Results</Title>
+          {url && <Text size="xl" ta="center" mb="md">
+            For <a href={url} target='_blank' rel="noopener noreferrer">{new URL(url).hostname}</a> {checks.length ? <>from  <i>{new Date(checks.length ? checks[0].createdAt : null).toLocaleString()}</i></> : <></>}
+          </Text> }
 
-                <Text size="xl" mb="md">Our system is handling a high volume of checks.<br />Hang tight — your website health check will begin shortly.</Text>
-                <Text size="xl">Current position in queue: <b>#{waitingIndex + 1}</b></Text>
-              </Card>
-            </Flex>
-          </>}
-          
-          <Overview
-            data={{
-              user: { domain: url },
-              checks,
-              allChecksCompleted,
-              createdAt: result.createdAt,
-            }}
-            isLoading={false}
+          <Report
+            website={{ domain: url }}
+            checks={checks}
+            status={result}
             isQuickCheck={true}
-            // allChecksCompleted={allChecksCompleted}
-            hasFailed={jobFailed || errorCount > 5}
           />
 
-          <MockHistoryCharts />
+          <Card withBorder shadow="sm" p="lg" radius="md" mb="md" mt="md">
+            <Flex h="100%" direction="column" gap="md" p="md">
+              <Title order={2} size="h1" fw="normal" ta="center" mb="md">Sign up for monitoring and more</Title>
+              <List size="lg" spacing="sm" mb="md">
+                <List.Item>Get notifications if new issues are detected</List.Item>
+                <List.Item>Create custom test flows</List.Item>
+                <List.Item>And much more...</List.Item>
+              </List>
+              <Button size="lg" component={Link} to={'/register'}>
+                Start Free 7-Day Trial
+              </Button>
+              <Text fz="sm">
+                * No credit card required. Cancel anytime.
+              </Text>
+            </Flex>
+          </Card>
         </Box>
-      </Box>
+      </Container>
     </Layout>
   )
 }

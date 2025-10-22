@@ -2,8 +2,9 @@ import fastifyPassport from '@fastify/passport';
 import CryptoJS from 'crypto-js'
 import { v4 as uuidv4 } from 'uuid';
 import { connectDB } from '../db.js'
-import { getTemplate } from '../utils/brevo.js'
-import { sendEmail } from '../utils/email.js';
+import { sendEmail, getHtml } from '../utils/email.js';
+import confirmAccountTemplate from '../utils/templates/confirmAccount.js';
+import resetPasswordTemplate from '../utils/templates/resetPassword.js';
 
 export default async function authRoutes(fastify, opts) {
   fastify.post(
@@ -33,11 +34,11 @@ export default async function authRoutes(fastify, opts) {
 
       const passHash = CryptoJS.SHA256(password, process.env.PASSWORD_HASH_SECRET).toString(CryptoJS.enc.Hex)
       const token = uuidv4()
-      const subscription = {
-        plan: 'paid',
-        status: 'trial', // active, inactive, cancelled
+      const subscription = process.env.STRIPE_SECRET_KEY ? {
+        plan: 'trial',
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
-      }
+      } : { plan: 'pro' } // if no stripe key, give pro access directly (self-hosted)
+
       await db.collection('users').insertOne({
         email,
         password: passHash,
@@ -48,13 +49,12 @@ export default async function authRoutes(fastify, opts) {
       }, { returnDocument: 'after' })
 
       const confirm_url = `${process.env.API_URL}/v1/confirm?token=${token}`
-      const { htmlContent, subject } = await getTemplate(8)
-      const html = htmlContent.replace('{{confirm_link}}', confirm_url)
+      const mjml = confirmAccountTemplate({ verificationLink: confirm_url })
 
       await sendEmail({
         to: email,
-        subject,
-        html
+        subject: 'Please confirm your StatusScout account',
+        html: getHtml(mjml)
       })
 
       return { success: true };
@@ -95,14 +95,12 @@ export default async function authRoutes(fastify, opts) {
         }
       }, { returnDocument: 'after' })
 
-      const reset_url = `${process.env.APP_URL}/reset-password?token=${token}`
-      const { htmlContent, subject } = await getTemplate(9)
-      const html = htmlContent.replace('{{reset_link}}', reset_url)
+      const mjml = resetPasswordTemplate({ token: token })
 
       await sendEmail({
         to: email,
-        subject,
-        html
+        subject: 'Reset Your Password',
+        html: getHtml(mjml)
       })
 
       return { success: true };

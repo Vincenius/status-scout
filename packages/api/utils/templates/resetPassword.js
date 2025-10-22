@@ -1,6 +1,5 @@
-import baseTemplate from "./baseTemplate"
+import baseTemplate from "./baseTemplate.js"
 
-// TODO USE
 const resetPassword = ({ token }) => baseTemplate({
   content: `<mj-column>
     <mj-text font-size="28px" font-weight="bold" padding-bottom="20px">

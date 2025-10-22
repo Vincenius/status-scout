@@ -21,6 +21,33 @@ export default async function userRoutes(fastify, opts) {
       }
     })
 
+  fastify.delete('/',
+    { preValidation: fastifyPassport.authenticate('session', { failureRedirect: '/login' }) },
+    async (request, reply) => {
+      try {
+        const user = request.user
+        const db = await connectDB()
+
+        const websites = await db.collection('websites').find({ userId: user._id }).toArray()
+        for (const website of websites) {
+          await db.collection('checks').deleteMany({ websiteId: website._id })
+        }
+
+        await Promise.all([
+          db.collection('users').deleteOne({ _id: user._id }),
+          db.collection('websites').deleteMany({ userId: user._id }),
+          db.collection('flows').deleteMany({ userId: user._id })
+        ])
+
+        await request.logout();
+
+        return { success: true }
+      } catch (e) {
+        console.error(e)
+        reply.code(500).send({ error: 'Internal server error' });
+      }
+    })
+
   fastify.post('/notification-channel',
     { preValidation: fastifyPassport.authenticate('session', { failureRedirect: '/login' }) },
     async (request, reply) => {

@@ -231,16 +231,6 @@ const Privacy = () => {
         This website does not display advertisements and does not use third-party advertising services.
       </p>
 
-      <Title order={2} my="md">Waitlist Signups & Brevo</Title>
-      <p>
-        If you sign up for the waitlist, I use <a href="https://www.brevo.com/" target="_blank" rel="noopener">Brevo</a> to send you notifications about StatusScout updates.
-        For this purpose, your email address and name are stored securely with Brevo. Your data is only used to notify you about StatusScout and will not be shared or used for other purposes.
-      </p>
-      <p>
-        You can request deletion of your data at any time by contacting me at hello@statusscout.dev.
-      </p>
-      <br />
-
       <Title order={2} my="md">Links To Other Sites</Title>
       <p>
         Our Service may contain links to other sites that are

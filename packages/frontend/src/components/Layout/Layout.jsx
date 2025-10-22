@@ -213,15 +213,12 @@ const Layout = ({ children, title, isPublicRoute, redirectIfAuth }) => {
           />
         </AppShell.Section>
         <AppShell.Section>
-          {user?.subscription?.status === 'trial' && <Blockquote p="sm" mb="md">
+          {user?.subscription?.plan === 'trial' && <Blockquote p="sm" mb="md">
             {expiresAt < now ? "Your free trial ended" : `Trial active until ${expiresAt.toLocaleDateString()}`}<br />
             <InlineLink to="/checkout">Upgrade Plan</InlineLink>
           </Blockquote>}
           <FeedbackButton fullWidth variant="outline" email={user?.email}>Send Feedback</FeedbackButton>
         </AppShell.Section>
-
-        {/* Manual Tests */}
-        {/* Alerts */}
       </AppShell.Navbar>}
 
       <AppShell.Main>

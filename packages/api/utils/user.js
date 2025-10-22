@@ -8,3 +8,7 @@ export const mapUser = (user) => {
       : [],
   };
 };
+
+export const allowOnlyProUser = user => {
+  // todo helper function to prevent unauth access to some routes
+}

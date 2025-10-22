@@ -47,6 +47,7 @@ services:
       - BIRD_API_KEY=${BIRD_API_KEY}
       - BIRD_CHANNEL_ID=${BIRD_CHANNEL_ID}
       - BIRD_NAVIGATOR_ID=${BIRD_NAVIGATOR_ID}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
     depends_on:
       - mongodb
       - redis
@@ -70,6 +71,7 @@ services:
         VITE_BASE_URL: ${VITE_BASE_URL}
         VITE_API_URL: ${API_URL}
         VITE_ENABLE_ANALYTICS: ${VITE_ENABLE_ANALYTICS}
+        VITE_STRIPE_PUBLISHABLE_KEY: ${VITE_STRIPE_PUBLISHABLE_KEY}
     container_name: status-scout-frontend
     restart: always
     ports:

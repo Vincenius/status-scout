@@ -17,8 +17,11 @@ async function tryRun(type) {
     const now = new Date()
     const users = await db.collection('users').find({
       confirmed: true,
-      'subscription.plan': 'paid',
       'subscription.expiresAt': { $gt: now },
+      $or: [
+        { 'subscription.plan': 'pro' },
+        { 'subscription.plan': 'trial' }
+      ]
     }).toArray()
 
     for (const user of users) {
@@ -49,8 +52,11 @@ async function runNotifications() {
     const now = new Date()
     const users = await db.collection('users').find({
       confirmed: true,
-      'subscription.plan': 'paid',
       'subscription.expiresAt': { $gt: now },
+      $or: [
+        { 'subscription.plan': 'pro' },
+        { 'subscription.plan': 'trial' }
+      ]
     }).toArray()
 
     for (const user of users) {

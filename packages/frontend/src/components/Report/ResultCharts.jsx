@@ -6,11 +6,30 @@ const sizes = {
   lg: { ring: 120, text: 'lg', thickness: 12 },
 };
 
-export const LoadingChart = ({ size = 'md', label }) => {
+export const LoadingChart = ({ size = 'md', label, checkFailed }) => {
   const s = {
     md: { ring: 64, padding: 8, text: 'sm' },
     lg: { ring: 96, padding: 12, text: 'lg' },
   }[size]
+
+  if (checkFailed) {
+    return (
+      <Flex direction="column" align="center">
+        <RingProgress
+          size={(sizes[size] || sizes.md).ring}
+          roundCaps
+          thickness={(sizes[size] || sizes.md).thickness}
+          sections={[{ value: 100, color: 'grey' }]}
+          label={
+            <Center>
+              <IconX size={30} stroke={2} color="grey" />
+            </Center>
+          }
+        />
+      </Flex>
+
+    );
+  }
 
   return (
     <Flex direction="column" align="center">
