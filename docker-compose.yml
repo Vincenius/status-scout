@@ -48,6 +48,7 @@ services:
       - BIRD_CHANNEL_ID=${BIRD_CHANNEL_ID}
       - BIRD_NAVIGATOR_ID=${BIRD_NAVIGATOR_ID}
       - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - TURNSTILE_SECRET_KEY=${TURNSTILE_SECRET_KEY}
     depends_on:
       - mongodb
       - redis

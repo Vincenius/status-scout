@@ -1,4 +1,5 @@
-import runSubzy from '../utils/runSubzy';
+import runSubzy from '../utils/runSubzy.js';
+import { createCheckResult } from '../db.js';
 import dns from 'dns/promises';
 
 const dkimSelectors = [
@@ -28,36 +29,50 @@ const dkimSelectors = [
 // known issue: only checks for subdomains that had certificates issued
 // later improvement -> integrate with paid tool like eg VIRUSTOTAL
 async function getSubdomainsFromCrt(domain) {
-  // todo retry if failed 3 times 
-  const url = `https://crt.sh/?q=%25.${domain}&output=json`;
-  console.log(url)
-  try {
-    const res = await fetch(url);
-    const data = await res.json();
+  let tries = 0;
+  while (tries < 5) {
+    try {
+      const url = `https://crt.sh/?q=%25.${domain}&output=json`;
+      const res = await fetch(url);
+      const data = await res.json();
 
-    // Extract unique subdomains
-    const subdomains = new Set();
-    for (const entry of data) {
-      const names = entry.name_value.split("\n");
-      names.forEach(n => subdomains.add(n.replace(/\*./, "")));
+      const subdomains = new Set();
+      for (const entry of data) {
+        const names = entry.name_value.split("\n");
+        names.forEach(n => subdomains.add(n.replace(/\*./, "")));
+      }
+      return Array.from(subdomains);
+    } catch (err) {
+      tries++;
+      if (tries >= 5) {
+        console.error("Error fetching from crt.sh after 5 attempts:", err);
+        return [];
+      } else {
+        console.warn(`Error fetching from crt.sh, retrying (${tries}/5):`, err);
+      }
+      await new Promise(res => setTimeout(res, 2000 * tries)); // exponential backoff
     }
-    return Array.from(subdomains);
-  } catch (err) {
-    console.error("Error fetching from crt.sh:", err);
-    return [];
   }
 }
 
-async function checkSubdomains(subs) {
-  for (const sub of subs) {
-    runSubzy(sub).then(issues => {
-      if (issues.length) {
-        console.log(`⚠️ Subzy issues for ${sub}:`, issues);
+const checkSubdomains = async (subs) => {
+  const promises = subs.map(async (sub) => {
+    try {
+      const subIssues = await runSubzy(sub);
+      if (Array.isArray(subIssues) && subIssues.length > 0) {
+        // Map each returned issue text to an object with subdomain and text
+        return subIssues.map(text => ({ subdomain: sub, text }));
       }
-    }).catch(err => {
+      return [];
+    } catch (err) {
       console.error(`Error running subzy for ${sub}:`, err);
-    });
-  }
+      return [];
+    }
+  });
+
+  const nested = await Promise.all(promises);
+  // flatten array of arrays into a single array of issue objects
+  return nested.flat();
 }
 
 
@@ -78,60 +93,63 @@ async function checkTxtRecords(name) {
   }
 }
 
-const runSecurityCheck = async (domain) => {
-  console.log(`🔍 DNS Security Scan for ${domain}\n`);
+export const runDnsCheck = async ({ uri, id, websiteId, createdAt, quickcheckId }) => {
+  // get domain from domain
+  const domain = new URL(uri).hostname;
+  console.log(`Running dns check for ${uri}`)
+
+  const results = {}
+  const rand = Math.random().toString(36).substring(2, 10);
 
   // NS records
-  const ns = await checkRecord("NS");
-  console.log("• NS records:", ns.length ? ns.join(", ") : "❌ None found");
+  const [ns, mx, aaaa, spfRecords, dmarcRecords, caa, ds, dnskey, wildcard, subdomains] = await Promise.all([
+    checkRecord("NS", domain),
+    dns.resolveMx(domain).catch(() => []),
+    checkRecord("AAAA", domain),
+    checkTxtRecords(domain),
+    checkTxtRecords(`_dmarc.${domain}`),
+    checkRecord("CAA", domain),
+    checkRecord("DS", domain),
+    checkRecord("DNSKEY", domain),
+    checkRecord("A", `${rand}.${domain}`),
+    getSubdomainsFromCrt(domain) // TODO improve this to make it more fail safe
+  ])
 
-  // MX records
-  const mx = await dns.resolveMx(domain).catch(() => []);
-  console.log("• MX records:", mx.length ? mx.map(m => `${m.exchange} (prio ${m.priority})`).join(", ") : "❌ None found");
+  const spf = spfRecords.match(/v=spf1[^"]*/i);
+  const dmarc = dmarcRecords.match(/v=DMARC1[^"]*/i);
 
-  // IPv6 check
-  const aaaa = await checkRecord("AAAA");
-  console.log("• IPv6 (AAAA):", aaaa.length ? "✅ Present" : "⚠️ Missing IPv6");
-
-  // SPF
-  const spf = (await checkTxtRecords(domain)).match(/v=spf1[^"]*/i);
-  console.log("• SPF:", spf ? `✅ Found (${spf[0]})` : "⚠️ Missing SPF record");
-
-  // DMARC
-  const dmarc = (await checkTxtRecords(`_dmarc.${domain}`)).match(/v=DMARC1[^"]*/i);
-  console.log("• DMARC:", dmarc ? `✅ Found (${dmarc[0]})` : "⚠️ Missing DMARC record");
+  results.ns = { records: ns, success: ns.length > 0 };
+  results.mx = { records: mx, success: mx.length > 0 };
+  results.aaaa = { records: aaaa, success: aaaa.length > 0 };
+  results.spf = { records: spf ? spf[0] : null, success: !!spf };
+  results.dmarc = { records: dmarc ? dmarc[0] : null, success: !!dmarc };
 
   // DKIM (common selector check)
-  let dkimFound = false;
+  let dkimSelector;
   for (const s of dkimSelectors) {
-    const dkim = await checkTxtRecords(`${s}._domainkey.${domain}`);
+    const record = `${s}._domainkey.${domain}`;
+    const dkim = await checkTxtRecords(record);
     if (dkim.includes("v=DKIM1")) {
-      console.log(`• DKIM: ✅ Found at selector "${s}"`);
-      dkimFound = true;
+      dkimSelector = record;
       break;
     }
   }
-  if (!dkimFound) console.log("• DKIM: ⚠️ No DKIM record found for common selectors");
 
-  // CAA
-  const caa = await checkRecord("CAA");
-  console.log("• CAA:", caa.length ? `✅ Found (${JSON.stringify(caa)})` : "⚠️ Missing CAA record");
+  results.dkim = { records: dkimSelector, success: !!dkimSelector };
+  results.caa = { records: caa, success: caa.length > 0 };
+  results.ds = { records: ds, success: ds.length > 0 };
+  results.dnskey = { records: dnskey, success: dnskey.length > 0 };
+  results.wildcard = { records: wildcard, success: wildcard.length === 0 };
 
-  // DNSSEC (check DS + DNSKEY)
-  const ds = await checkRecord("DS");
-  const dnskey = await checkRecord("DNSKEY");
-  console.log("• DNSSEC DS:", ds.length ? "✅ Present" : "⚠️ Missing");
-  console.log("• DNSSEC DNSKEY:", dnskey.length ? "✅ Present" : "⚠️ Missing");
+  const subdomainIssues = await checkSubdomains(subdomains);
+  results.subdomains = {
+    issues: subdomainIssues,
+    success: subdomainIssues.length === 0
+  };
 
-  // Wildcard check
-  const rand = Math.random().toString(36).substring(2, 10);
-  const wildcard = await checkRecord("A", `${rand}.${domain}`);
-  console.log("• Wildcard:", wildcard.length ? "⚠️ Wildcard DNS may be enabled" : "✅ None detected");
-
-  // subdomains check
-  const subdomains = await getSubdomainsFromCrt(domain);
-  console.log(`\n🔍 Checking ${subdomains.length} subdomains from crt.sh for issues`);
-  await checkSubdomains(subdomains);
-
-  console.log("\n✅ Scan complete.\n");
+  const result = {
+    status: Object.values(results).every(res => res.success) ? 'success' : 'fail',
+    details: results,
+  }
+  await createCheckResult({ id, websiteId, createdAt, check: 'dns', result, quickcheckId })
 };

@@ -1,4 +1,4 @@
-import { Text, Flex, Burger, AppShell, NavLink, Box, Indicator, LoadingOverlay, Loader, ActionIcon, Menu, ScrollArea, Blockquote, Button } from '@mantine/core'
+import { Text, Flex, Burger, AppShell, NavLink, Box, LoadingOverlay, Loader, ActionIcon, Menu, ScrollArea, Blockquote, Button } from '@mantine/core'
 import { Helmet } from 'react-helmet-async';
 import { useDisclosure } from '@mantine/hooks';
 import { IconAppWindow, IconCirclePlus, IconDashboard, IconHeartbeat, IconLogout, IconSettings } from '@tabler/icons-react';
@@ -25,6 +25,7 @@ const Layout = ({ children, title, isPublicRoute, redirectIfAuth }) => {
   const menuEnabled = user.confirmed && websites.length > 0;
   const expiresAt = new Date(user?.subscription?.expiresAt);
   const now = new Date();
+  const hasStripe = Boolean(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
   // set head info on initial load
   useEffect(() => {
@@ -83,12 +84,10 @@ const Layout = ({ children, title, isPublicRoute, redirectIfAuth }) => {
             size="sm"
           />}
           <Flex justify="space-between" w="100%">
-            <Indicator inline label="Beta" size={16}>
-              <Flex gap="xs" align="center" component={Link} to="/" c="inherit" td="none">
-                <IconHeartbeat size={26} stroke={0.8} />
-                <Text size="xl" fw={200}>StatusScout</Text>
-              </Flex>
-            </Indicator>
+            <Flex gap="xs" align="center" component={Link} to="/" c="inherit" td="none">
+              <IconHeartbeat size={26} stroke={0.8} />
+              <Text size="xl" fw={200}>StatusScout</Text>
+            </Flex>
 
             <Flex gap="md" align="center">
               {!user?.email && <Flex gap="md" display={{ base: 'none', xs: 'flex' }}>
@@ -208,7 +207,7 @@ const Layout = ({ children, title, isPublicRoute, redirectIfAuth }) => {
             leftSection={<IconCirclePlus size={16} stroke={1.5} />}
             active={window.location.pathname === '/website/new'}
             component={Link}
-            disabled={!menuEnabled}
+            disabled={!menuEnabled || (hasStripe && websites.length >= 5) || !user?.isProUser}
             to="/website/new"
           />
         </AppShell.Section>

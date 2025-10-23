@@ -5,6 +5,7 @@ import Hero from '@/components/Landing/Hero';
 import SocialProof from '@/components/Landing/SocialProof';
 import Roadmap from '@/components/Landing/Roadmap';
 import Pricing from '@/components/Landing/Pricing';
+import { Helmet } from 'react-helmet-async';
 
 function QuickCheck() {
   return (

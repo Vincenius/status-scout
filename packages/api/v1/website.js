@@ -1,10 +1,11 @@
 import fastifyPassport from '@fastify/passport';
 import { ObjectId } from 'mongodb'
 import { connectDB } from '../db.js'
+import { hasActivePlan } from '../utils/user.js';
 
 export default async function userRoutes(fastify, opts) {
   fastify.post('/',
-    { preValidation: fastifyPassport.authenticate('session', { failureRedirect: '/login' }) },
+    { preValidation: [fastifyPassport.authenticate('session', { failureRedirect: '/login' }), hasActivePlan] },
     async (request, reply) => {
       const user = request.user
       const body = request.body || {}
@@ -12,10 +13,16 @@ export default async function userRoutes(fastify, opts) {
       const baseUrl = url.origin;
 
       const db = await connectDB()
-
       const existingWebsite = await db.collection('websites').findOne({ userId: user._id, domain: baseUrl, deleted: { $ne: true } })
+
       if (existingWebsite) {
         reply.code(400).send({ error: 'A website with this domain already exists' });
+        return;
+      }
+
+      const allWebsites = await db.collection('websites').find({ userId: user._id, deleted: { $ne: true } }).toArray()
+      if (allWebsites.length >= 5) {
+        reply.code(403).send({ error: 'Website limit reached. Please delete an existing website or contact support for a plan upgrade.' });
         return;
       }
 

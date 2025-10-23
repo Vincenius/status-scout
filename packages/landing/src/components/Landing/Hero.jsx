@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useForm } from '@mantine/form';
 import { ActionIcon, Box, Flex, Image, Text, TextInput, ThemeIcon, Title, useMantineColorScheme } from '@mantine/core'
 import { IconArrowRight, IconSearch } from '@tabler/icons-react'
 import { trackEvent } from '@/utils/trackEvent'
+import { Turnstile } from '@marsidev/react-turnstile'
 import classes from './Landing.module.css';
 
 function isValidUrl(value) {
@@ -28,6 +29,7 @@ function normalizeUrl(value) {
 }
 
 export default function Hero() {
+  const formRef = useRef(null);
   const [loading, setLoading] = useState(false);
   const { colorScheme } = useMantineColorScheme();
   const heroImage = colorScheme === 'dark'
@@ -44,6 +46,8 @@ export default function Hero() {
   });
 
   const handleSubmit = ({ url }) => {
+    const formData = new FormData(formRef.current)
+    const token = formData.get('cf-turnstile-response')
     const normalizedUrl = normalizeUrl(url.trim());
 
     if (!isValidUrl(normalizedUrl)) {
@@ -62,13 +66,21 @@ export default function Hero() {
         'Content-Type': 'application/json',
       },
       credentials: 'include',
-      body: JSON.stringify({ url: finalUrl }),
+      body: JSON.stringify({
+        url: finalUrl,
+        turnstileToken: token,
+      }),
     }).then(res => res.json())
       .then(res => {
-        if (res.statusCode === 200 && res.quickcheckId) {
-          window.location.href = `${import.meta.env.VITE_APP_URL}/quickcheck?id=${res.quickcheckId}`
+        if (res.error) {
+          form.setFieldError('url', res.error);
+          return;
         } else {
-          form.setFieldError('url', `Could not reach ${url} [Status: ${res.statusCode}]`);
+          if (res.statusCode === 200 && res.quickcheckId) {
+            window.location.href = `${import.meta.env.VITE_APP_URL}/quickcheck?id=${res.quickcheckId}`
+          } else {
+            form.setFieldError('url', `Could not reach ${url} [Status: ${res.statusCode}]`);
+          }
         }
       }).finally(() => {
         setLoading(false)
@@ -88,7 +100,7 @@ export default function Hero() {
           Get a complete overview of your website’s security, performance, and more. Find broken links, performance bottlenecks, and other issues that hurt your website.
         </Text>
 
-        <form onSubmit={form.onSubmit(handleSubmit)}>
+        <form onSubmit={form.onSubmit(handleSubmit)} ref={formRef}>
           <Flex w="100%">
             <TextInput
               placeholder="https://www.yourdomain.com"
@@ -119,12 +131,20 @@ export default function Hero() {
               <IconArrowRight stroke={1.5} />
             </ActionIcon>
           </Flex>
-          <Flex gap="sm" align="center" mt="xs" mb="xl">
+          <Flex gap="sm" align="center" mt="xs" mb={import.meta.env.VITE_TURNSTILE_SITE_KEY ? "sm" : "xl"}>
             <ThemeIcon variant="light" size="md">
               <IconSearch style={{ width: '70%', height: '70%' }} />
             </ThemeIcon>
             <Text size="lg">Check your website for free - no account needed</Text>
           </Flex>
+
+          {import.meta.env.VITE_TURNSTILE_SITE_KEY && <Box mb="lg">
+            <Turnstile siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
+              options={{
+                theme: colorScheme === 'dark' ? 'dark' : 'light',
+                appearance: 'interaction-only',
+              }} />
+          </Box>}
         </form>
       </Flex>
 

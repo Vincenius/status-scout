@@ -1,7 +1,6 @@
-// run-subzy.js
-const { spawn } = require('child_process');
-const path = require('path');
-const fs = require('fs');
+import { spawn } from 'child_process';
+import path from 'path';
+import fs from 'fs';
 
 async function runSubzy(target) {
   return new Promise((resolve, reject) => {
@@ -65,4 +64,4 @@ async function runSubzy(target) {
   });
 }
 
-module.exports = runSubzy;
+export default runSubzy;

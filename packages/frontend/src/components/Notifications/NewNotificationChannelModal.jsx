@@ -5,7 +5,7 @@ import { notifications } from '@mantine/notifications';
 import { useAuthSWR } from '@/utils/useAuthSWR'
 import getFormData from '@/utils/getFormData'
 
-function NewNotificationChannelModal({ opened, close }) {
+function NewNotificationChannelModal({ opened, close, onlyEmail }) {
   const { mutate } = useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/user`)
   const [loading, setLoading] = useState(false);
   const [channel, setChannel] = useState('email');
@@ -101,8 +101,8 @@ function NewNotificationChannelModal({ opened, close }) {
           onChange={setChannel}
           data={[
             { value: 'email', label: 'E-Mail' },
-            { value: 'sms', label: 'SMS' },
-            { value: 'ntfy', label: 'ntfy' },
+            { value: 'sms', label: 'SMS', disabled: onlyEmail },
+            { value: 'ntfy', label: 'ntfy', disabled: onlyEmail },
             { value: 'slack', label: 'Slack (coming soon)', disabled: true },
             { value: 'discord', label: 'Discord (coming soon)', disabled: true },
             { value: 'whatsapp', label: 'WhatsApp (coming soon)', disabled: true },

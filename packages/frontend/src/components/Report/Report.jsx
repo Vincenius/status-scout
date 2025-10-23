@@ -83,7 +83,10 @@ function Report({ website, checks, status, isQuickCheck = false }) {
     seoCheck,
     linkCheck,
     customChecks,
+    dnsCheck,
   } = getRecentChecks(checks)
+
+  console.log({ dnsCheck }) // todo add to report
 
   const { data: flows = [], isLoading: isLoadingFlows } = !isQuickCheck
     ? useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/flows?websiteId=${website.index}`)

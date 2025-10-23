@@ -6,6 +6,7 @@ export const getRecentChecks = (checks) => {
   const a11yCheck = checks.filter(d => d.check === 'a11y').sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
   const seoCheck = checks.filter(d => d.check === 'seo').sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
   const linkCheck = checks.filter(d => d.check === 'links').sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
+  const dnsCheck = checks.filter(d => d.check === 'dns').sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))[0]
   const customChecks = checks.filter(d => d.check === 'custom')
     .sort((d1, d2) => new Date(d2.createdAt) - new Date(d1.createdAt))
 
@@ -18,6 +19,7 @@ export const getRecentChecks = (checks) => {
     seoCheck,
     linkCheck,
     customChecks,
+    dnsCheck,
   }
 }
 

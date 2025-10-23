@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { connectDB } from '../db.js'
 import { ObjectId } from 'mongodb';
 import { getJobStatus, runJob } from '../utils/worker.js'
+import { hasActivePlan } from '../utils/user.js';
 
 export default async function checkRoutes(fastify, opts) {
   fastify.post('/statuscheck',
@@ -19,7 +20,7 @@ export default async function checkRoutes(fastify, opts) {
     })
 
   fastify.post('/check',
-    { preValidation: fastifyPassport.authenticate('session', { failureRedirect: '/login' }) },
+    { preValidation: [fastifyPassport.authenticate('session', { failureRedirect: '/login' }), hasActivePlan] },
     async (request, reply) => {
       const body = request.body || {}
       const websiteId = body.id
@@ -65,7 +66,21 @@ export default async function checkRoutes(fastify, opts) {
     const body = request.body || {}
     const userId = request.user?._id
 
-    console.log('run quick check', { userId, ...body })
+    const verification = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        secret: process.env.TURNSTILE_SECRET_KEY,
+        response: body.turnstileToken,
+      })
+    }).then(res => res.json())
+
+    console.log('verification', verification)
+    if (!verification.success) {
+      return reply.code(400).send({ error: 'Captcha verification failed' });
+    }
 
     const url = new URL(body.url);
     const baseUrl = url.origin;

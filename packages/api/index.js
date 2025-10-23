@@ -19,7 +19,7 @@ import notificationRoutes from './v1/notification.js';
 import checkoutRoutes from './v1/checkout.js';
 
 const fastify = Fastify({
-  logger: true,
+  logger: false,
 })
 
 await fastify.register(middie)
@@ -32,7 +32,10 @@ await fastify.register(cors, {
 
 await fastify.register(fastifySecureSession, {
   secret: process.env.SESSION_SECRET,
-  cookie: { path: '/' }
+  cookie: {
+    path: '/',
+    maxAge: 7 * 24 * 60 * 60, // 7 days
+  }
 })
 
 // Register passport

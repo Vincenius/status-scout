@@ -62,7 +62,8 @@ export const getIssueHistory = (checks) => {
   const a11yIssues = getIssues({ checks, type: 'a11y', getCurrIssues: curr => (curr?.result?.details?.items || []).map(i => i.title) })
   const linkIssues = getIssues({ checks, type: 'links', getCurrIssues: curr => (curr?.result?.details || []).map(i => `${i.parent} -> ${i.url}`) })
   const customIssues = getCustomIssues({ checks })
-  // todo performance?
+  // TODO performance?
+  // TODO dns!!
 
   const allIssues = [...sslIssues, ...headerIssues, ...fuzzIssues, ...seoIssues, ...a11yIssues, ...linkIssues, ...customIssues]
   const checkDates = checks.map(c => c.createdAt)

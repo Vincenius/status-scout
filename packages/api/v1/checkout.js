@@ -72,8 +72,6 @@ export default async function checkoutRoutes(fastify, opts) {
     const { user } = request
     const { type } = request.body
 
-    console.log('CANCELLED', type)
-
     if (type === 'cancel') {
       const result = await stripe.subscriptions.update(
         user?.subscription?.id,

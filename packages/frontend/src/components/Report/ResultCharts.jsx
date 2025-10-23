@@ -26,6 +26,8 @@ export const LoadingChart = ({ size = 'md', label, checkFailed }) => {
             </Center>
           }
         />
+
+        <Text size={s.text}>{label}</Text>
       </Flex>
 
     );

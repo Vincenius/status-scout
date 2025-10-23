@@ -6,6 +6,7 @@ services:
         VITE_API_URL: ${VITE_API_URL}
         VITE_APP_URL: ${VITE_APP_URL}
         VITE_ENABLE_ANALYTICS: ${VITE_ENABLE_ANALYTICS}
+        VITE_TURNSTILE_SITE_KEY: ${VITE_TURNSTILE_SITE_KEY}
     container_name: status-scout-landing
     restart: always
     ports:

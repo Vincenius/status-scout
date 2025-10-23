@@ -1,5 +1,5 @@
 import Layout from '@/components/Layout/Layout'
-import { Box, Card, Flex, Title, Text, Button } from '@mantine/core'
+import { Box, Card, Flex, Title, Text, Button, Blockquote } from '@mantine/core'
 import { useAuthSWR } from '@/utils/useAuthSWR'
 import { Link } from 'react-router-dom'
 import { useEffect } from 'react';
@@ -7,6 +7,7 @@ import { notifications } from '@mantine/notifications';
 
 function Dashboard() {
   const { data: websites = [] } = useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/website`)
+  const { data: user } = useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/user`)
 
   useEffect(() => {
     const url = new URL(window.location.href);
@@ -35,6 +36,10 @@ function Dashboard() {
       <Title order={1} size="h1" ta="center" mb="xl" mt="md">Dashboard</Title>
 
       <Box maw={1800} mx="auto">
+        {!user?.isProUser && <Blockquote maw={600} mx="auto" mb="xl">
+          <Text fw={500} mb="md">Your Pro subscription expired. Please renew your subscription to continue using premium features and getting notifications.</Text>
+          <Button component={Link} to="/checkout">Buy Pro Subscription</Button>
+        </Blockquote>}
         <Title order={2} mb="md" fw="normal">Your Websites:</Title>
         <Flex gap="md" direction="row" wrap="wrap" mb="md">
           {websites.map(website => (

@@ -13,6 +13,7 @@ function ReportPage() {
   const jobId = searchParams.get("j_id");
   const [loading, setLoading] = useState(false);
   const intervalRef = useRef(null);
+  const { data: user } = useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/user`)
   const { data: websites = [], isLoading: isLoadingWebsites } = useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/website`)
   const website = websites.find(w => w.index === id)
   const { data: checkData = {}, isLoading: isLoadingChecks, mutate } = useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/check?id=${id}${jobId ? `&jobId=${jobId}` : ''}`)
@@ -81,7 +82,13 @@ function ReportPage() {
             For <a href={website?.domain} target='_blank' rel="noopener noreferrer">{new URL(website?.domain).hostname}</a> from {checks.length ? <i>{new Date(checks.length ? checks[0].createdAt : null).toLocaleString()}</i> : <></>}
           </Text>
           <Flex justify="flex-end" my="md">
-            <Button onClick={generateReport} loading={loading} disabled={status?.state === 'active'}>Generate new Report</Button>
+            <Button
+              onClick={generateReport}
+              loading={loading}
+              disabled={status?.state === 'active' || !user.isProUser}
+            >
+              Generate new Report
+            </Button>
           </Flex>
           <Report
             website={website}

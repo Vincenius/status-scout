@@ -1,4 +1,4 @@
-import { Text, Flex, Box, Indicator, Divider, ThemeIcon, Button, Menu, Burger } from '@mantine/core'
+import { Text, Flex, Box, Divider, ThemeIcon, Button, Menu, Burger } from '@mantine/core'
 import { Helmet } from 'react-helmet-async';
 import { IconBrandBluesky, IconBrandGithub, IconHeartbeat, IconMug } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
@@ -31,12 +31,10 @@ const Layout = ({ children, title }) => {
     </Helmet>
 
     <Flex align="center" justify="space-between" h="100%" gap="lg" maw={1200} mx="auto" py="xs" px="xl">
-      <Indicator inline label="Beta" size={16}>
-        <Flex gap="xs" align="center" component={Link} to="/" c="inherit" td="none">
-          <IconHeartbeat size={26} stroke={0.8} />
-          <Text size="xl" fw={200}>StatusScout</Text>
-        </Flex>
-      </Indicator>
+      <Flex gap="xs" align="center" component={Link} to="/" c="inherit" td="none">
+        <IconHeartbeat size={26} stroke={0.8} />
+        <Text size="xl" fw={200}>StatusScout</Text>
+      </Flex>
 
       <Flex gap="md" align="center">
         <Flex gap="md" display={{ base: 'none', xs: 'flex' }}>

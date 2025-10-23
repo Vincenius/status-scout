@@ -8,6 +8,7 @@ import { runLighthouseCheck } from './checks/lighthouse.js'
 import { runPerformanceCheck } from './checks/performance.js'
 import { runCustomChecks } from './checks/custom.js'
 import { runBrokenLinkCheck } from './checks/links.js'
+import { runDnsCheck } from './checks/dns.js'
 import { ObjectId } from 'mongodb'
 import { runNotifications, runDailyNotification } from './notification.js'
 
@@ -27,7 +28,8 @@ export const run = async ({ id, type = 'quick', websiteId, quickcheckId, url }) 
     const checks = [
       runUptimeCheck(baseParams),
       runHeaderCheck(baseParams),
-      runSslCheck(baseParams)
+      runSslCheck(baseParams),
+      runDnsCheck(baseParams),
     ]
 
     if (type === 'extended' || type === 'full' || type === 'free') {

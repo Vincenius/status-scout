@@ -63,6 +63,7 @@ const NotificationChannel = ({ website, user, edit, setEdit, channelLoading, han
 function NotificationSettings({ websiteId, children, noBorder }) {
   const [channelOpened, { open: openChannel, close: closeChannel }] = useDisclosure(false);
   const [channelLoading, setChannelLoading] = useState();
+  const [onlyEmail, setOnlyEmail] = useState(false);
   const [edit, setEdit] = useState();
   const { data: websites = [], mutate } = useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/website`)
   const { data: user = {} } = useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/user`)
@@ -161,11 +162,21 @@ function NotificationSettings({ websiteId, children, noBorder }) {
             name="Issue Notification"
             description="Send daily summary of new issues via E-Mail to:"
             onlyEmail
-            openChannel={openChannel}
+            openChannel={() => {
+              setOnlyEmail(true);
+              openChannel()
+            }}
           />
         </Card>
 
-        <NewNotificationChannelModal opened={channelOpened} close={closeChannel} />
+        <NewNotificationChannelModal
+          opened={channelOpened}
+          close={() => {
+            closeChannel();
+            setOnlyEmail(false);
+          }}
+          onlyEmail={onlyEmail}
+        />
       </Card.Section>
       <Card.Section p="md" withBorder>
         <Text mb="md">Customize notification priority per check.</Text>

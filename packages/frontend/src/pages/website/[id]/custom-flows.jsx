@@ -29,6 +29,7 @@ function CustomFlows() {
   const [editId, setEditId] = useState(null);
   const [modalOpenStep, setModalOpenStep] = useState(null);
   const [notification, setNotification] = useState('daily')
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (flows.find(f => f.status?.state === 'waiting' || f.status?.state === 'active')) {
@@ -45,6 +46,7 @@ function CustomFlows() {
     setValidation([])
     setModalOpen(false)
     setModalOpenStep(null)
+    setError(null)
     setNotification('daily')
   }
 
@@ -58,6 +60,7 @@ function CustomFlows() {
 
   const saveChecks = async (e) => {
     e.preventDefault();
+    setError(null)
     const formData = getFormData(e);
     const valid = []
     for (const step of steps) {
@@ -85,9 +88,15 @@ function CustomFlows() {
         credentials: 'include',
         body: JSON.stringify({ check: newCheck, websiteId: website.id }),
       }).then(res => res.json())
-        .then(({ id }) => {
-          mutateFlows()
-          closeModal()
+        .then(({ error }) => {
+          if (error) {
+            setError(error)
+          } else {
+            mutateFlows()
+            closeModal()
+          }
+        }).catch(() => {
+          setError('An unexpected error occurred. Please try again or contact support.')
         })
         .finally(() => {
           setLoading(false)
@@ -236,7 +245,10 @@ function CustomFlows() {
         </Box>
       )}
 
-      <Card withBorder p="md" shadow="md" maw={600} mx="auto" onClick={openNewFlowModal} style={{ cursor: 'pointer' }}>
+      {flows.length < 20 && <Card
+        withBorder p="md" shadow="md" maw={600} mx="auto"
+        onClick={openNewFlowModal} style={{ cursor: 'pointer' }}
+      >
         <ThemeIcon variant="outline" size="xl" mb="md" mx="auto">
           <IconPlaylistAdd />
         </ThemeIcon>
@@ -244,7 +256,11 @@ function CustomFlows() {
           {flows.length === 0 && <>No custom test flows defined yet.<br /></>}
           Click to create a new test flow.
         </Text>
-      </Card>
+      </Card>}
+
+      {flows.length >= 20 && <Card withBorder p="md" shadow="md" maw={600} mx="auto">
+        <Text c="dimmed" ta="center">You have reached the maximum number of 20 custom test flows. Please delete existing flows to create new ones or contact support for upgrading your plan.</Text>
+      </Card>}
 
       <Modal opened={modalOpen} onClose={closeModal} title="Create New Test Flow" size="lg">
         <form onSubmit={saveChecks}>
@@ -374,6 +390,8 @@ function CustomFlows() {
           >
             {editId ? 'Save Changes' : 'Create Test Flow'}
           </Button>}
+
+          {error && <Text c="red" mt="md">{error}</Text>}
         </form>
       </Modal>
     </Layout>
