@@ -85,8 +85,6 @@ function WebsiteOverview() {
             </Table.Tbody>
           </Table>
         </Card>
-
-        {/* todo custom checks */}
       </Container>
     </Layout>
   );

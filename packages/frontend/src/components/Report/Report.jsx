@@ -1,4 +1,4 @@
-import { Accordion, Badge, Blockquote, Button, Card, Center, Flex, List, Loader, Overlay, Table, Text, ThemeIcon, Title } from '@mantine/core'
+import { Accordion, Badge, Blockquote, Button, Card, Center, Flex, List, Loader, Overlay, SimpleGrid, Table, Text, ThemeIcon, Title } from '@mantine/core'
 import {
   SSLChart,
   HeaderChart,
@@ -8,7 +8,8 @@ import {
   BrokenLinksChart,
   AccessibilityChart,
   LoadingChart,
-  CustomFlowsChart
+  CustomFlowsChart,
+  DnsChart,
 } from './ResultCharts'
 import { getRecentChecks } from '@/utils/checks'
 import recommendedHeaders from '@/utils/headers'
@@ -19,6 +20,7 @@ import { Link } from 'react-router-dom'
 import { STEP_TYPES } from '@/utils/customFlows';
 import { IconCheck, IconX } from '@tabler/icons-react'
 import { useAuthSWR } from '@/utils/useAuthSWR'
+import { dnsChecksInfo } from '@statusscout/shared'
 
 const MarkdownElem = ({ children }) => {
   return <Markdown components={{
@@ -86,8 +88,6 @@ function Report({ website, checks, status, isQuickCheck = false }) {
     dnsCheck,
   } = getRecentChecks(checks)
 
-  console.log({ dnsCheck }) // todo add to report
-
   const { data: flows = [], isLoading: isLoadingFlows } = !isQuickCheck
     ? useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/flows?websiteId=${website.index}`)
     : { data: [], isLoading: false };
@@ -142,6 +142,7 @@ function Report({ website, checks, status, isQuickCheck = false }) {
   const a11yRef = useRef(null);
   const linksRef = useRef(null);
   const customFlowsRef = useRef(null);
+  const dnsRef = useRef(null);
 
   const checkFailed = status?.state === 'failed'
 
@@ -169,16 +170,12 @@ function Report({ website, checks, status, isQuickCheck = false }) {
           </Blockquote>
         </Card.Section>}
         <Card.Section py="xl" px={{ base: "md", md: "xl" }}>
-          <Flex gap="md" justify="space-around" wrap="wrap">
+          <SimpleGrid cols={{ base: 2, xs: 3, lg: 5 }} spacing="xl" mb="md">
             <Flex direction="column" align="center" onClick={() => scrollToRef(sslRef)} style={{ cursor: 'pointer' }}>
               {sslCheck && <SSLChart status={sslCheck.result.status} />}
               {!sslCheck && <LoadingChart label="SSL Certificate" checkFailed={checkFailed} />}
             </Flex>
-            <Flex direction="column" align="center" onClick={() => scrollToRef(headersRef)} style={{ cursor: 'pointer' }}>
-              {headersCheck && <HeaderChart status={headersCheck.result.status} missingHeaders={headersCheck.result.details.missingHeaders} />}
-              {!headersCheck && <LoadingChart label="HTTP Headers" checkFailed={checkFailed} />}
-            </Flex>
-            {/* TODO DNS CHECK here */}
+
             <Flex direction="column" align="center" onClick={() => scrollToRef(fuzzRef)} style={{ cursor: 'pointer' }}>
               {fuzzCheck && <FuzzChart status={fuzzCheck.result.status} files={fuzzCheck.result.details.files} />}
               {!fuzzCheck && <LoadingChart label="Sensitive Files" checkFailed={checkFailed} />}
@@ -203,11 +200,21 @@ function Report({ website, checks, status, isQuickCheck = false }) {
               {!linkCheck && <LoadingChart label="Broken Links" checkFailed={checkFailed} />}
             </Flex>
 
+            <Flex direction="column" align="center" onClick={() => scrollToRef(dnsRef)} style={{ cursor: 'pointer' }}>
+              {dnsCheck && <DnsChart status={dnsCheck.result.status} details={dnsCheck.result.details} />}
+              {!dnsCheck && <LoadingChart label="DNS Records" checkFailed={checkFailed} />}
+            </Flex>
+
+            <Flex direction="column" align="center" onClick={() => scrollToRef(headersRef)} style={{ cursor: 'pointer' }}>
+              {headersCheck && <HeaderChart status={headersCheck.result.status} missingHeaders={headersCheck.result.details.missingHeaders} />}
+              {!headersCheck && <LoadingChart label="HTTP Headers" checkFailed={checkFailed} />}
+            </Flex>
+
             {!isQuickCheck && <Flex direction="column" align="center" onClick={() => scrollToRef(customFlowsRef)} style={{ cursor: 'pointer' }}>
               {customChecks && <CustomFlowsChart checks={customChecks} customFlowLength={customFlowLength} />}
               {!customChecks && <LoadingChart label="Custom Flows" checkFailed={checkFailed} />}
             </Flex>}
-          </Flex>
+          </SimpleGrid>
         </Card.Section>
         <Card.Section withBorder py="xl" px={{ base: "md", md: "xl" }} ref={sslRef}>
           {sslCheck && <>
@@ -218,45 +225,6 @@ function Report({ website, checks, status, isQuickCheck = false }) {
 
           <Blockquote p="md" my="md" maw={600} mx="auto">An SSL certificate ensures encrypted data transmission, signals trust to users with the padlock symbol, and may enhance search engine rankings.</Blockquote>
 
-        </Card.Section>
-        <Card.Section withBorder py="xl" px={{ base: "md", md: "xl" }} ref={headersRef}>
-          {headersCheck && <>
-            <HeaderChart status={headersCheck.result.status} missingHeaders={headersCheck.result.details.missingHeaders} size="lg" />
-            {headersCheck.result.details.missingHeaders.length === 0 && <Text size="md" ta="center" fs="italic">All important security headers are present.</Text>}
-          </>}
-          {!headersCheck && <LoadingChart label="HTTP Headers" size="lg" checkFailed={checkFailed} />}
-
-          <Blockquote p="md" my="md" maw={600} mx="auto">HTTP security headers help protect websites from common attacks, strengthen user trust, and can improve security compliance.</Blockquote>
-
-          {headersCheck && headersCheck.result.details.missingHeaders.length > 0 && <>
-            <Text size="md" mb="sm" mt="xl" fs="italic">The following recommended headers are missing:</Text>
-
-            <>
-              <Table striped withTableBorder>
-                <Table.Thead>
-                  <Table.Tr>
-                    <Table.Td>Header</Table.Td>
-                    <Table.Td>Explanation</Table.Td>
-                  </Table.Tr>
-                </Table.Thead>
-                <Table.Tbody>
-                  {displayedHeaders.map((item, index) => (
-                    <Table.Tr key={`header-${index}`}>
-                      <Table.Td><Text fw="bold">{item}</Text></Table.Td>
-                      <Table.Td><Text>{recommendedHeaders[item]}</Text></Table.Td>
-                    </Table.Tr>
-                  ))}
-                </Table.Tbody>
-              </Table>
-              {missingHeaders.length > 3 && !expandHeaders && (
-                <Center mt="md">
-                  <Button onClick={() => setExpandHeaders(true)}>
-                    Show All
-                  </Button>
-                </Center>
-              )}
-            </>
-          </>}
         </Card.Section>
 
         <Card.Section withBorder py="xl" px={{ base: "md", md: "xl" }} ref={fuzzRef}>
@@ -419,6 +387,99 @@ function Report({ website, checks, status, isQuickCheck = false }) {
               }
             </List>
           }
+        </Card.Section>
+
+        <Card.Section withBorder py="xl" px={{ base: "md", md: "xl" }} ref={dnsRef}>
+          {dnsCheck && <>
+            <DnsChart status={dnsCheck.result.status} details={dnsCheck.result.details} size="lg" />
+            {Object.values(dnsCheck.result.details).filter(d => !d.success).length === 0 && <Text size="md" ta="center" fs="italic">No DNS issues found.</Text>}
+          </>}
+          {!dnsCheck && <LoadingChart label="DNS Records" size="lg" checkFailed={checkFailed} />}
+
+          <Blockquote p="md" my="md" maw={600} mx="auto">DNS checks ensure your domain’s availability, email deliverability, and security. Missing or misconfigured records can lead to downtime, lost emails, or spoofing risks. Regular audits help maintain a stable and trusted domain.</Blockquote>
+
+          {dnsCheck && Object.values(dnsCheck.result.details).filter(d => !d.success).length > 0 && <>
+            <Text size="md" mb="sm" mt="xl" fs="italic">The following DNS Issues have been identified:</Text>
+
+            <Table striped withTableBorder>
+              <Table.Thead>
+                <Table.Tr>
+                  <Table.Td>DNS Issue</Table.Td>
+                  <Table.Td>Explanation</Table.Td>
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>
+                {dnsCheck && Object.entries(dnsCheck.result.details).filter(([key, d]) => !d.success && key !== 'subdomains').map(([key, value]) => (
+                  <Table.Tr key={`header-${key}`}>
+                    <Table.Td><Text fw="bold">{dnsChecksInfo[key].name}</Text></Table.Td>
+                    <Table.Td><Text>{dnsChecksInfo[key].description}</Text></Table.Td>
+                  </Table.Tr>
+                ))}
+                {dnsCheck && Object.entries(dnsCheck.result.details).filter(([key, d]) => !d.success && key === 'subdomains').map(([key, value]) => (
+                  <Table.Tr key={`header-${key}`}>
+                    <Table.Td><Text fw="bold">{dnsChecksInfo[key].name}</Text></Table.Td>
+                    <Table.Td>
+                      <Text>{dnsChecksInfo[key].description} Following subdomains are affected:</Text>
+                      <List mt="xs">
+                        {value.issues.map((issue, index) => (
+                          <List.Item key={`subdomain-issue-${index}`}>
+                            <Text>{issue.text}</Text>
+                          </List.Item>
+                        ))}
+                      </List>
+                    </Table.Td>
+                  </Table.Tr>
+                ))}
+              </Table.Tbody>
+            </Table>
+            {missingHeaders.length > 3 && !expandHeaders && (
+              <Center mt="md">
+                <Button onClick={() => setExpandHeaders(true)}>
+                  Show All
+                </Button>
+              </Center>
+            )}
+          </>}
+        </Card.Section>
+
+        <Card.Section withBorder py="xl" px={{ base: "md", md: "xl" }} ref={headersRef}>
+          {headersCheck && <>
+            <HeaderChart status={headersCheck.result.status} missingHeaders={headersCheck.result.details.missingHeaders} size="lg" />
+            {headersCheck.result.details.missingHeaders.length === 0 && <Text size="md" ta="center" fs="italic">All important security headers are present.</Text>}
+          </>}
+          {!headersCheck && <LoadingChart label="HTTP Headers" size="lg" checkFailed={checkFailed} />}
+
+          <Blockquote p="md" my="md" maw={600} mx="auto">HTTP security headers help protect websites from common attacks, strengthen user trust, and can improve security compliance.</Blockquote>
+
+          {headersCheck && headersCheck.result.details.missingHeaders.length > 0 && <>
+            <Text size="md" mb="sm" mt="xl" fs="italic">The following recommended headers are missing:</Text>
+
+            <>
+              <Table striped withTableBorder>
+                <Table.Thead>
+                  <Table.Tr>
+                    <Table.Td>Header</Table.Td>
+                    <Table.Td>Explanation</Table.Td>
+                  </Table.Tr>
+                </Table.Thead>
+                <Table.Tbody>
+                  {displayedHeaders.map((item, index) => (
+                    <Table.Tr key={`header-${index}`}>
+                      <Table.Td><Text fw="bold">{item}</Text></Table.Td>
+                      <Table.Td><Text>{recommendedHeaders[item]}</Text></Table.Td>
+                    </Table.Tr>
+                  ))}
+                </Table.Tbody>
+              </Table>
+              {missingHeaders.length > 3 && !expandHeaders && (
+                <Center mt="md">
+                  <Button onClick={() => setExpandHeaders(true)}>
+                    Show All
+                  </Button>
+                </Center>
+              )}
+            </>
+          </>}
         </Card.Section>
 
         {!isQuickCheck &&

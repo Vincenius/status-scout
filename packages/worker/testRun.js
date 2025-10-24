@@ -3,6 +3,7 @@
 import 'dotenv/config'
 import { connectDB, disconnectDB } from './db.js'
 // import { runDailyNotification } from './notification.js';
+import runSubfinder from './utils/runSubfinder.js';
 import { runDnsCheck } from './checks/dns.js';
 import { ObjectId } from 'mongodb';
 
@@ -14,6 +15,8 @@ const run = async () => {
     //   db,
     //   uri: website.domain,
     // });
+    // const test = await runSubfinder('statusscout.dev')
+    console.log(test)
   } catch (e) {
     console.error('Error running test:', e);
   } finally {

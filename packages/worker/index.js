@@ -23,7 +23,7 @@ export const run = async ({ id, type = 'quick', websiteId, quickcheckId, url }) 
     const createdAt = new Date().toISOString()
     console.log(createdAt, `run ${type} status check for`, website.domain)
 
-    const baseParams = { id, uri: website.domain, db, websiteId: website._id, quickcheckId, createdAt } // todo maybe replace quickcheckid with id
+    const baseParams = { id, uri: website.domain, db, websiteId: website._id, quickcheckId, createdAt }
 
     const checks = [
       runUptimeCheck(baseParams),

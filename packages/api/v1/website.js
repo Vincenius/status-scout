@@ -197,7 +197,7 @@ export default async function userRoutes(fastify, opts) {
   //   { preValidation: fastifyPassport.authenticate('session', { failureRedirect: '/login' }) },
   //   async (request, reply) => {
   //     const body = request.body
-  //     // request.user // todo use logged in user
+  //     // request.user
 
   //     const db = await connectDB()
 

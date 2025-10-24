@@ -76,7 +76,6 @@ function ReportPage() {
           <Text>It looks like you're using an invalid URL. Please choose a valid website from the list in the navigation.</Text>
         </Card>}
 
-        {/* todo waiting in report component */}
         {!isLoadingWebsites && !isLoadingChecks && <>
           <Text size="lg" ta="center">
             For <a href={website?.domain} target='_blank' rel="noopener noreferrer">{new URL(website?.domain).hostname}</a> from {checks.length ? <i>{new Date(checks.length ? checks[0].createdAt : null).toLocaleString()}</i> : <></>}

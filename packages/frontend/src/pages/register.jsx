@@ -10,8 +10,6 @@ function Register() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState();
 
-  // todo redirect to dashboard if already logged in (maybe in layout?)
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true)

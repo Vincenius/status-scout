@@ -8,7 +8,7 @@ export const checkDefaultNotifications = {
   'seo': 'daily',
   'performance': 'daily',
   'links': 'daily',
-  // 'custom': 'daily', todo??
+  'dns': 'daily',
 }
 
 export const checkNameMap = {
@@ -21,6 +21,7 @@ export const checkNameMap = {
   'a11y': 'Accessibility',
   'seo': 'SEO',
   'links': 'Broken Link',
+  'dns': 'DNS Record',
   'custom': 'Custom Flow',
 }
 
@@ -35,6 +36,7 @@ export const getNotificationMessage = ({ type, details }) => {
     'seo': `SEO issue detected: ${details}`,
     'performance': `Performance issue detected: ${details}`,
     'links': `Broken link found: ${details}`,
+    'dns': `DNS issue detected: ${details}`,
     'custom': `Custom flow failed: ${details}`,
   }
 

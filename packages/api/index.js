@@ -77,7 +77,7 @@ fastifyPassport.registerUserDeserializer(async (user) => {
     const db = await connectDB();
     const dbUser = await db.collection('users').findOne({ _id: new ObjectId(user.id) });
     if (!dbUser) return null;
-    return dbUser; // todo map user
+    return dbUser;
   } catch (err) {
     return null;
   }

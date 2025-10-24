@@ -1,4 +1,5 @@
 import runSubzy from '../utils/runSubzy.js';
+import getSubdomains from '../utils/runSubfinder.js';
 import { createCheckResult } from '../db.js';
 import dns from 'dns/promises';
 
@@ -25,35 +26,6 @@ const dkimSelectors = [
   // Other transactional email services
   "mailgun", "mg", "sparkpost", "postmark", "hubspot", "sendinblue", "brevo", "campaignmonitor"
 ];
-
-// known issue: only checks for subdomains that had certificates issued
-// later improvement -> integrate with paid tool like eg VIRUSTOTAL
-async function getSubdomainsFromCrt(domain) {
-  let tries = 0;
-  while (tries < 5) {
-    try {
-      const url = `https://crt.sh/?q=%25.${domain}&output=json`;
-      const res = await fetch(url);
-      const data = await res.json();
-
-      const subdomains = new Set();
-      for (const entry of data) {
-        const names = entry.name_value.split("\n");
-        names.forEach(n => subdomains.add(n.replace(/\*./, "")));
-      }
-      return Array.from(subdomains);
-    } catch (err) {
-      tries++;
-      if (tries >= 5) {
-        console.error("Error fetching from crt.sh after 5 attempts:", err);
-        return [];
-      } else {
-        console.warn(`Error fetching from crt.sh, retrying (${tries}/5):`, err);
-      }
-      await new Promise(res => setTimeout(res, 2000 * tries)); // exponential backoff
-    }
-  }
-}
 
 const checkSubdomains = async (subs) => {
   const promises = subs.map(async (sub) => {
@@ -112,7 +84,7 @@ export const runDnsCheck = async ({ uri, id, websiteId, createdAt, quickcheckId 
     checkRecord("DS", domain),
     checkRecord("DNSKEY", domain),
     checkRecord("A", `${rand}.${domain}`),
-    getSubdomainsFromCrt(domain) // TODO improve this to make it more fail safe
+    getSubdomains(domain)
   ])
 
   const spf = spfRecords.match(/v=spf1[^"]*/i);

@@ -1,16 +1,16 @@
 services:
-  mongodb:
+  statusscout-mongodb:
     image: mongo:7
-    container_name: mongodb
+    container_name: statusscout-mongodb
     restart: always
     ports:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
 
-  redis:
+  statusscout-redis:
     image: redis:7
-    container_name: redis
+    container_name: statusscout-redis
     restart: always
     ports:
       - "6379:6379"
@@ -18,9 +18,11 @@ services:
       - redis_data:/data
     command: ["redis-server", "--appendonly", "yes"]
 
-  api:
-    build: ./packages/api
-    container_name: status-scout-api
+  statusscout-api:
+    build:
+      context: .
+      dockerfile: packages/api/Dockerfile
+    container_name: statusscout-api
     restart: always
     ports:
       - "3002:4000"
@@ -50,37 +52,42 @@ services:
       - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
       - TURNSTILE_SECRET_KEY=${TURNSTILE_SECRET_KEY}
     depends_on:
-      - mongodb
-      - redis
+      - statusscout-mongodb
+      - statusscout-redis
 
-  cron:
-    build: ./packages/cron
-    container_name: status-scout-cron
+  statusscout-cron:
+    build:
+      context: .
+      dockerfile: packages/cron/Dockerfile
+    container_name: statusscout-cron
     restart: always
     environment:
       - MONGODB_URI=${MONGODB_URI}
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
     depends_on:
-      - mongodb
-      - redis
+      - statusscout-mongodb
+      - statusscout-redis
 
-  frontend:
+  statusscout-frontend:
     build:
-      context: ./packages/frontend
+      context: .
+      dockerfile: packages/frontend/Dockerfile
       args:
         VITE_BASE_URL: ${VITE_BASE_URL}
         VITE_API_URL: ${API_URL}
         VITE_ENABLE_ANALYTICS: ${VITE_ENABLE_ANALYTICS}
         VITE_STRIPE_PUBLISHABLE_KEY: ${VITE_STRIPE_PUBLISHABLE_KEY}
-    container_name: status-scout-frontend
+    container_name: statusscout-frontend
     restart: always
     ports:
       - "3003:80"
 
-  worker:
-    build: ./packages/worker
-    container_name: status-scout-worker
+  statusscout-worker:
+    build:
+      context: .
+      dockerfile: packages/worker/Dockerfile
+    container_name: statusscout-worker
     restart: always
     stop_signal: SIGTERM
     stop_grace_period: 60s # give the container time to finish jobs
@@ -95,8 +102,8 @@ services:
       - API_URL=${API_URL}
       - APP_URL=${APP_URL}
     depends_on:
-      - mongodb
-      - redis
+      - statusscout-mongodb
+      - statusscout-redis
 
 volumes:
   mongo_data:

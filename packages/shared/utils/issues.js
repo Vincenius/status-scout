@@ -1,3 +1,5 @@
+import { dnsChecksInfo } from './dns.js'
+
 const getIssues = ({ checks, type, getCurrIssues }) => {
   const filteredChecks = checks
     .filter(c => c.check === type)
@@ -61,11 +63,16 @@ export const getIssueHistory = (checks) => {
   const seoIssues = getIssues({ checks, type: 'seo', getCurrIssues: curr => (curr?.result?.details?.items || []).map(i => i.title) })
   const a11yIssues = getIssues({ checks, type: 'a11y', getCurrIssues: curr => (curr?.result?.details?.items || []).map(i => i.title) })
   const linkIssues = getIssues({ checks, type: 'links', getCurrIssues: curr => (curr?.result?.details || []).map(i => `${i.parent} -> ${i.url}`) })
+  const dnsIssues = getIssues({ checks, type: 'dns', getCurrIssues: curr => (Object.entries(curr?.result?.details || {}) || []).filter(([key, val]) => !val.success && key !== 'subdomains').map(([key]) => dnsChecksInfo[key].name) })
+  const subdomainIssues = getIssues({ checks, type: 'dns',
+    getCurrIssues: curr => ((Object.entries(curr?.result?.details || {}) || [])
+      .filter(([key, val]) => !val.success && key === 'subdomains')[0]?.[1]?.issues || [])
+      .map((subdomain) => subdomain.text)
+  })
   const customIssues = getCustomIssues({ checks })
   // TODO performance?
-  // TODO dns!!
 
-  const allIssues = [...sslIssues, ...headerIssues, ...fuzzIssues, ...seoIssues, ...a11yIssues, ...linkIssues, ...customIssues]
+  const allIssues = [...sslIssues, ...headerIssues, ...fuzzIssues, ...seoIssues, ...a11yIssues, ...linkIssues, ...dnsIssues, ...subdomainIssues, ...customIssues]
   const checkDates = checks.map(c => c.createdAt)
   const uniqueDates = [...new Set(checkDates)].sort((a, b) => a - b)
 

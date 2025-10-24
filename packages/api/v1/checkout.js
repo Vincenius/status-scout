@@ -112,6 +112,4 @@ export default async function checkoutRoutes(fastify, opts) {
 
     return { success: true }
   })
-
-  // Todo cancel plan
 }

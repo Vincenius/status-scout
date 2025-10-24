@@ -1,3 +1,4 @@
+
 FROM node:20-alpine AS build
 
 WORKDIR /app
@@ -5,13 +6,14 @@ WORKDIR /app
 # Install corepack to enable Yarn 4
 RUN corepack enable
 
-# Copy only package.json and yarn.lock and install dependencies
-COPY package*.json ./
+# Copy monorepo root package.json and yarn.lock so workspaces are available
+COPY package.json yarn.lock ./
 
-# Force node_modules mode
-RUN yarn config set nodeLinker node-modules
+# Copy packages into image
+COPY packages/ ./packages/
 
-RUN yarn
+# Use yarn from root to install workspace deps so local packages resolve
+RUN yarn config set nodeLinker node-modules && yarn install --frozen-lockfile --production=false
 
 # Accept build arguments from docker-compose
 ARG VITE_BASE_URL
@@ -19,15 +21,15 @@ ARG VITE_APP_URL
 ARG VITE_API_URL
 ARG VITE_ENABLE_ANALYTICS
 
-# Inject environment variables into a .env.production file for Vite
-RUN echo "VITE_ENABLE_ANALYTICS=${VITE_ENABLE_ANALYTICS}" > .env.production && \
-    echo "VITE_BASE_URL=${VITE_BASE_URL}" >> .env.production && \
-    echo "VITE_APP_URL=${VITE_APP_URL}" >> .env.production && \
-    echo "VITE_API_URL=${VITE_API_URL}" >> .env.production
+# Inject environment variables into a .env.production file for Vite inside the landing package
+RUN mkdir -p packages/landing && \
+    echo "VITE_ENABLE_ANALYTICS=${VITE_ENABLE_ANALYTICS}" > packages/landing/.env.production && \
+    echo "VITE_BASE_URL=${VITE_BASE_URL}" >> packages/landing/.env.production && \
+    echo "VITE_APP_URL=${VITE_APP_URL}" >> packages/landing/.env.production && \
+    echo "VITE_API_URL=${VITE_API_URL}" >> packages/landing/.env.production
 
-COPY . .
-
-RUN yarn build
+# Build the landing package
+RUN yarn --cwd packages/landing build
 
 # Serve static files with nginx
 FROM nginx:1.25-alpine

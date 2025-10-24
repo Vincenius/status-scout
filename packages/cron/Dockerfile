@@ -2,12 +2,16 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Install only production dependencies
-COPY package*.json ./
-RUN npm install --production
+# Copy monorepo root package.json and yarn.lock so workspaces are available
+COPY package.json yarn.lock ./
 
-# Copy your app
-COPY . .
+# Copy packages into image
+COPY packages/ ./packages/
+
+# Use yarn from root to install workspace deps so @statusscout/shared resolves locally
+RUN corepack enable && yarn config set nodeLinker node-modules && yarn install --frozen-lockfile --production=false
+
+WORKDIR /app/packages/cron
 
 # Run your script
-CMD ["npm", "start"]
+CMD ["node", "index.js"]

@@ -87,6 +87,29 @@ export function HeaderChart({ status, missingHeaders, size = 'md' }) {
   );
 }
 
+export function DnsChart({ status, details, size = 'md' }) {
+  const s = sizes[size] || sizes.md;
+  const failedDns = details ? Object.values(details).filter(d => !d.success) : [];
+
+  return (
+    <Flex direction="column" align="center">
+      <RingProgress
+        size={s.ring}
+        roundCaps
+        thickness={s.thickness}
+        sections={[{ value: 100, color: failedDns.length === 0 ? 'green' : 'yellow' }]}
+        label={
+          <Center>
+            {status === 'success' && <IconCheck size={s.icon} stroke={3} color="green" />}
+            {status !== 'success' && <Text c="yellow" fw="bold" size={s.text}>{failedDns.length}</Text>}
+          </Center>
+        }
+      />
+      <Text size={s.text}>DNS Records</Text>
+    </Flex>
+  );
+}
+
 export function FuzzChart({ status, files, size = 'md' }) {
   const s = sizes[size] || sizes.md;
   return (
