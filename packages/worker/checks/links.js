@@ -10,7 +10,7 @@ export const runBrokenLinkCheck = async ({ uri, id, websiteId, createdAt, type, 
   const url = new URL(uri);
   const baseUrl = url.origin;
   const checker = new LinkChecker();
-  const crawlLimit = type === 'full' ? 2000 : 200; // todo better limit
+  const crawlLimit = type === 'full' ? 3000 : 200; // todo limit based on plan
 
   const results = await checker.check({
     path: baseUrl,

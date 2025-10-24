@@ -95,13 +95,14 @@ export default async function checkRoutes(fastify, opts) {
         const startOfToday = new Date();
         startOfToday.setHours(0, 0, 0, 0)
 
-        // todo improve handling of logged in user quickchecks
-        const prevChecks = process.env.LIMIT_ENABLED !== 'true' || userId
-          ? null // ignore prev checks if user is logged in or if env is set
-          : await db.collection('quickchecks')
-            .find({ url: baseUrl, createdAt: { $gte: startOfToday } })
-            .sort({ createdAt: -1 })
-            .limit(3).toArray();
+        const prevChecks = []
+        // later todo: limit amount of free quickchecks per day
+        // const prevChecks = userId
+        //   ? null // ignore prev checks if user is logged in
+        //   : await db.collection('quickchecks')
+        //     .find({ url: baseUrl, createdAt: { $gte: startOfToday } })
+        //     .sort({ createdAt: -1 })
+        //     .limit(3).toArray();
 
         if (prevChecks && prevChecks.length >= 3) {
           // return prev check if it was already checked three times today

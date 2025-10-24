@@ -12,7 +12,7 @@ import { runDnsCheck } from './checks/dns.js'
 import { ObjectId } from 'mongodb'
 import { runNotifications, runDailyNotification } from './notification.js'
 
-export const run = async ({ id, type = 'quick', websiteId, quickcheckId, url }) => {
+export const run = async ({ id, triggerName, type = 'quick', websiteId, quickcheckId, url }) => {
   // type (of check) -> quick, extended, full
   try {
     const db = await connectDB()
@@ -56,8 +56,10 @@ export const run = async ({ id, type = 'quick', websiteId, quickcheckId, url }) 
 
     console.log('finished all checks')
 
-    // todo check if not manual trigger
-    await runNotifications({ db, website, check: type })
+    // don't run notifications if the job was triggered manually
+    if (triggerName !== 'api-triggered-job') {
+      await runNotifications({ db, website, check: type })
+    }
   } catch (e) {
     console.error('unexpected error', e)
   }

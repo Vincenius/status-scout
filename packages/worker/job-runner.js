@@ -6,6 +6,7 @@ if (jobData.type === 'custom-flow' && jobData.flowId) {
   // custom flow execution
   runCustomFlow({
     id: jobData.id,
+    triggerName: jobData.triggerName,
     type: jobData.type,
     flowId: jobData.flowId
   })
@@ -20,11 +21,13 @@ if (jobData.type === 'custom-flow' && jobData.flowId) {
 } else if (jobData.type === 'daily-notification' && jobData.websiteId) {
   // daily notification execution
   runNotification({
+    id: jobData.id,
+    triggerName: jobData.triggerName,
     websiteId: jobData.websiteId
   }).then(() => {
-      process.send?.({ status: 'done' });
-      process.exit(0);
-    })
+    process.send?.({ status: 'done' });
+    process.exit(0);
+  })
     .catch((err) => {
       process.send?.({ status: 'error', error: err.message });
       process.exit(1);
@@ -33,10 +36,11 @@ if (jobData.type === 'custom-flow' && jobData.flowId) {
   // regular check
   run({
     id: jobData.id,
+    triggerName: jobData.triggerName,
     type: jobData.type,
     websiteId: jobData.websiteId,
     quickcheckId: jobData.quickcheckId,
-    url: jobData.url
+    url: jobData.url,
   })
     .then(() => {
       process.send?.({ status: 'done' });

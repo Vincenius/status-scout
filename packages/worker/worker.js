@@ -27,6 +27,7 @@ const worker = new Worker(
           ...process.env,
           JOB_DATA: JSON.stringify({
             id: job.id,
+            triggerName: job.name,
             ...job.data,
           }),
         }

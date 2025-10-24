@@ -20,7 +20,7 @@ export default async function feedbackRoutes(fastify, opts) {
     const body = request.body || {}
 
     await sendEmail({
-      to: process.env.FEEDBACK_EMAIL,
+      to: 'hello@statusscout.dev',
       subject: 'StatusScout Feedback',
       html: emailTemplate(body),
     })

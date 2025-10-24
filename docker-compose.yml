@@ -16,7 +16,14 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
-    command: ["redis-server", "--appendonly", "yes"]
+      - ./redis.conf:/usr/local/etc/redis/redis.conf:ro
+    command: >
+      sh -c "if [ -f /usr/local/etc/redis/redis.conf ]; then
+        redis-server /usr/local/etc/redis/redis.conf;
+      else
+        echo 'No redis.conf found — starting with default config';
+        redis-server;
+      fi"
 
   statusscout-api:
     build:
@@ -32,18 +39,12 @@ services:
       - APP_URL=${APP_URL}
       - API_KEY=${API_KEY}
       - MONGODB_URI=${MONGODB_URI}
-      - ADMIN_USER=${ADMIN_USER}
-      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
       - SESSION_SECRET=${SESSION_SECRET}
-      - TMP_USER_ID=${TMP_USER_ID}
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
-      - LIMIT_ENABLED=${LIMIT_ENABLED}
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - SENDER_EMAIL=${SENDER_EMAIL}
-      - FEEDBACK_EMAIL=${FEEDBACK_EMAIL}
-      - BREVO_API_KEY=${BREVO_API_KEY}
       - PASSWORD_HASH_SECRET=${PASSWORD_HASH_SECRET}
       - BIRD_WORKSPACE_ID=${BIRD_WORKSPACE_ID}
       - BIRD_API_KEY=${BIRD_API_KEY}
@@ -74,10 +75,11 @@ services:
       context: .
       dockerfile: packages/frontend/Dockerfile
       args:
-        VITE_BASE_URL: ${VITE_BASE_URL}
+        VITE_BASE_URL: ${APP_URL}
         VITE_API_URL: ${API_URL}
         VITE_ENABLE_ANALYTICS: ${VITE_ENABLE_ANALYTICS}
         VITE_STRIPE_PUBLISHABLE_KEY: ${VITE_STRIPE_PUBLISHABLE_KEY}
+        VITE_FEATURE_REGISTRATION: ${VITE_FEATURE_REGISTRATION}
     container_name: statusscout-frontend
     restart: always
     ports:
@@ -97,7 +99,6 @@ services:
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
       - CONCURRENT_RUNS=${CONCURRENT_RUNS}
-      - NOTIFICATION_ENABLED=${NOTIFICATION_ENABLED}
       - API_KEY=${API_KEY}
       - API_URL=${API_URL}
       - APP_URL=${APP_URL}
