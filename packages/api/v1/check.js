@@ -77,7 +77,6 @@ export default async function checkRoutes(fastify, opts) {
       })
     }).then(res => res.json())
 
-    console.log('verification', verification)
     if (!verification.success) {
       return reply.code(400).send({ error: 'Captcha verification failed' });
     }
