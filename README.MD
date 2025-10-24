@@ -31,6 +31,8 @@ assets/              # Static assets (e.g., logo)
 
 ## Getting Started
 
+Disclaimer: The self-hosting guide is in progress. I'm working on a lot of improvements to make the inital setup way easier. Stay tuned!
+
 ### Prerequisites
 
 - Node.js (v18+ recommended)
@@ -109,10 +111,6 @@ Or run each package separately
 - The worker runs periodic checks and stores results in MongoDB.
 - The API provides endpoints for fetching status data.
 - Custom flows can be configured for advanced checks.
-
-## Contributing
-
-Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
 
 ## License
 
