@@ -492,7 +492,7 @@ function Report({ website, checks, status, isQuickCheck = false }) {
 
             {customFlowLength === 0 && <>
               <Text size="md" ta="center" fs="italic">No custom flows have been defined for this Report.</Text>
-              <Button component={Link} to="/custom-checks" mt="md" mx="auto" display="block" w={300}>
+              <Button component={Link} to={`/website/${website.index}/custom-flows`} mt="md" mx="auto" display="block" w={300}>
                 Create Custom Test Flow
               </Button>
             </>}
