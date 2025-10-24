@@ -11,7 +11,7 @@ export const mapUser = (user) => {
 };
 
 export const isProUser = (user) => {
-  return user.subscription && user.subscription.plan === 'pro'
+  return user.subscription && (user.subscription.plan === 'pro' || user.subscription.plan === 'trial')
     && (!user.subscription.expiresAt || (new Date(user.subscription.expiresAt) > new Date()));
 }
 

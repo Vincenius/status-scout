@@ -1,5 +1,5 @@
 services:
-  landing:
+  statusscout-landing:
     build:
       args:
         VITE_BASE_URL: ${VITE_BASE_URL}
@@ -7,7 +7,7 @@ services:
         VITE_APP_URL: ${VITE_APP_URL}
         VITE_ENABLE_ANALYTICS: ${VITE_ENABLE_ANALYTICS}
         VITE_TURNSTILE_SITE_KEY: ${VITE_TURNSTILE_SITE_KEY}
-    container_name: status-scout-landing
+    container_name: statusscout-landing
     restart: always
     ports:
       - "3005:80"
