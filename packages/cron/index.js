@@ -126,4 +126,4 @@ cron.schedule('20 */10 * * * *', () => tryRun('quick'))
 // run once immediately
 // tryRun('quick')
 // cleanUp()
-runNotifications()
+// runNotifications()

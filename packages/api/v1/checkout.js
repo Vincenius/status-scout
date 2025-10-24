@@ -4,8 +4,8 @@ import { ObjectId } from 'mongodb';
 import fastifyPassport from '@fastify/passport';
 
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY)
-const monthlyPrice = 'price_1SKyJBPPz8S4AVQPQ3tniyFX'
-const yearlyPrice = 'price_1SKyJBPPz8S4AVQPzeNHR1bN'
+const monthlyPrice = process.env.STRIPE_MONTHLY_PRICE_ID
+const yearlyPrice = process.env.STRIPE_YEARLY_PRICE_ID
 
 export default async function checkoutRoutes(fastify, opts) {
   fastify.post('/session', { preValidation: fastifyPassport.authenticate('session', { failureRedirect: '/login' }) }, async (request, reply) => {
