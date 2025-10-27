@@ -230,7 +230,12 @@ function Report({ website, checks, status, isQuickCheck = false }) {
         <Card.Section withBorder py="xl" px={{ base: "md", md: "xl" }} ref={fuzzRef}>
           {fuzzCheck && <>
             <FuzzChart status={fuzzCheck.result.status} files={fuzzCheck.result.details.files} size="lg" />
-            {exposedFiles.length === 0 && <Text size="md" ta="center" fs="italic">No exposed files found.</Text>}
+            {exposedFiles.length === 0 && <Text size="md" ta="center" fs="italic">
+              No exposed files found.
+            </Text>}
+            {isQuickCheck && <Text size="md" ta="center" fs="italic" mt="sm">
+              The quick check scan is limited to 165 most common files. Sign-up for a full scan.
+            </Text>}
           </>}
           {!fuzzCheck && <LoadingChart label="Sensitive Files" size="lg" checkState={checkState} />}
           <Blockquote p="md" my="md" maw={600} mx="auto">The sensitive files check identifies publicly accessible files that may contain confidential information, helping to prevent data breaches and enhance website security.</Blockquote>
@@ -356,6 +361,9 @@ function Report({ website, checks, status, isQuickCheck = false }) {
             {linkCheck.result.details.filter(item => !ignore.map(i => i.item).includes(item.url)).length === 0 && <Text size="md" ta="center" fs="italic">No broken links were found.</Text>}
           </>}
           {!linkCheck && <LoadingChart label="Broken Links" size="lg" checkState={checkState} />}
+          {isQuickCheck && <Text size="md" ta="center" fs="italic" mt="sm">
+            The quick check scan only checks up to 200 links. Sign-up to check up to than 3000 links.
+          </Text>}
           <Blockquote p="md" my="md" maw={600} mx="auto">Fixing broken links improves user experience, enhances SEO rankings, and maintains website credibility by ensuring all links lead to valid destinations.</Blockquote>
 
           {linkCheck && linkCheck.result.details.length > 0 &&
