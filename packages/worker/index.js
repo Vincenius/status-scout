@@ -23,18 +23,20 @@ export const run = async ({ id, triggerName, type = 'quick', websiteId, quickche
     const createdAt = new Date().toISOString()
     console.log(createdAt, `run ${type} status check for`, website.domain)
 
+    await db.collection('websites').updateOne({ _id: website._id }, { $set: { lastCheckId: id } })
+
     const baseParams = { id, uri: website.domain, db, websiteId: website._id, quickcheckId, createdAt }
 
     const checks = [
       runUptimeCheck(baseParams),
       runHeaderCheck(baseParams),
       runSslCheck(baseParams),
-      runDnsCheck(baseParams),
     ]
 
     if (type === 'extended' || type === 'full' || type === 'free') {
       checks.push(
         runFuzzCheck({ ...baseParams, type }),
+        runDnsCheck(baseParams),
       )
     }
 

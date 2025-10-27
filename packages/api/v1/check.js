@@ -31,7 +31,6 @@ export default async function checkRoutes(fastify, opts) {
 
       if (website) {
         const { message, waitingIndex, jobId } = await runJob({ websiteId, type: 'full' })
-        await db.collection('websites').updateOne({ _id: website._id }, { $set: { lastCheckId: jobId } })
 
         return { message, waitingIndex, jobId }
       } else {
@@ -53,7 +52,27 @@ export default async function checkRoutes(fastify, opts) {
 
       if (website) {
         const status = await getJobStatus(website.lastCheckId)
-        const checks = await db.collection('checks').find({ websiteId: website._id, jobId: jobId || website.lastCheckId }).toArray()
+        const checks = jobId
+          ? await db.collection('checks').find({ websiteId: website._id, jobId: jobId }).toArray()
+          : await db.collection('checks').aggregate([
+            { $match: { websiteId: website._id } },
+            { $sort: { check: 1, createdAt: -1 } },
+            {
+              $group: {
+                _id: "$check",
+                entries: { $push: "$$ROOT" }
+              }
+            },
+            {
+              $project: {
+                _id: 0,
+                check: "$_id",
+                entries: { $slice: ["$entries", 1] }
+              }
+            },
+            { $unwind: "$entries" },
+            { $replaceRoot: { newRoot: "$entries" } }
+          ]).toArray()
 
         return { checks, status };
       } else {

@@ -144,7 +144,7 @@ function Report({ website, checks, status, isQuickCheck = false }) {
   const customFlowsRef = useRef(null);
   const dnsRef = useRef(null);
 
-  const checkFailed = status?.state === 'failed'
+  const checkState = status?.state
 
   const scrollToRef = (ref) => {
     ref.current?.scrollIntoView({ behavior: 'smooth' });
@@ -173,46 +173,46 @@ function Report({ website, checks, status, isQuickCheck = false }) {
           <SimpleGrid cols={{ base: 2, xs: 3, lg: 5 }} spacing="xl" mb="md">
             <Flex direction="column" align="center" onClick={() => scrollToRef(sslRef)} style={{ cursor: 'pointer' }}>
               {sslCheck && <SSLChart status={sslCheck.result.status} />}
-              {!sslCheck && <LoadingChart label="SSL Certificate" checkFailed={checkFailed} />}
+              {!sslCheck && <LoadingChart label="SSL Certificate" checkState={checkState} />}
             </Flex>
 
             <Flex direction="column" align="center" onClick={() => scrollToRef(fuzzRef)} style={{ cursor: 'pointer' }}>
               {fuzzCheck && <FuzzChart status={fuzzCheck.result.status} files={fuzzCheck.result.details.files} />}
-              {!fuzzCheck && <LoadingChart label="Sensitive Files" checkFailed={checkFailed} />}
+              {!fuzzCheck && <LoadingChart label="Sensitive Files" checkState={checkState} />}
             </Flex>
             <Flex direction="column" align="center" onClick={() => scrollToRef(performanceRef)} style={{ cursor: 'pointer' }}>
               {performanceCheck && <PerformanceChart performances={performances} />}
-              {!performanceCheck && <LoadingChart label="Performance" checkFailed={checkFailed} />}
+              {!performanceCheck && <LoadingChart label="Performance" checkState={checkState} />}
             </Flex>
 
             <Flex direction="column" align="center" onClick={() => scrollToRef(seoRef)} style={{ cursor: 'pointer' }}>
               {seoCheck && <SEOChart score={seoCheck.result.details.score.toFixed(0)} />}
-              {!seoCheck && <LoadingChart label="SEO Score" checkFailed={checkFailed} />}
+              {!seoCheck && <LoadingChart label="SEO Score" checkState={checkState} />}
             </Flex>
 
             <Flex direction="column" align="center" onClick={() => scrollToRef(a11yRef)} style={{ cursor: 'pointer' }}>
               {a11yCheck && <AccessibilityChart score={a11yCheck.result.details.score.toFixed(0)} />}
-              {!a11yCheck && <LoadingChart label="Accessibility" checkFailed={checkFailed} />}
+              {!a11yCheck && <LoadingChart label="Accessibility" checkState={checkState} />}
             </Flex>
 
             <Flex direction="column" align="center" onClick={() => scrollToRef(linksRef)} style={{ cursor: 'pointer' }}>
               {linkCheck && <BrokenLinksChart brokenLinks={brokenLinks} />}
-              {!linkCheck && <LoadingChart label="Broken Links" checkFailed={checkFailed} />}
+              {!linkCheck && <LoadingChart label="Broken Links" checkState={checkState} />}
             </Flex>
 
             <Flex direction="column" align="center" onClick={() => scrollToRef(dnsRef)} style={{ cursor: 'pointer' }}>
               {dnsCheck && <DnsChart status={dnsCheck.result.status} details={dnsCheck.result.details} />}
-              {!dnsCheck && <LoadingChart label="DNS Records" checkFailed={checkFailed} />}
+              {!dnsCheck && <LoadingChart label="DNS Records" checkState={checkState} />}
             </Flex>
 
             <Flex direction="column" align="center" onClick={() => scrollToRef(headersRef)} style={{ cursor: 'pointer' }}>
               {headersCheck && <HeaderChart status={headersCheck.result.status} missingHeaders={headersCheck.result.details.missingHeaders} />}
-              {!headersCheck && <LoadingChart label="HTTP Headers" checkFailed={checkFailed} />}
+              {!headersCheck && <LoadingChart label="HTTP Headers" checkState={checkState} />}
             </Flex>
 
             {!isQuickCheck && <Flex direction="column" align="center" onClick={() => scrollToRef(customFlowsRef)} style={{ cursor: 'pointer' }}>
               {customChecks && <CustomFlowsChart checks={customChecks} customFlowLength={customFlowLength} />}
-              {!customChecks && <LoadingChart label="Custom Flows" checkFailed={checkFailed} />}
+              {!customChecks && <LoadingChart label="Custom Flows" checkState={checkState} />}
             </Flex>}
           </SimpleGrid>
         </Card.Section>
@@ -221,7 +221,7 @@ function Report({ website, checks, status, isQuickCheck = false }) {
             <SSLChart status={sslCheck.result.status} size="lg" />
             {sslCheck.result.status === 'success' && <Text size="md" ta="center" fs="italic">Valid until {new Date(sslCheck.result.details.validTo).toLocaleDateString()}</Text>}
           </>}
-          {!sslCheck && <LoadingChart label="SSL Certificate" size="lg" checkFailed={checkFailed} />}
+          {!sslCheck && <LoadingChart label="SSL Certificate" size="lg" checkState={checkState} />}
 
           <Blockquote p="md" my="md" maw={600} mx="auto">An SSL certificate ensures encrypted data transmission, signals trust to users with the padlock symbol, and may enhance search engine rankings.</Blockquote>
 
@@ -232,7 +232,7 @@ function Report({ website, checks, status, isQuickCheck = false }) {
             <FuzzChart status={fuzzCheck.result.status} files={fuzzCheck.result.details.files} size="lg" />
             {exposedFiles.length === 0 && <Text size="md" ta="center" fs="italic">No exposed files found.</Text>}
           </>}
-          {!fuzzCheck && <LoadingChart label="Sensitive Files" size="lg" checkFailed={checkFailed} />}
+          {!fuzzCheck && <LoadingChart label="Sensitive Files" size="lg" checkState={checkState} />}
           <Blockquote p="md" my="md" maw={600} mx="auto">The sensitive files check identifies publicly accessible files that may contain confidential information, helping to prevent data breaches and enhance website security.</Blockquote>
 
           {fuzzCheck && exposedFiles.length > 0 && <>
@@ -268,7 +268,7 @@ function Report({ website, checks, status, isQuickCheck = false }) {
 
         <Card.Section withBorder py="xl" px={{ base: "md", md: "xl" }} ref={performanceRef}>
           {performanceCheck && <PerformanceChart performances={performances} size="lg" />}
-          {!performanceCheck && <LoadingChart label="Performance" size="lg" checkFailed={checkFailed} />}
+          {!performanceCheck && <LoadingChart label="Performance" size="lg" checkState={checkState} />}
 
           <Blockquote p="md" my="md" maw={600} mx="auto">Good Core Web Vitals enhance user experience, improve search rankings, and boost engagement by ensuring fast, responsive, and stable web pages.</Blockquote>
 
@@ -288,7 +288,7 @@ function Report({ website, checks, status, isQuickCheck = false }) {
             <SEOChart score={seoCheck.result.details.score} size="lg" />
             {seoCheck.result.details.items.length === 0 && <Text size="md" ta="center" fs="italic">No SEO issues were found.</Text>}
           </>}
-          {!seoCheck && <LoadingChart label="SEO Score" size="lg" checkFailed={checkFailed} />}
+          {!seoCheck && <LoadingChart label="SEO Score" size="lg" checkState={checkState} />}
 
           <Blockquote p="md" my="md" maw={600} mx="auto">A good SEO score improves search engine rankings, increases organic traffic, and enhances online visibility, leading to greater reach and potential customer engagement.</Blockquote>
 
@@ -322,7 +322,7 @@ function Report({ website, checks, status, isQuickCheck = false }) {
             <AccessibilityChart score={a11yCheck.result.details.score} size="lg" />
             {a11yCheck.result.details.items.length === 0 && <Text size="md" ta="center" fs="italic">No accessibility issues were found.</Text>}
           </>}
-          {!a11yCheck && <LoadingChart label="Accessibility" size="lg" checkFailed={checkFailed} />}
+          {!a11yCheck && <LoadingChart label="Accessibility" size="lg" checkState={checkState} />}
 
           <Blockquote p="md" my="md" maw={600} mx="auto">A high accessibility score ensures inclusivity, enhances user experience for all visitors, and helps meet legal compliance standards, broadening your audience reach.</Blockquote>
 
@@ -355,7 +355,7 @@ function Report({ website, checks, status, isQuickCheck = false }) {
             <BrokenLinksChart brokenLinks={brokenLinks} size="lg" />
             {linkCheck.result.details.filter(item => !ignore.map(i => i.item).includes(item.url)).length === 0 && <Text size="md" ta="center" fs="italic">No broken links were found.</Text>}
           </>}
-          {!linkCheck && <LoadingChart label="Broken Links" size="lg" checkFailed={checkFailed} />}
+          {!linkCheck && <LoadingChart label="Broken Links" size="lg" checkState={checkState} />}
           <Blockquote p="md" my="md" maw={600} mx="auto">Fixing broken links improves user experience, enhances SEO rankings, and maintains website credibility by ensuring all links lead to valid destinations.</Blockquote>
 
           {linkCheck && linkCheck.result.details.length > 0 &&
@@ -394,7 +394,7 @@ function Report({ website, checks, status, isQuickCheck = false }) {
             <DnsChart status={dnsCheck.result.status} details={dnsCheck.result.details} size="lg" />
             {Object.values(dnsCheck.result.details).filter(d => !d.success).length === 0 && <Text size="md" ta="center" fs="italic">No DNS issues found.</Text>}
           </>}
-          {!dnsCheck && <LoadingChart label="DNS Records" size="lg" checkFailed={checkFailed} />}
+          {!dnsCheck && <LoadingChart label="DNS Records" size="lg" checkState={checkState} />}
 
           <Blockquote p="md" my="md" maw={600} mx="auto">DNS checks ensure your domain’s availability, email deliverability, and security. Missing or misconfigured records can lead to downtime, lost emails, or spoofing risks. Regular audits help maintain a stable and trusted domain.</Blockquote>
 
@@ -447,7 +447,7 @@ function Report({ website, checks, status, isQuickCheck = false }) {
             <HeaderChart status={headersCheck.result.status} missingHeaders={headersCheck.result.details.missingHeaders} size="lg" />
             {headersCheck.result.details.missingHeaders.length === 0 && <Text size="md" ta="center" fs="italic">All important security headers are present.</Text>}
           </>}
-          {!headersCheck && <LoadingChart label="HTTP Headers" size="lg" checkFailed={checkFailed} />}
+          {!headersCheck && <LoadingChart label="HTTP Headers" size="lg" checkState={checkState} />}
 
           <Blockquote p="md" my="md" maw={600} mx="auto">HTTP security headers help protect websites from common attacks, strengthen user trust, and can improve security compliance.</Blockquote>
 
@@ -487,7 +487,7 @@ function Report({ website, checks, status, isQuickCheck = false }) {
             {customChecks && <>
               <CustomFlowsChart checks={customChecks} customFlowLength={customFlowLength} size="lg" />
             </>}
-            {!customChecks && <LoadingChart label="Custom Flows" size="lg" checkFailed={checkFailed} />}
+            {!customChecks && <LoadingChart label="Custom Flows" size="lg" checkState={checkState} />}
             <Blockquote p="md" my="md" maw={600} mx="auto">Custom test flows allow you to define a series of actions and assertions to be executed on your website.</Blockquote>
 
             {customFlowLength === 0 && <>

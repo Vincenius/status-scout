@@ -6,13 +6,13 @@ const sizes = {
   lg: { ring: 120, text: 'lg', thickness: 12 },
 };
 
-export const LoadingChart = ({ size = 'md', label, checkFailed }) => {
+export const LoadingChart = ({ size = 'md', label, checkState }) => {
   const s = {
     md: { ring: 64, padding: 8, text: 'sm' },
     lg: { ring: 96, padding: 12, text: 'lg' },
   }[size]
 
-  if (checkFailed) {
+  if (checkState === 'failed' || checkState === 'completed') {
     return (
       <Flex direction="column" align="center">
         <RingProgress
@@ -26,10 +26,8 @@ export const LoadingChart = ({ size = 'md', label, checkFailed }) => {
             </Center>
           }
         />
-
         <Text size={s.text}>{label}</Text>
       </Flex>
-
     );
   }
 

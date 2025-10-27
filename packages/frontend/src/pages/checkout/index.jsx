@@ -9,6 +9,8 @@ import {
 import { useAuthSWR } from '@/utils/useAuthSWR'
 import { useNavigate } from 'react-router-dom';
 
+// todo dark mode
+// https://docs.stripe.com/connect/embedded-appearance-support-dark-mode
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 function Checkout() {

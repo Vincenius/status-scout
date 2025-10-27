@@ -17,7 +17,10 @@ async function tryRun(type) {
     const now = new Date()
     const users = await db.collection('users').find({
       confirmed: true,
-      'subscription.expiresAt': { $gt: now },
+      $or: [
+        { 'subscription.expiresAt': { $gt: now } },
+        { 'subscription.expiresAt': { $exists: false } },
+      ],
       $or: [
         { 'subscription.plan': 'pro' },
         { 'subscription.plan': 'trial' }
@@ -52,7 +55,10 @@ async function runNotifications() {
     const now = new Date()
     const users = await db.collection('users').find({
       confirmed: true,
-      'subscription.expiresAt': { $gt: now },
+      $or: [
+        { 'subscription.expiresAt': { $gt: now } },
+        { 'subscription.expiresAt': { $exists: false } },
+      ],
       $or: [
         { 'subscription.plan': 'pro' },
         { 'subscription.plan': 'trial' }
@@ -124,6 +130,6 @@ cron.schedule('10 0 */2 * * *', () => tryRun('extended'))
 cron.schedule('20 */10 * * * *', () => tryRun('quick'))
 
 // run once immediately
-// tryRun('quick')
+tryRun('quick')
 // cleanUp()
 // runNotifications()
