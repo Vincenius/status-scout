@@ -117,8 +117,6 @@ export const runDailyNotification = async ({ db, website }) => {
     ]).toArray(),
   ])
 
-  console.log({ todayCheck, yesterdayCheck })
-
   if (!todayCheck || !yesterdayCheck) {
     console.log('not enough data for daily notification')
     return
