@@ -16,7 +16,7 @@ const run = async () => {
     //   uri: website.domain,
     // });
     // const test = await runSubfinder('statusscout.dev')
-    await runDailyNotification({ db, website })
+    // await runDailyNotification({ db, website })
   } catch (e) {
     console.error('Error running test:', e);
   } finally {

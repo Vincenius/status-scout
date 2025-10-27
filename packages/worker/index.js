@@ -25,7 +25,7 @@ export const run = async ({ id, triggerName, type = 'quick', websiteId, quickche
 
     await db.collection('websites').updateOne({ _id: website._id }, { $set: { lastCheckId: id } })
 
-    const baseParams = { id, uri: website.domain, db, websiteId: website._id, quickcheckId, createdAt }
+    const baseParams = { id, uri: website.domain, db, websiteId: website._id, quickcheckId, createdAt, type }
 
     const checks = [
       runUptimeCheck(baseParams),
@@ -35,7 +35,7 @@ export const run = async ({ id, triggerName, type = 'quick', websiteId, quickche
 
     if (type === 'extended' || type === 'full' || type === 'free') {
       checks.push(
-        runFuzzCheck({ ...baseParams, type }),
+        runFuzzCheck(baseParams),
         runDnsCheck(baseParams),
       )
     }
@@ -50,7 +50,7 @@ export const run = async ({ id, triggerName, type = 'quick', websiteId, quickche
       checks.push(
         runLighthouseCheck(baseParams),
         runPerformanceCheck(baseParams),
-        runBrokenLinkCheck({ ...baseParams, type })
+        runBrokenLinkCheck(baseParams)
       )
     }
 
@@ -60,7 +60,7 @@ export const run = async ({ id, triggerName, type = 'quick', websiteId, quickche
 
     // don't run notifications if the job was triggered manually
     if (triggerName !== 'api-triggered-job') {
-      await runNotifications({ db, website, check: type })
+      await runNotifications({ db, website })
     }
   } catch (e) {
     console.error('unexpected error', e)

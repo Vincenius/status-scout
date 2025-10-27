@@ -51,7 +51,7 @@ export default async function checkRoutes(fastify, opts) {
       const website = await db.collection('websites').findOne({ index: websiteId, userId })
 
       if (website) {
-        const status = await getJobStatus(website.lastCheckId)
+        const status = await getJobStatus(jobId || website.lastCheckId)
         const checks = jobId
           ? await db.collection('checks').find({ websiteId: website._id, jobId: jobId }).toArray()
           : await db.collection('checks').aggregate([

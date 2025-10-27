@@ -65,7 +65,7 @@ async function checkTxtRecords(name) {
   }
 }
 
-export const runDnsCheck = async ({ uri, id, websiteId, createdAt, quickcheckId }) => {
+export const runDnsCheck = async ({ uri, id, websiteId, createdAt, quickcheckId, type }) => {
   // get domain from domain
   const domain = new URL(uri).hostname;
   console.log(`Running dns check for ${uri}`)
@@ -123,5 +123,5 @@ export const runDnsCheck = async ({ uri, id, websiteId, createdAt, quickcheckId 
     status: Object.values(results).every(res => res.success) ? 'success' : 'fail',
     details: results,
   }
-  await createCheckResult({ id, websiteId, createdAt, check: 'dns', result, quickcheckId })
+  await createCheckResult({ id, websiteId, createdAt, check: 'dns', result, quickcheckId, type })
 };

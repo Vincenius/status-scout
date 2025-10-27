@@ -34,9 +34,6 @@ RUN yarn --cwd packages/frontend build
 # Serve static files with nginx
 FROM nginx:1.25-alpine
 
-# Copy custom nginx config
-COPY --from=build /app/packages/frontend/nginx.conf /etc/nginx/conf.d/default.conf
-
 # Copy build output
 COPY --from=build /app/packages/frontend/dist /usr/share/nginx/html
 

@@ -2,7 +2,7 @@ import playwright from 'playwright'
 import { ObjectId } from 'mongodb'
 import { createCheckResult } from '../db.js'
 
-export const runCustomChecks = async ({ uri, id, db, websiteId, flowId, createdAt, quickcheckId }) => {
+export const runCustomChecks = async ({ uri, id, db, websiteId, flowId, createdAt, quickcheckId, type }) => {
   console.log(`Running custom checks${uri ? ` for ${uri}` : ''}${flowId ? ` with flow ${flowId}` : ''}`)
   const browser = await playwright.chromium.launch()
   const context = await browser.newContext()
@@ -115,7 +115,7 @@ export const runCustomChecks = async ({ uri, id, db, websiteId, flowId, createdA
           }
         }
 
-        await createCheckResult({ id, websiteId, createdAt, check: 'custom', result, quickcheckId, flowId: check._id.toString() })
+        await createCheckResult({ id, websiteId, createdAt, check: 'custom', result, quickcheckId, flowId: check._id.toString(), type })
         await db.collection('flows').updateOne(
           { _id: check._id },
           { $set: { lastCheckId: id } }

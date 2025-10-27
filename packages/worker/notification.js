@@ -84,32 +84,26 @@ export const runDailyNotification = async ({ db, website }) => {
   // only consider checks from the last 24 hours
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000)
 
-  const [uptime, checks, latestCheck] = await Promise.all([
+  const [uptime, [todayCheck], [yesterdayCheck]] = await Promise.all([
     db.collection('checks').find({ websiteId: website._id, check: 'uptime', createdAt: { $gte: since.toISOString() } })
       .sort({ createdAt: -1 })
       .limit(2)
       .toArray(),
     db.collection('checks').aggregate([
-      { $match: { websiteId: website._id, check: { $ne: 'uptime' }, createdAt: { $gte: since.toISOString() } } },
+      { $match: { websiteId: website._id, check: { $ne: 'uptime' }, createdAt: { $gte: since.toISOString() }, checkType: 'full' } },
       { $sort: { check: 1, createdAt: -1 } },
       {
         $group: {
           _id: "$check",
-          entries: { $push: "$$ROOT" }
+          latest: { $first: "$$ROOT" }
         }
       },
       {
-        $project: {
-          _id: 0,
-          check: "$_id",
-          entries: { $slice: ["$entries", 144] } // 6 samples per hour for 24h
-        }
-      },
-      { $unwind: "$entries" },
-      { $replaceRoot: { newRoot: "$entries" } }
+        $replaceRoot: { newRoot: "$latest" }
+      }
     ]).toArray(),
     db.collection('checks').aggregate([
-      { $match: { websiteId: website._id, check: { $ne: 'uptime' }, createdAt: { $lt: since.toISOString() } } },
+      { $match: { websiteId: website._id, check: { $ne: 'uptime' }, createdAt: { $lt: since.toISOString() }, checkType: 'full' } },
       { $sort: { check: 1, createdAt: -1 } },
       {
         $group: {
@@ -122,6 +116,13 @@ export const runDailyNotification = async ({ db, website }) => {
       }
     ]).toArray(),
   ])
+
+  console.log({ todayCheck, yesterdayCheck })
+
+  if (!todayCheck || !yesterdayCheck) {
+    console.log('not enough data for daily notification')
+    return
+  }
 
   const issues = getIssueHistory([...checks, ...latestCheck])
   issues.pop()

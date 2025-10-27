@@ -1,6 +1,6 @@
 import { createCheckResult } from '../db.js'
 
-export const runUptimeCheck = async ({ uri, id, websiteId, createdAt, quickcheckId }) => {
+export const runUptimeCheck = async ({ uri, id, websiteId, createdAt, quickcheckId, type }) => {
   console.log(`Running uptime check for ${uri}`)
   const result = {
     status: '', // success or fail
@@ -32,5 +32,5 @@ export const runUptimeCheck = async ({ uri, id, websiteId, createdAt, quickcheck
     }
   }
 
-  await createCheckResult({ id, websiteId, createdAt, check: 'uptime', result, quickcheckId })
+  await createCheckResult({ id, websiteId, createdAt, check: 'uptime', result, quickcheckId, type })
 }

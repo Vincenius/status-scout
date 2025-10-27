@@ -10,6 +10,11 @@ const queue = new Queue('checks', { connection })
 
 export const getJobStatus = async (id) => {
   const freshJob = await queue.getJob(id)
+
+  if (!freshJob || freshJob?.id !== id) { // job not found
+    return { state: 'active', waitingIndex: null }
+  }
+
   const state = await freshJob.getState()
   let waitingIndex = null
 

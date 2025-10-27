@@ -10,7 +10,8 @@ import { useSearchParams } from "react-router-dom";
 function ReportPage() {
   const { id } = useParams();
   const [searchParams] = useSearchParams();
-  const jobId = searchParams.get("j_id");
+  const jobIdQueryParam = searchParams.get("j_id");
+  const [jobId, setJobId] = useState(jobIdQueryParam);
   const [loading, setLoading] = useState(false);
   const intervalRef = useRef(null);
   const { data: user } = useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/user`)
@@ -54,9 +55,15 @@ function ReportPage() {
       },
       credentials: 'include',
       body: JSON.stringify({ id: website.id })
-    });
-    mutate();
-    setLoading(false);
+    }).then(res => res.json())
+      .then(data => {
+        if (data?.jobId) {
+          setJobId(data.jobId);
+        }
+      }).finally(() => {
+        mutate();
+        setLoading(false);
+      });
   }
 
   if (!isLoadingWebsites && !website) {

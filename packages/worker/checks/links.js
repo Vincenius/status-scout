@@ -10,12 +10,12 @@ export const runBrokenLinkCheck = async ({ uri, id, websiteId, createdAt, type, 
   const url = new URL(uri);
   const baseUrl = url.origin;
   const checker = new LinkChecker();
-  const crawlLimit = type === 'full' ? 3000 : 200; // todo limit based on plan
+  const crawlLimit = type === 'free' ? 200 : 3000;
 
   const results = await checker.check({
     path: baseUrl,
     recurse: true,
-    timeout: 30000, // 30 seconds timeout
+    timeout: 15000, // 15 seconds timeout
     linksToSkip: (url) => {
       const isFile = fileRegex.test(url); // skip files
       const skip = skipList.some(skip => url.includes(skip));
@@ -37,5 +37,5 @@ export const runBrokenLinkCheck = async ({ uri, id, websiteId, createdAt, type, 
     }))
   }
 
-  await createCheckResult({ id, websiteId, createdAt, check: 'links', result, quickcheckId })
+  await createCheckResult({ id, websiteId, createdAt, check: 'links', result, quickcheckId, type })
 }

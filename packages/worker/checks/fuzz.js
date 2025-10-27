@@ -12,7 +12,7 @@ export const runFuzzCheck = async ({ uri, id, db, websiteId, createdAt, type, qu
     .toArray();
 
   const prevFiles = (prevCheck?.result?.details?.files || []).map(f => f.file)
-  const file = type === 'full' ? 'fuzz_all.txt' : 'fuzz_base.txt' // https://github.com/Bo0oM/fuzz.txt
+  const file = type === 'free' ? 'fuzz_base.txt' : 'fuzz_all.txt' // https://github.com/Bo0oM/fuzz.txt
   const fuzzPath = path.join(process.cwd(), `utils/${file}`)
   const fuzzFile = fs.readFileSync(fuzzPath).toString()
   const fuzzFiles = fuzzFile.split('\n')
@@ -47,5 +47,5 @@ export const runFuzzCheck = async ({ uri, id, db, websiteId, createdAt, type, qu
     },
   }
 
-  await createCheckResult({ id, websiteId, createdAt, check: 'fuzz', result, quickcheckId })
+  await createCheckResult({ id, websiteId, createdAt, check: 'fuzz', result, quickcheckId, type })
 }
