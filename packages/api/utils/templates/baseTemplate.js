@@ -12,7 +12,7 @@ const baseTemplate = ({ content, unsubscribeLink }) => `
   <mj-body background-color="#f9f9f9">
     <mj-section padding="40px 0">
       <mj-column width="100%" vertical-align="middle">
-        <mj-image src="https://img.mailinblue.com/9770722/images/content_library/original/68a4bed3103db5aa2c3e72bb.png" alt="StatusScout Logo" width="240px" />
+        <mj-image src="${process.env.APP_URL}/text-logo.png" alt="StatusScout Logo" width="240px" />
       </mj-column>
     </mj-section>
 
@@ -22,7 +22,7 @@ const baseTemplate = ({ content, unsubscribeLink }) => `
 
     <mj-section padding="30px 0 10px 0">
       <mj-column>
-        <mj-image src="https://img.mailinblue.com/9770722/images/content_library/original/68a4bed3103db5aa2c3e72bb.png" alt="StatusScout Logo" width="120px" />
+        <mj-image src="${process.env.APP_URL}/text-logo.png" alt="StatusScout Logo" width="120px" />
         <mj-text align="center" font-size="12px">
           <a href="https://statusscout.dev">StatusScout.dev</a><br/>
           <a href="mailto:hello@statusscout.dev">hello@statusscout.dev</a>
