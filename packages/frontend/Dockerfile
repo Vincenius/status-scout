@@ -35,10 +35,10 @@ RUN yarn --cwd packages/frontend build
 FROM nginx:1.25-alpine
 
 # Copy custom nginx config
-COPY --from=build /app/nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/packages/frontend/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy build output
-COPY --from=build /app/dist /usr/share/nginx/html
+COPY --from=build /app/packages/frontend/dist /usr/share/nginx/html
 
 EXPOSE 80
 
