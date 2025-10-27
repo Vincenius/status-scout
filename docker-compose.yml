@@ -16,9 +16,10 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
-      - ./redis.conf:/usr/local/etc/redis/redis.conf:ro
+      - /data/statusscout/redis.conf:/usr/local/etc/redis/redis.conf:ro
     command: >
       sh -c "if [ -f /usr/local/etc/redis/redis.conf ]; then
+        echo 'Starting redis with custom config';
         redis-server /usr/local/etc/redis/redis.conf;
       else
         echo 'No redis.conf found — starting with default config';
