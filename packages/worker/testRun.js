@@ -4,6 +4,7 @@ import 'dotenv/config'
 import { connectDB, disconnectDB } from './db.js'
 import { runDailyNotification } from './notification.js';
 import runSubfinder from './utils/runSubfinder.js';
+import runSubzy from './utils/runSubzy.js';
 import { runDnsCheck } from './checks/dns.js';
 import { ObjectId } from 'mongodb';
 
@@ -17,6 +18,11 @@ const run = async () => {
     // });
     // const test = await runSubfinder('statusscout.dev')
     // await runDailyNotification({ db, website })
+    // runSubzy('test.statusscout.dev').then(issues => {
+    //   console.log('Subzy issues found:', issues);
+    // }).catch(err => {
+    //   console.error('Error running Subzy:', err);
+    // });
   } catch (e) {
     console.error('Error running test:', e);
   } finally {

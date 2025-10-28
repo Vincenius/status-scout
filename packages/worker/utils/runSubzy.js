@@ -4,6 +4,11 @@ import fs from 'fs';
 
 async function runSubzy(target) {
   return new Promise((resolve, reject) => {
+    // Basic validation: ensure we have a target string
+    if (!target || typeof target !== 'string' || !target.trim()) {
+      // nothing to scan
+      return resolve([]);
+    }
     let subzyPath = process.env.SUBZY || 'subzy';
 
     // Fallback to GOPATH/bin if not found in PATH and if subzyPath looks like a path
@@ -14,6 +19,8 @@ async function runSubzy(target) {
 
     const args = ['run', '--target', target, '--timeout', '5'];
     const issues = [];
+
+    console.log(`Running command: ${subzyPath} ${args.join(' ')}`);
 
     const child = spawn(subzyPath, args, { stdio: ['ignore', 'pipe', 'pipe'] });
 
@@ -47,10 +54,24 @@ async function runSubzy(target) {
       });
     });
 
+    // Collect stderr but ignore the common "usage" / help output and EOF noise
+    const stderrLines = [];
     child.stderr.on('data', chunk => {
       chunk.split(/\r?\n/).forEach(line => {
         if (!line) return;
-        console.error('[subzy stderr]', line);
+
+        // Remove ANSI color codes and trim
+        const clean = line.replace(/\x1b\[[0-9;]*m/g, '').trim();
+        if (!clean) return;
+
+        stderrLines.push(clean);
+
+        // Filter out the subzy usage/help text and the common "Error: EOF" noise
+        const isUsageNoise = /^(Usage:|Aliases:|Flags:|--\w+\s)/i.test(clean) || /Error:\s*EOF/i.test(clean) || /subzy run \[flags\]/i.test(clean);
+        if (isUsageNoise) return;
+
+        // Log anything else as actual stderr
+        console.error('[subzy stderr]', clean);
       });
     });
 
@@ -59,6 +80,12 @@ async function runSubzy(target) {
     });
 
     child.on('close', code => {
+      // If stderr only contained usage/help or EOF noise, don't treat it as an actionable error.
+      const nonNoise = stderrLines.filter(l => !/^(Usage:|Aliases:|Flags:|--\w+\s)/i.test(l) && !/Error:\s*EOF/i.test(l) && !/subzy run \[flags\]/i.test(l));
+      if (nonNoise.length > 0) {
+        nonNoise.forEach(l => console.error('[subzy stderr]', l));
+      }
+
       resolve(issues);
     });
   });
