@@ -20,7 +20,7 @@ async function runSubzy(target) {
     const args = ['run', '--target', target, '--timeout', '5'];
     const issues = [];
 
-    console.log(`Running command: ${subzyPath} ${args.join(' ')}`);
+    // console.log(`Running command: ${subzyPath} ${args.join(' ')}`);
 
     const child = spawn(subzyPath, args, { stdio: ['ignore', 'pipe', 'pipe'] });
 
@@ -54,7 +54,7 @@ async function runSubzy(target) {
       });
     });
 
-    // Collect stderr but ignore the common "usage" / help output and EOF noise
+    // Collect stderr but ignore common help/usage lines, EOF noise, and benign mkdir/file exists messages
     const stderrLines = [];
     child.stderr.on('data', chunk => {
       chunk.split(/\r?\n/).forEach(line => {
@@ -66,9 +66,17 @@ async function runSubzy(target) {
 
         stderrLines.push(clean);
 
-        // Filter out the subzy usage/help text and the common "Error: EOF" noise
-        const isUsageNoise = /^(Usage:|Aliases:|Flags:|--\w+\s)/i.test(clean) || /Error:\s*EOF/i.test(clean) || /subzy run \[flags\]/i.test(clean);
-        if (isUsageNoise) return;
+        // Filter out common non-actionable noise. Add pattern to ignore "mkdir ... file exists" messages
+        const noisePatterns = [
+          /^(Usage:|Aliases:|Flags:|--\w+\s)/i,
+          /Error:\s*EOF/i,
+          /subzy run \[flags\]/i,
+          /mkdir .* file exists/i,
+          /-h,\s+--help\b/i
+        ];
+
+        const isNoise = noisePatterns.some(rx => rx.test(clean));
+        if (isNoise) return;
 
         // Log anything else as actual stderr
         console.error('[subzy stderr]', clean);
