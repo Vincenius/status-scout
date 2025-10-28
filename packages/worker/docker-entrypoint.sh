@@ -45,8 +45,23 @@ if [ -n "$SSH_TUNNEL_HOST" ]; then
       echo "SSH_AUTH_SOCK points to a socket and exists: $SSH_AUTH_SOCK"
       ls -l "$SSH_AUTH_SOCK" || true
     else
-      echo "SSH_AUTH_SOCK is set but not a socket or not accessible: $SSH_AUTH_SOCK"
-      ls -l $(dirname "$SSH_AUTH_SOCK") || true
+      # If SSH_AUTH_SOCK is a directory (common when mounting /run/ssh-agent or similar),
+      # try to find a socket file inside and use that.
+      if [ -d "$SSH_AUTH_SOCK" ]; then
+        echo "SSH_AUTH_SOCK is a directory; searching for socket files inside: $SSH_AUTH_SOCK"
+        found_socket=$(find "$SSH_AUTH_SOCK" -type s -maxdepth 1 -print -quit 2>/dev/null || true)
+        if [ -n "$found_socket" ]; then
+          echo "Found agent socket inside SSH_AUTH_SOCK directory: $found_socket"
+          export SSH_AUTH_SOCK="$found_socket"
+          ls -l "$found_socket" || true
+        else
+          echo "No socket files found inside SSH_AUTH_SOCK directory: $SSH_AUTH_SOCK"
+          ls -l "$SSH_AUTH_SOCK" || true
+        fi
+      else
+        echo "SSH_AUTH_SOCK is set but not a socket or directory or not accessible: $SSH_AUTH_SOCK"
+        ls -l $(dirname "$SSH_AUTH_SOCK") || true
+      fi
     fi
   else
     echo "No SSH_AUTH_SOCK provided to container; ensure you mount your agent socket or pass SSH_PRIVATE_KEY"
@@ -68,7 +83,10 @@ if [ -n "$SSH_TUNNEL_HOST" ]; then
         return 0
       else
         echo "Tunnel attempt failed (pid=${pid}). Checking last ssh exit code..."
-        wait $pid || true
+        # capture exit code from ssh child
+        wait $pid
+        ssh_exit=$?
+        echo "ssh process exited with code: ${ssh_exit}"
         tries=$((tries+1))
         sleep 1
       fi
