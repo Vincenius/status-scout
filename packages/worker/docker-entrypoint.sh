@@ -23,14 +23,62 @@ if [ -n "$SSH_TUNNEL_HOST" ]; then
   SSH_OPTIONS="-o ConnectTimeout=10 -o ServerAliveInterval=60 -o ServerAliveCountMax=3"
   if [ -n "$SSH_PRIVATE_KEY" ]; then
     echo "Installing SSH private key from SSH_PRIVATE_KEY env"
-    echo "$SSH_PRIVATE_KEY" > /root/.ssh/id_rsa
+    # write key and ensure correct line endings and permissions
+    printf '%s' "$SSH_PRIVATE_KEY" > /root/.ssh/id_rsa
     chmod 600 /root/.ssh/id_rsa
+    # try to add key to ssh-agent if available
+    if [ -n "$SSH_AUTH_SOCK" ] && [ -S "$SSH_AUTH_SOCK" ]; then
+      echo "Adding key to ssh-agent via SSH_AUTH_SOCK=$SSH_AUTH_SOCK"
+      SSH_AUTH_SOCK_PATH="$SSH_AUTH_SOCK"
+      # attempt to start ssh-agent if ssh-add fails
+      if ! ssh-add /root/.ssh/id_rsa >/dev/null 2>&1; then
+        echo "ssh-add failed; proceeding without agent. Using -i for ssh." 
+      fi
+    fi
     SSH_OPTIONS="$SSH_OPTIONS -i /root/.ssh/id_rsa"
   fi
 
-  # open tunnels
-  ssh $SSH_OPTIONS -N -L 6379:127.0.0.1:6379 root@"$SSH_TUNNEL_HOST" &
-  ssh $SSH_OPTIONS -N -L 27017:127.0.0.1:27017 root@"$SSH_TUNNEL_HOST" &
+  # Diagnostic: show status of SSH_AUTH_SOCK and mounted socket path
+  echo "SSH_AUTH_SOCK=${SSH_AUTH_SOCK:-<not set>}"
+  if [ -n "$SSH_AUTH_SOCK" ]; then
+    if [ -S "$SSH_AUTH_SOCK" ]; then
+      echo "SSH_AUTH_SOCK points to a socket and exists: $SSH_AUTH_SOCK"
+      ls -l "$SSH_AUTH_SOCK" || true
+    else
+      echo "SSH_AUTH_SOCK is set but not a socket or not accessible: $SSH_AUTH_SOCK"
+      ls -l $(dirname "$SSH_AUTH_SOCK") || true
+    fi
+  else
+    echo "No SSH_AUTH_SOCK provided to container; ensure you mount your agent socket or pass SSH_PRIVATE_KEY"
+  fi
+
+  # open tunnels (with per-connection retries)
+  start_tunnel() {
+    local local_port=$1
+    local remote_port=$2
+    local tries=0
+    while [ $tries -lt 3 ]; do
+      echo "Opening tunnel $local_port -> 127.0.0.1:$remote_port (attempt $((tries+1)))"
+      ssh $SSH_OPTIONS -N -L ${local_port}:127.0.0.1:${remote_port} root@"$SSH_TUNNEL_HOST" &
+      pid=$!
+      sleep 2
+      # check whether process is still running and not immediately failing
+      if kill -0 $pid >/dev/null 2>&1; then
+        echo "Tunnel for port ${local_port} started (pid=${pid})"
+        return 0
+      else
+        echo "Tunnel attempt failed (pid=${pid}). Checking last ssh exit code..."
+        wait $pid || true
+        tries=$((tries+1))
+        sleep 1
+      fi
+    done
+    echo "Failed to establish tunnel ${local_port} after ${tries} attempts"
+    return 1
+  }
+
+  start_tunnel 6379 6379 || true
+  start_tunnel 27017 27017 || true
 
   # Wait briefly to ensure tunnels are ready
   sleep 3

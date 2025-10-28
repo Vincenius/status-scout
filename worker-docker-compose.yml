@@ -1,5 +1,6 @@
 # only run a single worker that connects to redis and mongodb on the main host via SSH tunnels
 # for running multiple workers on different server
+# make sure the server has SSH access to the main host
 
 services:
   statusscout-worker:
