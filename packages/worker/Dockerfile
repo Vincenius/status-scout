@@ -4,7 +4,7 @@ WORKDIR /app
 
 # Install system dependencies needed to fetch and build Go tools
 RUN apt-get update \
-	&& apt-get install -y --no-install-recommends ca-certificates curl git build-essential \
+	&& apt-get install -y --no-install-recommends ca-certificates curl git build-essential openssh-client \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Install Go (required version >= 1.24 for subfinder); adjust GOLANG_VERSION if needed
@@ -26,6 +26,9 @@ COPY package.json yarn.lock ./
 
 # Copy packages into image
 COPY packages/ ./packages/
+COPY packages/worker/docker-entrypoint.sh ./docker-entrypoint.sh
+
+RUN chmod +x ./docker-entrypoint.sh
 
 # Use yarn from root to install workspace deps so @statusscout/shared resolves locally
 RUN corepack enable && yarn config set nodeLinker node-modules && yarn install --frozen-lockfile --production=false
@@ -33,4 +36,4 @@ RUN corepack enable && yarn config set nodeLinker node-modules && yarn install -
 WORKDIR /app/packages/worker
 
 # Run your script
-CMD ["npm", "start"]
+ENTRYPOINT ["/app/docker-entrypoint.sh"]

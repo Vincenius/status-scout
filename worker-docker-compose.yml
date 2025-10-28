@@ -1,0 +1,26 @@
+# only run a single worker that connects to redis and mongodb on the main host via SSH tunnels
+# for running multiple workers on different server
+
+services:
+  statusscout-worker:
+    build:
+      context: .
+      dockerfile: packages/worker/Dockerfile
+    container_name: statusscout-worker
+    restart: always
+    stop_signal: SIGTERM
+    stop_grace_period: 60s
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
+      - GOOGLE_PAGESPEED_API_KEY=${GOOGLE_PAGESPEED_API_KEY} 
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - CONCURRENT_RUNS=${CONCURRENT_RUNS}
+      - API_KEY=${API_KEY}
+      - API_URL=${API_URL}
+      - APP_URL=${APP_URL}
+      - SSH_TUNNEL_HOST=${SSH_TUNNEL_HOST}
+      - SSH_AUTH_SOCK=/ssh-agent
+    volumes:
+      - $SSH_AUTH_SOCK:/ssh-agent
