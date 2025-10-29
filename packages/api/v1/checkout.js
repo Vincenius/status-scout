@@ -15,7 +15,7 @@ export default async function checkoutRoutes(fastify, opts) {
     }
 
     const { _id, email } = request.user || {}
-    const { type } = request.body
+    const { type, colorScheme } = request.body
     const session = await stripe.checkout.sessions.create({
       ui_mode: 'embedded',
       client_reference_id: _id.toString(),
@@ -26,6 +26,9 @@ export default async function checkoutRoutes(fastify, opts) {
           quantity: 1,
         },
       ],
+      branding_settings: colorScheme === 'dark' ? {
+        background_color: '#242424',
+      } : {},
       mode: 'subscription',
       return_url: `${process.env.APP_URL}/checkout/return?session_id={CHECKOUT_SESSION_ID}`,
     });

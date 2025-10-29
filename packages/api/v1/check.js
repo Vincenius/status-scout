@@ -190,7 +190,7 @@ export default async function checkRoutes(fastify, opts) {
 
     const [uptime, checks, firstCheck] = await Promise.all([
       db.collection('checks').find({ websiteId: new ObjectId(id), check: 'uptime' })
-        .sort({ createdAt: 1 })
+        .sort({ createdAt: -1 })
         .limit(40)
         .toArray(),
       db.collection('checks').aggregate([

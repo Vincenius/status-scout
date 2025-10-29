@@ -1,5 +1,5 @@
 import Layout from '@/components/Layout/Layout';
-import { Container, Title, Text, Center, Card, ThemeIcon, Flex, Button } from '@mantine/core';
+import { Container, Title, Text, Center, Card, ThemeIcon, Flex, Button, LoadingOverlay, useMantineColorScheme } from '@mantine/core';
 import { useCallback, useEffect, useState } from "react";
 import { loadStripe } from '@stripe/stripe-js';
 import {
@@ -9,14 +9,17 @@ import {
 import { useAuthSWR } from '@/utils/useAuthSWR'
 import { useNavigate } from 'react-router-dom';
 
-// todo dark mode
-// https://docs.stripe.com/connect/embedded-appearance-support-dark-mode
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 function Checkout() {
   const navigate = useNavigate();
   const [selectedPlan, setSelectedPlan] = useState();
-  const { data: user, isLoading } = useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/user`)
+  const { data: user } = useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/user`)
+  const { colorScheme } = useMantineColorScheme();
+
+  const selectPlan = plan => {
+    setSelectedPlan(plan);
+  }
 
   const plans = {
     monthly: { label: 'Monthly', pricePerMonth: 15, billing: 'monthly' },
@@ -24,23 +27,21 @@ function Checkout() {
   };
 
   const fetchClientSecret = useCallback(() => {
-    // Create a Checkout Session for selected plan
     return fetch(`${import.meta.env.VITE_API_URL}/v1/checkout/session`, {
       method: "POST",
-      body: JSON.stringify({ type: selectedPlan }),
+      body: JSON.stringify({ type: selectedPlan, colorScheme }),
       headers: {
         "Content-Type": "application/json",
       },
       credentials: 'include',
     })
       .then((res) => res.json())
-      .then((data) => data.clientSecret);
+      .then((data) => data.clientSecret)
   }, [selectedPlan]);
 
   const options = { fetchClientSecret };
 
-  const monthly = plans.monthly;
-  const yearly = plans.yearly;
+  const { monthly, yearly } = plans;
   const savings = ((monthly.pricePerMonth - yearly.pricePerMonth) / monthly.pricePerMonth) * 100;
 
   useEffect(() => {
@@ -55,14 +56,14 @@ function Checkout() {
         {!selectedPlan && <>
           <Title order={2} align="center" mb="xl">Choose your plan</Title>
           <Flex gap="xl" justify="center" maw={600} mx="auto">
-            <Card shadow="sm" padding="lg" radius="md" withBorder w="100%" style={{ cursor: 'pointer' }} onClick={() => setSelectedPlan('monthly')}>
+            <Card shadow="sm" padding="lg" radius="md" withBorder w="100%" style={{ cursor: 'pointer' }} onClick={() => selectPlan('monthly')}>
               <ThemeIcon size="xl">M</ThemeIcon>
               <Title order={4} mt="sm">{monthly.label}</Title>
               <Text size="lg"><b>${monthly.pricePerMonth}</b>/month</Text>
               <Text size="sm" c="dimmed">Billed monthly</Text>
             </Card>
 
-            <Card shadow="sm" padding="lg" radius="md" withBorder w="100%" style={{ cursor: 'pointer', borderColor: 'var(--mantine-primary-color-6)' }} onClick={() => setSelectedPlan('yearly')}>
+            <Card shadow="sm" padding="lg" radius="md" withBorder w="100%" style={{ cursor: 'pointer', borderColor: 'var(--mantine-primary-color-6)' }} onClick={() => selectPlan('yearly')}>
               <ThemeIcon size="xl">Y</ThemeIcon>
               <Title order={4} mt="sm">{yearly.label}</Title>
               <Text size="lg"><b>${yearly.pricePerMonth}</b>/month</Text>
