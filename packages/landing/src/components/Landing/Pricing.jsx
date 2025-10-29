@@ -38,7 +38,7 @@ export default function Pricing() {
             </List>
           </Card.Section>
 
-          <Button component="a" href="https://github.com/vincenius/status-scout" target="_blank" rel="noopener" fullWidth variant="outline">
+          <Button component="a" href="https://github.com/vincenius/statusscout" target="_blank" rel="noopener" fullWidth variant="outline">
             Get Started with Self-hosting
           </Button>
         </Card>

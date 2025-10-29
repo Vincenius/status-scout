@@ -24,6 +24,16 @@ export default async function authRoutes(fastify, opts) {
     async (req, reply) => {
       const db = await connectDB()
 
+      const disableRegistration = process.env.DISABLE_REGISTRATION === 'true' || process.env.DISABLE_REGISTRATION === true
+
+      if (disableRegistration) {
+        const userCount = await db.collection('users').countDocuments()
+        if (userCount > 0) {
+          reply.code(403);
+          return { error: 'Registration is disabled' };
+        }
+      }
+
       const { email, password } = req.body
 
       const existingUser = await db.collection('users').findOne({ email });
@@ -44,18 +54,20 @@ export default async function authRoutes(fastify, opts) {
         password: passHash,
         confirmationToken: token,
         createdAt: new Date(),
-        confirmed: false,
+        confirmed: disableRegistration ? true : false, // don't need to confirm admin if registration is disabled
         subscription,
       }, { returnDocument: 'after' })
 
-      const confirm_url = `${process.env.API_URL}/v1/confirm?token=${token}`
-      const mjml = confirmAccountTemplate({ verificationLink: confirm_url })
+      if (!disableRegistration) {
+        const confirm_url = `${process.env.API_URL}/v1/confirm?token=${token}`
+        const mjml = confirmAccountTemplate({ verificationLink: confirm_url })
 
-      await sendEmail({
-        to: email,
-        subject: 'Please confirm your StatusScout account',
-        html: getHtml(mjml)
-      })
+        await sendEmail({
+          to: email,
+          subject: 'Please confirm your StatusScout account',
+          html: getHtml(mjml)
+        })
+      }
 
       return { success: true };
     }

@@ -1,7 +1,7 @@
 {
-  "name": "status-scout",
+  "name": "statusscout",
   "version": "1.0.0",
-  "repository": "git@github.com:Vincenius/status-scout.git",
+  "repository": "git@github.com:Vincenius/statusscout.git",
   "author": "Vincent Will <hello@statusscout.dev>",
   "license": "ISC",
   "private": true,

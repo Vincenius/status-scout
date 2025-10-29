@@ -48,6 +48,22 @@ export default async function userRoutes(fastify, opts) {
       }
     })
 
+  fastify.get('/registration', { config: { auth: false } }, async (request, reply) => {
+    const disableRegistration = process.env.DISABLE_REGISTRATION === 'true' || process.env.DISABLE_REGISTRATION === true
+    if (!disableRegistration) {
+      return { adminRegistration: false }
+    } else {
+      const db = await connectDB()
+      const userCount = await db.collection('users').countDocuments()
+
+      if (userCount === 0) {
+        return { adminRegistration: true }
+      }
+
+      return { adminRegistration: false }
+    }
+  })
+
   fastify.post('/notification-channel',
     { preValidation: fastifyPassport.authenticate('session', { failureRedirect: '/login' }) },
     async (request, reply) => {

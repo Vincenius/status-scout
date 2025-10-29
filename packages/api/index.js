@@ -25,7 +25,7 @@ const fastify = Fastify({
 await fastify.register(middie)
 
 await fastify.register(cors, {
-  origin: [process.env.FRONTEND_URL, process.env.APP_URL],
+  origin: [process.env.FRONTEND_URL, process.env.APP_URL].filter(Boolean),
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true
 })
@@ -114,6 +114,7 @@ fastify.addHook('onClose', async (instance, done) => {
 
 
 try {
+  console.log('Starting server on port 4000');
   await fastify.listen({ port: 4000, host: '0.0.0.0' })
 } catch (err) {
   fastify.log.error(err)

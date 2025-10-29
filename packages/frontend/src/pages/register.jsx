@@ -1,14 +1,28 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Box, Button, Card, Checkbox, Flex, PasswordInput, Text, TextInput, Title } from '@mantine/core'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Layout from "@/components/Layout/Layout";
 import getFormData from "@/utils/getFormData";
 import InlineLink from "@/components/InlineLink/InlineLink";
+import { useAuthSWR } from '@/utils/useAuthSWR'
 
 function Register() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState();
+
+  const registrationDisabled = import.meta.env.VITE_DISABLE_REGISTRATION === 'true' || import.meta.env.VITE_DISABLE_REGISTRATION === true
+  const { data: regData, isRegLoading } = registrationDisabled
+    ? useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/user/registration`)
+    : { data: { adminRegistration: false } };
+  const { adminRegistration } = regData || {};
+
+  // handle redirect if registration is disabled
+  useEffect(() => {
+    if (registrationDisabled && !adminRegistration && !isRegLoading) {
+      navigate("/login");
+    }
+  }, [adminRegistration, isLoading, registrationDisabled]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -53,7 +67,11 @@ function Register() {
       <Flex px="lg" py="3rem" align="center" justify="center">
         <Card shadow="md" padding="lg" radius="md" withBorder w="100%" maw="400px" pos="rel" style={{ overflow: "visible" }}>
           <Box>
-            <Title ta="center" fw="lighter" mb="xl">Register</Title>
+            <Title ta="center" fw="lighter" mb="md">Register</Title>
+
+            {registrationDisabled && <Text mb="xl" ta="center">
+              Create your admin account to get started.
+            </Text>}
 
             <form onSubmit={handleSubmit}>
               <TextInput name="email" size="md" placeholder="you@example.com" label="Email" mb="md" type="email" required />

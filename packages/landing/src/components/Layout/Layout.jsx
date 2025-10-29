@@ -96,7 +96,7 @@ const Layout = ({ children, title }) => {
             <Text size="sm"><InlineLink to="/privacy">Privacy</InlineLink></Text>
           </Flex>
           <Flex gap="sm" justify={{ base: 'center', xs: 'flex-end' }}>
-            <a href="https://github.com/vincenius/status-scout" target="_blank" rel="noopener noreferrer">
+            <a href="https://github.com/vincenius/statusscout" target="_blank" rel="noopener noreferrer">
               <ThemeIcon variant="light" size="lg" aria-label="GitHub">
                 <IconBrandGithub size={20} />
               </ThemeIcon>

@@ -16,15 +16,6 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
-      - /data/statusscout/redis.conf:/usr/local/etc/redis/redis.conf:ro
-    command: >
-      sh -c "if [ -f /usr/local/etc/redis/redis.conf ]; then
-        echo 'Starting redis with custom config';
-        redis-server /usr/local/etc/redis/redis.conf;
-      else
-        echo 'No redis.conf found — starting with default config';
-        redis-server;
-      fi"
 
   statusscout-api:
     build:
@@ -33,9 +24,9 @@ services:
     container_name: statusscout-api
     restart: always
     ports:
-      - "3002:4000"
+      - "${API_PORT:-4000}:4000"
     environment:
-      - FRONTEND_URL=${FRONTEND_URL}
+      - FRONTEND_URL=${FRONTEND_URL:-}
       - API_URL=${API_URL}
       - APP_URL=${APP_URL}
       - API_KEY=${API_KEY}
@@ -43,7 +34,6 @@ services:
       - SESSION_SECRET=${SESSION_SECRET}
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - SENDER_EMAIL=${SENDER_EMAIL}
@@ -52,10 +42,11 @@ services:
       - BIRD_API_KEY=${BIRD_API_KEY}
       - BIRD_CHANNEL_ID=${BIRD_CHANNEL_ID}
       - BIRD_NAVIGATOR_ID=${BIRD_NAVIGATOR_ID}
-      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
-      - STRIPE_MONTHLY_PRICE_ID=${STRIPE_MONTHLY_PRICE_ID}
-      - STRIPE_YEARLY_PRICE_ID=${STRIPE_YEARLY_PRICE_ID}
-      - TURNSTILE_SECRET_KEY=${TURNSTILE_SECRET_KEY}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:-}
+      - STRIPE_MONTHLY_PRICE_ID=${STRIPE_MONTHLY_PRICE_ID:-}
+      - STRIPE_YEARLY_PRICE_ID=${STRIPE_YEARLY_PRICE_ID:-}
+      - TURNSTILE_SECRET_KEY=${TURNSTILE_SECRET_KEY:-}
+      - DISABLE_REGISTRATION=${DISABLE_REGISTRATION}
     depends_on:
       - statusscout-mongodb
       - statusscout-redis
@@ -70,7 +61,6 @@ services:
       - MONGODB_URI=${MONGODB_URI}
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
     depends_on:
       - statusscout-mongodb
       - statusscout-redis
@@ -82,13 +72,13 @@ services:
       args:
         VITE_BASE_URL: ${APP_URL}
         VITE_API_URL: ${API_URL}
-        VITE_ENABLE_ANALYTICS: ${VITE_ENABLE_ANALYTICS}
-        VITE_STRIPE_PUBLISHABLE_KEY: ${VITE_STRIPE_PUBLISHABLE_KEY}
-        VITE_FEATURE_REGISTRATION: ${VITE_FEATURE_REGISTRATION}
+        VITE_DISABLE_REGISTRATION: ${DISABLE_REGISTRATION}
+        VITE_ENABLE_ANALYTICS: ${VITE_ENABLE_ANALYTICS:-}
+        VITE_STRIPE_PUBLISHABLE_KEY: ${VITE_STRIPE_PUBLISHABLE_KEY:-}
     container_name: statusscout-frontend
     restart: always
     ports:
-      - "3003:80"
+      - "${FRONTEND_PORT:-3000}:80"
 
   statusscout-worker:
     build:
@@ -103,7 +93,6 @@ services:
       - GOOGLE_PAGESPEED_API_KEY=${GOOGLE_PAGESPEED_API_KEY} 
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
       - CONCURRENT_RUNS=${CONCURRENT_RUNS}
       - API_KEY=${API_KEY}
       - API_URL=${API_URL}

@@ -26,6 +26,19 @@ const Layout = ({ children, title, isPublicRoute, redirectIfAuth }) => {
   const expiresAt = new Date(user?.subscription?.expiresAt);
   const now = new Date();
   const hasStripe = Boolean(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+  const registrationDisabled = import.meta.env.VITE_DISABLE_REGISTRATION === 'true' || import.meta.env.VITE_DISABLE_REGISTRATION === true
+  const { data: regData } = registrationDisabled
+    ? useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/user/registration`)
+    : { data: { adminRegistration: false } };
+  const { adminRegistration } = regData || {};
+
+  console.log(adminRegistration)
+
+  useEffect(() => {
+    if (registrationDisabled && adminRegistration) {
+      navigate("/register");
+    }
+  }, [registrationDisabled, adminRegistration]);
 
   // set head info on initial load
   useEffect(() => {
@@ -92,7 +105,7 @@ const Layout = ({ children, title, isPublicRoute, redirectIfAuth }) => {
             <Flex gap="md" align="center">
               {!user?.email && <Flex gap="md" display={{ base: 'none', xs: 'flex' }}>
                 <Button size="xs" component={Link} to="/login" variant="outline">Login</Button>
-                <Button size="xs" component={Link} to="/register">Sign-up</Button>
+                {!registrationDisabled && <Button size="xs" component={Link} to="/register">Sign-up</Button>}
               </Flex>}
 
               <ColorSchemeToggle />
@@ -108,11 +121,11 @@ const Layout = ({ children, title, isPublicRoute, redirectIfAuth }) => {
                       Login
                     </Button>
                   </Menu.Item>
-                  <Menu.Item>
+                  {!registrationDisabled && <Menu.Item>
                     <Button size="xs" component="a" href={`${import.meta.env.VITE_APP_URL}/register`} fullWidth>
                       Sign-up
                     </Button>
-                  </Menu.Item>
+                  </Menu.Item>}
                 </Menu.Dropdown>
               </Menu>}
 

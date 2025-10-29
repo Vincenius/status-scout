@@ -3,7 +3,7 @@ import { connectDB } from '../db.js';
 import { ObjectId } from 'mongodb';
 import fastifyPassport from '@fastify/passport';
 
-const stripe = Stripe(process.env.STRIPE_SECRET_KEY)
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY || 'no-key')
 const monthlyPrice = process.env.STRIPE_MONTHLY_PRICE_ID
 const yearlyPrice = process.env.STRIPE_YEARLY_PRICE_ID
 

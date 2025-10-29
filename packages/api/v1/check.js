@@ -83,18 +83,19 @@ export default async function checkRoutes(fastify, opts) {
 
   fastify.post('/quickcheck', { config: { auth: false } }, async (request, reply) => {
     const body = request.body || {}
-    const userId = request.user?._id
 
-    const verification = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        secret: process.env.TURNSTILE_SECRET_KEY,
-        response: body.turnstileToken,
-      })
-    }).then(res => res.json())
+    const verification = process.env.TURNSTILE_SECRET_KEY
+      ? await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          secret: process.env.TURNSTILE_SECRET_KEY,
+          response: body.turnstileToken,
+        })
+      }).then(res => res.json())
+      : { success: true };
 
     if (!verification.success) {
       return reply.code(400).send({ error: 'Captcha verification failed' });
@@ -206,7 +207,7 @@ export default async function checkRoutes(fastify, opts) {
           $project: {
             _id: 0,
             check: "$_id",
-            entries: { $slice: ["$entries", 40] }
+            entries: { $slice: ["$entries", 41] }
           }
         },
         { $unwind: "$entries" },

@@ -18,14 +18,14 @@ RUN yarn config set nodeLinker node-modules && yarn install --frozen-lockfile --
 ARG VITE_BASE_URL
 ARG VITE_API_URL
 ARG VITE_ENABLE_ANALYTICS
-ARG VITE_FEATURE_REGISTRATION
+ARG VITE_DISABLE_REGISTRATION
 
 # Inject environment variables into a .env.production file for Vite inside the frontend package folder
 RUN mkdir -p packages/frontend && \
     echo "VITE_ENABLE_ANALYTICS=${VITE_ENABLE_ANALYTICS}" > packages/frontend/.env.production && \
     echo "VITE_BASE_URL=${VITE_BASE_URL}" >> packages/frontend/.env.production && \
     echo "VITE_API_URL=${VITE_API_URL}" >> packages/frontend/.env.production && \
-    echo "VITE_FEATURE_REGISTRATION=${VITE_FEATURE_REGISTRATION}" >> packages/frontend/.env.production && \
+    echo "VITE_DISABLE_REGISTRATION=${VITE_DISABLE_REGISTRATION}" >> packages/frontend/.env.production && \
     echo "VITE_STRIPE_PUBLISHABLE_KEY=${VITE_STRIPE_PUBLISHABLE_KEY}" >> packages/frontend/.env.production
 
 # Build the frontend from the workspace

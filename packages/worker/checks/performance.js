@@ -21,6 +21,12 @@ const fetchPageSpeedData = (url) => new Promise((resolve, reject) => {
 
 export const runPerformanceCheck = async ({ uri, id, websiteId, createdAt, quickcheckId, type }) => {
   console.log(`Running performance check for ${uri}`)
+
+  if (!process.env.GOOGLE_PAGESPEED_API_KEY) {
+    console.warn('GOOGLE_PAGESPEED_API_KEY is not set, skipping performance check');
+    return;
+  }
+
   const mobileUrl = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${uri}&strategy=mobile&key=${process.env.GOOGLE_PAGESPEED_API_KEY}`;
   const desktopUrl = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${uri}&strategy=desktop&key=${process.env.GOOGLE_PAGESPEED_API_KEY}`;
 

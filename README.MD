@@ -2,8 +2,6 @@
 
 StatusScout is an all-in-one status monitoring tool for websites and services. It tracks uptime, detects outages, checks for security issues, and provides instant alerts through a modern dashboard.
 
-StatusScout is currently in active development. The initial release supports manual website health checks. The monitoring features will be available soon.
-
 Run a health check on:
 
 [https://statusscout.dev/](https://statusscout.dev/)
@@ -31,20 +29,18 @@ assets/              # Static assets (e.g., logo)
 
 ## Getting Started
 
-Disclaimer: The self-hosting guide is in progress. I'm working on a lot of improvements to make the inital setup way easier. Stay tuned!
+> Disclaimer: The self-hosting guide is in progress. Help me improving it by letting me know if you run into issues.
 
 ### Prerequisites
 
-- Node.js (v18+ recommended)
-- Docker (for running services in containers)
-- MongoDB & Redis (can be started via Docker Compose)
+- Docker and docker-compose
 
 ### Setup
 
 1. Clone the repository:
    ```sh
-   git clone https://github.com/vincenius/status-scout.git
-   cd status-scout
+   git clone https://github.com/vincenius/statusscout.git
+   cd statusscout
    ```
 
 2. Copy `.env.dist` to `.env` and fill in your secrets:
@@ -54,12 +50,18 @@ Disclaimer: The self-hosting guide is in progress. I'm working on a lot of impro
 
 3. Start all services using Docker Compose:
    ```sh
-   docker-compose up --build
+   docker compose up -d
    ```
 
-4. Access the frontend at [http://localhost:5173](http://localhost:5173).
+4. Access the frontend at [http://localhost:3000](http://localhost:3000).
+
 
 ### Development
+
+For developing you need:
+
+- Node.js (v20+ recommended)
+- MongoDB & Redis
 
 This project uses [Lerna](https://lerna.js.org/) for managing subprojects in the `packages/` folder.
 
@@ -105,19 +107,8 @@ Or run each package separately
   yarn start
   ```
 
-## Usage
-
-- Visit the frontend to add your website and view health checks.
-- The worker runs periodic checks and stores results in MongoDB.
-- The API provides endpoints for fetching status data.
-- Custom flows can be configured for advanced checks.
-
 ## License
 
 This project is licensed under a source-available license with restrictions on offering it as a hosted service.
 
 This means it’s free and open for personal or commercial use, but you can’t resell it as a hosted service.
-
----
-
-For more details, see the documentation in each subfolder or contact [hello@statusscout.dev](mailto:hello@statusscout.dev).

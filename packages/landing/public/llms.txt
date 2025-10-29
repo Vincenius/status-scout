@@ -12,7 +12,7 @@ Things to remember when using StatusScout:
 
 ## Docs & Source
 
-- [GitHub repository (code + architecture & roadmap)](https://github.com/Vincenius/status-scout): See the implementation details and future plans.
+- [GitHub repository (code + architecture & roadmap)](https://github.com/Vincenius/statusscout): See the implementation details and future plans.
 
 ## Features
 
