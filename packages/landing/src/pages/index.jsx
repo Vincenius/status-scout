@@ -15,7 +15,7 @@ function QuickCheck() {
 
       <Features />
 
-      {/* <SocialProof /> */}
+      <SocialProof />
 
       <Pricing />
 

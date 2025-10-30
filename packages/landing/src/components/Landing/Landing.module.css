@@ -21,6 +21,19 @@
   -webkit-text-fill-color: transparent;
 }
 
+.bgColor {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 100vw;
+  height: 100%;
+  opacity: 0.08;
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: -1;
+  background: linear-gradient(90deg, var(--mantine-primary-color-5), var(--mantine-primary-color-9));
+}
+
 .bgPattern {
   position: absolute;
   top: 0;
@@ -72,4 +85,15 @@
     radial-gradient(circle at 20px 20px, rgba(128, 128, 128, 0.1) 2px, transparent 2px),
     radial-gradient(circle at 40px 40px, rgba(128, 128, 128, 0.1) 2px, transparent 2px);
   background-size: 40px 40px, 40px 40px, 40px 40px, 40px 40px;
+}
+
+.featureTitle {
+  &::after {
+    content: '';
+    display: block;
+    background-color: var(--mantine-primary-color-6);
+    width: 45px;
+    height: 2px;
+    margin-top: var(--mantine-spacing-sm);
+  }
 }

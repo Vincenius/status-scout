@@ -80,7 +80,7 @@ export default function Roadmap({
 const defaultItems = [
   {
     title: "Website Health Scanner",
-    description: "Core features: security checks, performance insights, SEO audits, a11y checks, and broken link detection.",
+    description: "Core features: security checks, performance insights, SEO audits, DNS checks, a11y checks, and broken link detection.",
     icon: <IconCheck size={18} color="green" />,
     completed: true,
   },
@@ -98,7 +98,7 @@ const defaultItems = [
   },
   {
     title: "Advanced Security Checks",
-    description: "DNS checks and codebase vulnerability scans.",
+    description: "Codebase vulnerability scans.",
     icon: <IconShieldLock size={18} color="orange" />,
     completed: false,
   },

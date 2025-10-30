@@ -1,70 +1,70 @@
-import { Card, Stack, Text, Title, SimpleGrid, ThemeIcon } from "@mantine/core";
+import { Card, Stack, Text, Title, SimpleGrid, ThemeIcon, useMantineTheme, Flex } from "@mantine/core";
 import {
-  IconShieldCheck,
-  IconSearch,
-  IconBolt,
   IconLinkOff,
-  IconArrowsShuffle,
-  IconFlask,
   IconShieldLock,
-  IconZoomCode,
-  IconBrandSpeedtest,
-  IconChartBar,
+  IconChartDots3,
+  IconDeviceDesktopAnalytics,
+  IconTrendingUp,
+  IconCode,
 } from "@tabler/icons-react";
+import classes from './Landing.module.css';
 
 export default function Features() {
+  const theme = useMantineTheme();
+
+  console.log(theme.primaryColor);
   const features = [
     {
-      icon: <IconShieldLock style={{ width: '70%', height: '70%' }} />,
-      title: "Security Checks",
+      icon: IconShieldLock,
+      title: "Protect Your Site",
       description:
-        "We scan for exposed sensitive files like .env, missing security headers and invalid SSL certificates.",
+        "Catch exposed sensitive files, DNS vulnerabilities, missing security headers, and more before they put your data at risk.",
     },
     {
-      icon: <IconZoomCode style={{ width: '70%', height: '70%' }} />,
-      title: "SEO & Accessibility Audits",
+      icon: IconLinkOff,
+      title: "Find Broken Links",
       description:
-        "Get key insights from Lighthouse to improve search rankings and usability.",
+        "Crawl your site automatically to detect and repair dead links or bad redirects, before users find them.",
     },
     {
-      icon: <IconBrandSpeedtest style={{ width: '70%', height: '70%' }} />,
-      title: "Performance Insights",
+      icon: IconChartDots3,
+      title: "Ensure Every Journey Works",
       description:
-        "Identify what's slowing you down — using real PageSpeed data.",
+        "Simulate user flows like signups or checkouts to guarantee smooth, reliable site experiences.",
     },
     {
-      icon: <IconLinkOff style={{ width: '70%', height: '70%' }} />,
-      title: "Broken Links Detection",
+      icon: IconDeviceDesktopAnalytics,
+      title: "Stay Ahead with Monitoring",
       description:
-        "We crawl your site to find dead links and redirect issues.",
+        "Get instant alerts when something breaks. Resolve issues before they impact visitors.",
     },
     {
-      icon: <IconChartBar style={{ width: '70%', height: '70%' }} />,
-      title: "Monitoring",
+      icon: IconTrendingUp,
+      title: "Boost Visibility",
       description:
-        "Monitor your website and get alerts when anything on your site breaks.",
+        "Uncover actionable SEO and accessibility insights to rank higher, reach more visitors, and deliver a smoother experience for everyone.",
     },
     {
-      icon: <IconArrowsShuffle style={{ width: '70%', height: '70%' }} />,
-      title: "Custom Test Flows",
+      icon: IconCode,
+      title: "Verify Integrations",
       description:
-        "Simulate user journeys and ensure critical paths keep working. Create your own test flows or choose from pre-built templates.",
+        "Check that tools like Google Tag Manager, analytics scripts, or marketing pixels are properly loaded and firing as expected.",
     },
   ];
 
   return (
     <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="lg" mx="auto" mt="4em" mb="6em">
       {features.map((feature, index) => (
-        <Card key={index} shadow="sm" radius="md" p="lg" withBorder>
-          <Stack gap="xs">
-            <Stack gap={6} align="center" direction="row">
-              <ThemeIcon variant={feature.disabled ? 'default' : 'light'}>{feature.icon}</ThemeIcon>
-              <Title order={2} size="h4" opacity={feature.disabled ? 0.8 : 1}>{feature.title}</Title>
-            </Stack>
-            <Text size="sm">
-              {feature.description}
-            </Text>
-          </Stack>
+        <Card key={index} shadow="md" radius="md" p="lg" withBorder>
+          <Flex gap="md">
+            <ThemeIcon variant="light" size={44}>
+              <feature.icon size="70%" stroke={1.5} />
+            </ThemeIcon>
+            <Title order={2} size="h4" className={classes.featureTitle}>{feature.title}</Title>
+          </Flex>
+          <Text size="sm" mt="md">
+            {feature.description}
+          </Text>
         </Card>
       ))}
     </SimpleGrid>
