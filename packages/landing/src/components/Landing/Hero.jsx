@@ -97,7 +97,7 @@ export default function Hero() {
         </Title>
 
         <Text size="xl" maw={600}>
-          Get a complete overview of your website’s security, performance, and more. Find broken links, performance bottlenecks, and other issues that hurt your website.
+          Ensure your website runs fast, stays secure and keeps users happy. StatusScout helps you uncover broken links, security risks, and more before they hurt your business.
         </Text>
 
         <form onSubmit={form.onSubmit(handleSubmit)} ref={formRef}>

@@ -22,6 +22,7 @@
 }
 
 .bgColor {
+  content: '';
   position: absolute;
   top: 0;
   left: 50%;
@@ -32,6 +33,34 @@
   pointer-events: none;
   z-index: -1;
   background: linear-gradient(90deg, var(--mantine-primary-color-5), var(--mantine-primary-color-9));
+}
+
+.bgImage,
+.bgImage::after {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 100vw;
+  height: 100%;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.bgImage {
+  background-image: url('/abstract.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0.15;
+  z-index: -2;
+  filter: blur(1px);
+}
+
+.bgImage::after {
+  content: '';
+  background: var(--mantine-primary-color-5);
+  z-index: -1;
+  opacity: 0.5;
 }
 
 .bgPattern {
