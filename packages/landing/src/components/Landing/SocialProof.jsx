@@ -15,7 +15,7 @@ export default function SocialProof({ }) {
           <ThemeIcon variant="light" size="md">
             <IconStar size="70%" stroke={1.5} />
           </ThemeIcon>
-          <Text>Free - No signup required</Text>
+          <Text>Free website check</Text>
         </Flex>
         <Flex gap="md">
           <ThemeIcon variant="light" size="md">

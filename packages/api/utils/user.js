@@ -20,7 +20,6 @@ export const hasActivePlan = async (request, reply) => {
   const user = request.user;
 
   if (!isProUser(user)) {
-    console.log('dbg', user)
     reply.code(402).send({ error: 'Active plan required' });
     return;
   }

@@ -37,7 +37,7 @@ function Dashboard() {
 
       <Box maw={1800} mx="auto">
         {!user?.isProUser && <Blockquote maw={600} mx="auto" mb="xl">
-          <Text fw={500} mb="md">Your Pro subscription expired. Please renew your subscription to continue using premium features and getting notifications.</Text>
+          <Text fw={500} mb="md">Your Pro subscription expired. Please renew your subscription to continue using premium features like getting notifications.</Text>
           <Button component={Link} to="/checkout">Buy Pro Subscription</Button>
         </Blockquote>}
         <Title order={2} mb="md" fw="normal">Your Websites:</Title>

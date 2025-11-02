@@ -12,7 +12,6 @@ import classes from './Landing.module.css';
 export default function Features() {
   const theme = useMantineTheme();
 
-  console.log(theme.primaryColor);
   const features = [
     {
       icon: IconShieldLock,

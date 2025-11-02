@@ -216,6 +216,28 @@ function Report({ website, checks, status, isQuickCheck = false }) {
             </Flex>}
           </SimpleGrid>
         </Card.Section>
+        {isQuickCheck && <Card.Section py="xl" px={{ base: "md", md: "xl" }} withBorder>
+          <Title order={2} size="h3" mb="lg" ta="center">
+            Sign up for monitoring and more
+          </Title>
+          <List size="md" mb="xl" spacing="sm" center mx="auto" style={{ maxWidth: 500 }}>
+            <List.Item>
+              Get notifications if new issues are detected
+            </List.Item>
+            <List.Item>
+              Create custom test flows
+            </List.Item>
+            <List.Item>
+              And much more...
+            </List.Item>
+          </List>
+          <Button component={Link} to="/register" variant="filled" size="sm" mx="auto" display="block" w={250}>
+            Start Free 7-Day Trial
+          </Button>
+          <Text size="sm" c="dimmed" ta="center" mt="xs">
+            *No credit card required. Cancel any time.
+          </Text>
+        </Card.Section>}
         <Card.Section withBorder py="xl" px={{ base: "md", md: "xl" }} ref={sslRef}>
           {sslCheck && <>
             <SSLChart status={sslCheck.result.status} size="lg" />

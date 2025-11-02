@@ -1,5 +1,5 @@
 import Layout from '@/components/Layout/Layout'
-import { Box, Flex } from '@mantine/core'
+import { Flex } from '@mantine/core'
 import Features from '@/components/Landing/Features';
 import Hero from '@/components/Landing/Hero';
 import SocialProof from '@/components/Landing/SocialProof';

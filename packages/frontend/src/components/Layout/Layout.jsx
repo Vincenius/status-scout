@@ -32,8 +32,6 @@ const Layout = ({ children, title, isPublicRoute, redirectIfAuth }) => {
     : { data: { adminRegistration: false } };
   const { adminRegistration } = regData || {};
 
-  console.log(adminRegistration)
-
   useEffect(() => {
     if (registrationDisabled && adminRegistration) {
       navigate("/register");
