@@ -65,7 +65,7 @@ async function checkTxtRecords(name) {
   }
 }
 
-export const runDnsCheck = async ({ uri, id, websiteId, createdAt, quickcheckId, type }) => {
+export const runDnsCheck = async ({ uri, id, websiteId, createdAt, quickcheckId, type, db }) => {
   // get domain from domain
   const domain = new URL(uri).hostname;
   console.log(`Running dns check for ${uri}`)
@@ -74,7 +74,7 @@ export const runDnsCheck = async ({ uri, id, websiteId, createdAt, quickcheckId,
   const rand = Math.random().toString(36).substring(2, 10);
 
   // NS records
-  const [ns, mx, aaaa, spfRecords, dmarcRecords, caa, ds, dnskey, wildcard, subdomains] = await Promise.all([
+  const [ns, mx, aaaa, spfRecords, dmarcRecords, caa, ds, dnskey, wildcard, subfinderSubdomains] = await Promise.all([
     checkRecord("NS", domain),
     dns.resolveMx(domain).catch(() => []),
     checkRecord("AAAA", domain),
@@ -86,6 +86,19 @@ export const runDnsCheck = async ({ uri, id, websiteId, createdAt, quickcheckId,
     checkRecord("A", `${rand}.${domain}`),
     getSubdomains(domain)
   ])
+
+  // store subdomains in website db because subfinder might fail ocassionally
+  const website = await db.collection('websites').findOne({ _id: websiteId });
+  const storedSubdomains = website.subdomains || [];
+  const subdomains = [...new Set([...storedSubdomains, ...subfinderSubdomains])];
+
+  // check if every subdomain is already stored
+  if (subdomains.every(sub => storedSubdomains.includes(sub)) === false) {
+    await db.collection('websites').updateOne(
+      { _id: websiteId },
+      { $set: { subdomains } }
+    );
+  }
 
   const spf = spfRecords.match(/v=spf1[^"]*/i);
   const dmarc = dmarcRecords.match(/v=DMARC1[^"]*/i);

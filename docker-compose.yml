@@ -61,6 +61,8 @@ services:
       - MONGODB_URI=${MONGODB_URI}
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
+      - API_KEY=${API_KEY}
+      - API_URL=${API_URL}
     depends_on:
       - statusscout-mongodb
       - statusscout-redis

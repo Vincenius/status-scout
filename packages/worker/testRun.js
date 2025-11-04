@@ -17,6 +17,7 @@ const run = async () => {
     // await runDnsCheck({
     //   db,
     //   uri: website.domain,
+    //   websiteId: website._id,
     // });
     // const test = await runSubfinder('statusscout.dev')
     // await runDailyNotification({ db, website })

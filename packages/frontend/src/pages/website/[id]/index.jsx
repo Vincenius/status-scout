@@ -22,7 +22,7 @@ function WebsiteOverview() {
       <Website404 />
     )
   }
-  
+
   return (
     <Layout title="Website Overview">
       <Container size="md" py="md" px={{ base: "0", md: "md" }}>
@@ -70,18 +70,14 @@ function WebsiteOverview() {
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
-              {sortedIssues.filter(i => i.createdAt !== initialCheckDate).reverse().map((item, index) => item.issues.map((issue, i) => (
-                <Table.Tr key={`issues-${index}-${i}`}>
-                  <Table.Td>{i === 0 ? <Link to={`/website/${website.index}/report?j_id=${item.jobId}`}>{new Date(item.createdAt).toLocaleString()}</Link> : ''}</Table.Td>
-                  <Table.Td>{getNotificationMessage({ type: issue.check, details: issue.title })}</Table.Td>
-                </Table.Tr>
-              )))}
-              {sortedIssues.filter(i => i.createdAt === initialCheckDate).map((item, index) =>
-                <Table.Tr key={`issues-initial-${index}`}>
-                  <Table.Td><Link to={`/website/${website.index}/report?j_id=${item.jobId}`}>{new Date(item.createdAt).toLocaleString()}</Link></Table.Td>
-                  <Table.Td>Initial Report with {item.issues.length} issues</Table.Td>
-                </Table.Tr>
-              )}
+              {sortedIssues
+                .filter(i => i.createdAt !== initialCheckDate)
+                .reverse().map((item, index) => item.issues.filter(i => !i.resolvedAt).map((issue, i) => (
+                  <Table.Tr key={`issues-${index}-${i}`}>
+                    <Table.Td>{i === 0 ? <Link to={`/website/${website.index}/report?j_id=${item.jobId}`}>{new Date(item.createdAt).toLocaleString()}</Link> : ''}</Table.Td>
+                    <Table.Td>{getNotificationMessage({ type: issue.check, details: issue.title })}</Table.Td>
+                  </Table.Tr>
+                )))}
             </Table.Tbody>
           </Table>
         </Card>

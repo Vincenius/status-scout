@@ -6,6 +6,7 @@ import { connectDB } from '../db.js';
 import confirmChannel from '../utils/templates/confirmChannel.js';
 import { getHtml, sendEmail } from '../utils/email.js';
 import { sendVerification, checkVerification } from '../utils/bird.js';
+import { ObjectId } from 'mongodb';
 
 export default async function userRoutes(fastify, opts) {
   fastify.get('/',
@@ -226,7 +227,7 @@ export default async function userRoutes(fastify, opts) {
 
           return { success: true }
         } else {
-          return { success: false, error: result?.message || 'Verification failed'}
+          return { success: false, error: result?.message || 'Verification failed' }
         }
       }
     } catch (e) {
@@ -266,4 +267,30 @@ export default async function userRoutes(fastify, opts) {
         reply.code(500).send({ error: 'Internal server error' });
       }
     })
+
+  fastify.post('/unsubscribe', { config: { auth: false } }, async (request, reply) => {
+    try {
+      const { id } = request.body
+
+      if (!id) {
+        return reply.code(400).send({ error: 'Invalid input' })
+      }
+
+      const db = await connectDB()
+      const user = await db.collection('users').findOne({ '_id': new ObjectId(id) })
+
+      if (!user) {
+        return reply.code(404).send({ error: 'This user does not exist' })
+      } else {
+        await db.collection('users').updateOne({ _id: user._id }, {
+          $set: { unsubscribed: true }
+        }, { returnDocument: 'after' })
+
+        return { success: true }
+      }
+    } catch (e) {
+      console.error(e)
+      reply.code(500).send({ error: 'Internal server error' });
+    }
+  })
 }
