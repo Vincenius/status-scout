@@ -67,7 +67,8 @@ export const getIssueHistory = (checks) => {
   const a11yIssues = getIssues({ checks, type: 'a11y', getCurrIssues: curr => (curr?.result?.details?.items || []).map(i => i.title) })
   const linkIssues = getIssues({ checks, type: 'links', getCurrIssues: curr => (curr?.result?.details || []).map(i => `${i.parent} -> ${i.url}`) })
   const dnsIssues = getIssues({ checks, type: 'dns', getCurrIssues: curr => (Object.entries(curr?.result?.details || {}) || []).filter(([key, val]) => !val.success && key !== 'subdomains').map(([key]) => dnsChecksInfo[key].name) })
-  const subdomainIssues = getIssues({ checks, type: 'dns',
+  const subdomainIssues = getIssues({
+    checks, type: 'dns',
     getCurrIssues: curr => ((Object.entries(curr?.result?.details || {}) || [])
       .filter(([key, val]) => !val.success && key === 'subdomains')[0]?.[1]?.issues || [])
       .map((subdomain) => subdomain.text)
@@ -89,7 +90,9 @@ export const getIssueHistory = (checks) => {
       result: {
         status: issues.length === 0
           ? 'success'
-          : 'error',
+          : issues.filter(i => i.type === 'ssl').length // handle error types
+            ? 'error'
+            : 'warning'
       }
     }
   })

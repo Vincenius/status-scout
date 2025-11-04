@@ -65,7 +65,7 @@ export const runNotifications = async ({ db, website }) => {
     }
   }
 
-  const recentIssues = issues[1]?.issues || []
+  const recentIssues = issues[0]?.issues || []
   for (const issue of recentIssues) {
     if (notifications[issue.check] === 'critical') {
       criticalNotifications.push({ type: issue.check, createdAt: issue.createdAt, jobId: issue.jobId, details: issue.title })
@@ -84,7 +84,7 @@ export const runDailyNotification = async ({ db, website }) => {
   // only consider checks from the last 24 hours
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000)
 
-  const [uptime, [todayCheck], [yesterdayCheck]] = await Promise.all([
+  const [uptime, todayChecks, yesterdayChecks] = await Promise.all([
     db.collection('checks').find({ websiteId: website._id, check: 'uptime', createdAt: { $gte: since.toISOString() } })
       .sort({ createdAt: -1 })
       .limit(2)
@@ -117,12 +117,12 @@ export const runDailyNotification = async ({ db, website }) => {
     ]).toArray(),
   ])
 
-  if (!todayCheck || !yesterdayCheck) {
+  if (!todayChecks.length || !yesterdayChecks.length) {
     console.log('not enough data for daily notification')
     return
   }
 
-  const issues = getIssueHistory([...checks, ...latestCheck])
+  const issues = getIssueHistory([...todayChecks, ...yesterdayChecks])
   issues.pop()
 
   const notifications = {

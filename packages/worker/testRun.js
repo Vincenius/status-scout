@@ -2,7 +2,7 @@
 
 import 'dotenv/config'
 import { connectDB, disconnectDB } from './db.js'
-import { runDailyNotification } from './notification.js';
+import { runDailyNotification, runNotifications } from './notification.js';
 import runSubfinder from './utils/runSubfinder.js';
 import runSubzy from './utils/runSubzy.js';
 import { runDnsCheck } from './checks/dns.js';
@@ -11,7 +11,9 @@ import { ObjectId } from 'mongodb';
 const run = async () => {
   try {
     const db = await connectDB()
-    const website = await db.collection('websites').findOne({ _id: new ObjectId('68c98b135ada929388e21a91') })
+    const website = await db.collection('websites').findOne({ _id: new ObjectId('68fbd32f604ef22b37a051fe') })
+    // console.log(website)
+    // await runDailyNotification({ db, website })
     // await runDnsCheck({
     //   db,
     //   uri: website.domain,
