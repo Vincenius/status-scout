@@ -28,7 +28,10 @@ const getIssues = ({ checks, type, getCurrIssues }) => {
     ]
   }, [])
 
-  return issues
+  const firstJobId = filteredChecks.length && filteredChecks[0].jobId
+
+  // Exclude issues from the first check to avoid showing initial issues
+  return issues.filter(i => i.jobId !== firstJobId)
 }
 
 const getCustomIssues = ({ checks }) => {
@@ -86,9 +89,7 @@ export const getIssueHistory = (checks) => {
       result: {
         status: issues.length === 0
           ? 'success'
-          : issues.filter(i => i.type === 'ssl').length // handle error types
-            ? 'error'
-            : 'warning'
+          : 'error',
       }
     }
   })
