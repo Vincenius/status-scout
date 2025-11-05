@@ -88,12 +88,14 @@ export const runDnsCheck = async ({ uri, id, websiteId, createdAt, quickcheckId,
   ])
 
   // store subdomains in website db because subfinder might fail ocassionally
-  const website = await db.collection('websites').findOne({ _id: websiteId });
-  const storedSubdomains = website.subdomains || [];
+  const website = websiteId
+    ? await db.collection('websites').findOne({ _id: websiteId })
+    : null;
+  const storedSubdomains = website?.subdomains || [];
   const subdomains = [...new Set([...storedSubdomains, ...subfinderSubdomains])];
 
   // check if every subdomain is already stored
-  if (subdomains.every(sub => storedSubdomains.includes(sub)) === false) {
+  if (website && subdomains.every(sub => storedSubdomains.includes(sub)) === false) {
     await db.collection('websites').updateOne(
       { _id: websiteId },
       { $set: { subdomains } }
