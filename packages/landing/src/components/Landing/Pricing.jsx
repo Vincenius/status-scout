@@ -7,6 +7,9 @@ export default function Pricing() {
   return (
     <Box mt="12em" mb="12em">
       <Title size="2em" order={2} ta="center" mt="sm" mb="1em">Pricing</Title>
+      <Text c="dimmed" ta="center" fz="lg" mx="auto" maw="500px" mb="md">
+        You need continuous website monitoring and alerts?
+      </Text>
       <Text c="dimmed" ta="center" fz="lg" mx="auto" maw="500px" mb="3em">
         Choose between our free self-hosted option or our managed cloud service for a hassle-free experience.
       </Text>
