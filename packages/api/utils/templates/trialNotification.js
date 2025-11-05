@@ -11,7 +11,7 @@ const notificationEmail = ({ userId }) => baseTemplate({
     </mj-text>
     
     <mj-text>
-      To continue monitoring your websites without interruption, consider upgrading to one of our paid plans.
+      To continue monitoring your websites without interruption, consider upgrading to our paid plans.
     </mj-text>
 
     <mj-button href="${process.env.APP_URL}/checkout" padding-top="20px">
