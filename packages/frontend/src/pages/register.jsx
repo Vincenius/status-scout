@@ -5,6 +5,7 @@ import Layout from "@/components/Layout/Layout";
 import getFormData from "@/utils/getFormData";
 import InlineLink from "@/components/InlineLink/InlineLink";
 import { useAuthSWR } from '@/utils/useAuthSWR'
+import { trackConversion } from '@/utils/gtm.js';
 
 function Register() {
   const navigate = useNavigate();
@@ -48,6 +49,11 @@ function Register() {
           credentials: 'include',
           body: JSON.stringify(data),
         }).then(() => {
+          trackConversion({
+            id: import.meta.env.VITE_GTM_REGISTER,
+            value: 1.0,
+          });
+
           navigate("/confirm");
         })
       } else {

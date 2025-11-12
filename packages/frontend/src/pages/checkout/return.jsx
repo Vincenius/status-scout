@@ -3,17 +3,7 @@ import { useEffect } from 'react';
 import Layout from "@/components/Layout/Layout";
 import { useNavigate } from 'react-router-dom';
 import { useAuthSWR } from '@/utils/useAuthSWR'
-
-function trackConversion(value = 1.0, transactionId = '') {
-  if (!window.gtag || import.meta.env.VITE_GTM_CONVERSION) return;
-
-  window.gtag('event', 'conversion', {
-    send_to: `${import.meta.env.VITE_GTM_ID}/${import.meta.env.VITE_GTM_CONVERSION}`,
-    value,
-    currency: 'EUR',
-    transaction_id: transactionId,
-  });
-}
+import { trackConversion } from '@/utils/gtm.js';
 
 function CheckoutReturn() {
   const navigate = useNavigate();
@@ -21,7 +11,11 @@ function CheckoutReturn() {
   const { mutate } = useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/user`)
 
   useEffect(() => {
-    trackConversion(1.0, session_id || '');
+    trackConversion({
+      id: import.meta.env.VITE_GTM_CONVERSION,
+      value: 1.0,
+      transactionId: session_id || ''
+    });
   }, [session_id]);
 
   useEffect(() => {
