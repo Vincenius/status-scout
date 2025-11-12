@@ -8,6 +8,7 @@ services:
         VITE_ENABLE_ANALYTICS: ${VITE_ENABLE_ANALYTICS}
         VITE_TURNSTILE_SITE_KEY: ${VITE_TURNSTILE_SITE_KEY}
         VITE_GTM_ID: ${VITE_GTM_ID}
+        VITE_COOKIEBOT_ID: ${VITE_COOKIEBOT_ID}
     container_name: statusscout-landing
     restart: always
     ports:

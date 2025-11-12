@@ -63,6 +63,13 @@ const Layout = ({ children, title, isPublicRoute, redirectIfAuth }) => {
     script.async = true;
     document.head.appendChild(script);
 
+    const cookieScript = document.createElement('script');
+    cookieScript.src = 'https://consent.cookiebot.com/uc.js';
+    cookieScript.setAttribute('data-cbid', import.meta.env.VITE_COOKIEBOT_ID);
+    cookieScript.type = 'text/javascript';
+    cookieScript.async = true;
+    document.head.appendChild(cookieScript);
+
     // Initialize gtag
     window.dataLayer = window.dataLayer || [];
     function gtag() { window.dataLayer.push(arguments); }
