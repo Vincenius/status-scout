@@ -9,6 +9,15 @@ import { useRoutes } from 'react-router-dom';
 import routes from '~react-pages';
 import { Suspense } from 'react';
 import { HelmetProvider } from 'react-helmet-async';
+import TagManager from 'react-gtm-module'
+
+const tagManagerArgs = {
+  gtmId: import.meta.env.VITE_GTM_ID
+}
+
+if (import.meta.env.VITE_GTM_ID) {
+  TagManager.initialize(tagManagerArgs)
+}
 
 function Redirect404() {
   useEffect(() => {

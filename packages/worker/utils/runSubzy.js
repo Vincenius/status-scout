@@ -74,6 +74,15 @@ async function runSubzy(target) {
           /mkdir .* file exists/i,
           /-h,\s+--help\b/i
         ];
+        // todo fix for this patterns
+//         [subzy stderr] run, r
+// [subzy stderr] run, r
+// [subzy stderr] Error: mkdir /root/subzy: file exists
+// [subzy stderr] run, r
+// [subzy stderr] -h, --help              help for run
+// [subzy stderr] Error: mkdir /root/subzy: file exists
+// [subzy stderr] run, r
+// [subzy stderr] -h, --help              help for run
 
         const isNoise = noisePatterns.some(rx => rx.test(clean));
         if (isNoise) return;

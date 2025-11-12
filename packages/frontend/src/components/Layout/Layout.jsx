@@ -42,7 +42,7 @@ const Layout = ({ children, title, isPublicRoute, redirectIfAuth }) => {
   useEffect(() => {
     if (isAnalyticsEnabled && !document.querySelector('[data-website-id]')) {
       const script = document.createElement('script');
-      script.src = 'https://analytics.vincentwill.com/script.js';
+      script.src = 'https://www.googletagmanager.com/gtag/js?id=AW-17723627610';
       script.defer = true;
       script.setAttribute('data-website-id', 'a807669d-6eda-4c1c-9b36-2247d2caf318');
       document.head.appendChild(script);

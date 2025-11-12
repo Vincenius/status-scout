@@ -462,13 +462,6 @@ function Report({ website, checks, status, isQuickCheck = false }) {
                 ))}
               </Table.Tbody>
             </Table>
-            {missingHeaders.length > 3 && !expandHeaders && (
-              <Center mt="md">
-                <Button onClick={() => setExpandHeaders(true)}>
-                  Show All
-                </Button>
-              </Center>
-            )}
           </>}
         </Card.Section>
 

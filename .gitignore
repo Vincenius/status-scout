@@ -4,3 +4,4 @@ node_modules/
 .yarn/
 lerna-debug.log
 redis.conf
+packages/tmp
