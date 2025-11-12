@@ -11,6 +11,9 @@ const Privacy = () => {
         I am using a self-hosted version of <a href="https://umami.is/" target="_blank" rel="noopener">umami</a> for the only purpose of knowing how many people are visiting this website.
       </p>
       <p>
+        If you came to this page through a Google Ad, I'm also including Google Tag Manager to be able to track conversions.
+      </p>
+      <p>
         <b>If you enable &quot;Do Not Track&quot; in your browser I won&apos;t track you</b>.
         Also AdBlockers will work for blocking the tracking. I&apos;d recomment <i>uBlock Origin</i> for that.
       </p>
@@ -83,6 +86,11 @@ const Privacy = () => {
         We use cookies and similar tracking technologies to
         track the activity on our Service and hold certain
         information.
+      </p>
+      <p>
+        We use Cookiebot by Usercentrics as a Consent Management Platform (CMP) to obtain and store user cookie preferences.
+        Cookiebot may set a small cookie to remember your consent choices and to ensure that only allowed tags/scripts run based on your selections.
+        See <a href="https://www.usercentrics.com/products/cookiebot/" target="_blank" rel="noopener">Cookiebot by Usercentrics</a> for details.
       </p>
       <p>
         Cookies are files with small amount of data which may
@@ -224,11 +232,46 @@ const Privacy = () => {
             It does not collect any personally identifiable information and anonymizes all data collected.
           </p>
         </li>
+        <li>
+          <p><strong>Google Tag Manager</strong></p>
+          <p>
+            Google Tag Manager (GTM) is a tag management system that allows us to deploy tracking
+            tags and scripts on our site. GTM itself does not collect personal data, but it may
+            load other third-party tags (for example Google Ads tags) that collect information.
+            For details on how Google handles data, see Google’s privacy policy:
+            <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google Privacy Policy</a>.
+          </p>
+        </li>
+        <li>
+          <p><strong>Cookiebot (by Usercentrics)</strong></p>
+          <p>
+            Cookiebot is a Consent Management Platform (CMP) that helps manage user consent for cookies and tracking scripts.
+            It may set a cookie to store your consent preferences and will prevent non-consented tags from loading.
+            For details on how Cookiebot processes data, see
+            <a href="https://www.usercentrics.com/legal/privacy-policy/" target="_blank" rel="noopener">Usercentrics / Cookiebot Privacy Policy</a>.
+          </p>
+        </li>
       </ul>
 
       <Title order={3} my="md">Advertising</Title>
       <p>
-        This website does not display advertisements and does not use third-party advertising services.
+        We use Google Ads to manage advertising and remarketing. Google Ads may use cookies,
+        device identifiers and similar technologies to collect information about your visits to this
+        website and other sites in order to provide advertising tailored to your interests.
+      </p>
+      <p>
+        Google may associate information from the Google advertising cookies with information
+        from your Google account if you are signed in. To learn more about how Google uses data
+        for advertising and how to opt out, see:
+        <a href="https://policies.google.com/technologies/ads" target="_blank" rel="noopener">Google Ads &amp; Cookies</a>
+        and <a href="https://adssettings.google.com/" target="_blank" rel="noopener">Google Ad Settings</a>.
+      </p>
+      <p>
+        You can opt-out of personalized advertising from Google by visiting
+        <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener">Google Analytics Opt-out</a>
+        and by adjusting your ad settings at the link above. Browser-level controls like
+        "Do Not Track" and ad-blockers (for example uBlock Origin) may also prevent advertising
+        and tracking scripts from running.
       </p>
 
       <Title order={2} my="md">Links To Other Sites</Title>
