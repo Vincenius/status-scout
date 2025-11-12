@@ -24,7 +24,8 @@ RUN echo "VITE_ENABLE_ANALYTICS=${VITE_ENABLE_ANALYTICS}" > .env.production && \
     echo "VITE_BASE_URL=${VITE_BASE_URL}" >> .env.production && \
     echo "VITE_APP_URL=${VITE_APP_URL}" >> .env.production && \
     echo "VITE_API_URL=${VITE_API_URL}" >> .env.production && \
-    echo "VITE_TURNSTILE_SITE_KEY=${VITE_TURNSTILE_SITE_KEY}" >> .env.production
+    echo "VITE_TURNSTILE_SITE_KEY=${VITE_TURNSTILE_SITE_KEY}" >> .env.production && \
+    echo "VITE_GTM_ID=${VITE_GTM_ID}" >> .env.production
 
 COPY . .
 

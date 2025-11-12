@@ -77,8 +77,9 @@ services:
         VITE_DISABLE_REGISTRATION: ${DISABLE_REGISTRATION}
         VITE_ENABLE_ANALYTICS: ${VITE_ENABLE_ANALYTICS:-}
         VITE_STRIPE_PUBLISHABLE_KEY: ${VITE_STRIPE_PUBLISHABLE_KEY:-}
-        VITE_GTM_ID: ${GTM_ID:-}
-        VITE_GTM_CONVERSION: ${GTM_CONVERSION:-}
+        VITE_GTM_ID: ${VITE_GTM_ID:-}
+        VITE_GTM_CONVERSION: ${VITE_GTM_CONVERSION:-}
+        VITE_GTM_REGISTER: ${VITE_GTM_REGISTER:-}
     container_name: statusscout-frontend
     restart: always
     ports:
