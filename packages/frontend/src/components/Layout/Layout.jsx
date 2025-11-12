@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import { useAuthSWR } from '@/utils/useAuthSWR'
 import FeedbackButton from '@/components/FeedbackButton/FeedbackButton.jsx';
 import InlineLink from '@/components/InlineLink/InlineLink.jsx';
+import { useLocation } from 'react-router-dom';
 
 const Layout = ({ children, title, isPublicRoute, redirectIfAuth }) => {
   const [opened, { toggle }] = useDisclosure();
@@ -31,6 +32,7 @@ const Layout = ({ children, title, isPublicRoute, redirectIfAuth }) => {
     ? useAuthSWR(`${import.meta.env.VITE_API_URL}/v1/user/registration`)
     : { data: { adminRegistration: false } };
   const { adminRegistration } = regData || {};
+  const location = useLocation();
 
   useEffect(() => {
     if (registrationDisabled && adminRegistration) {
@@ -51,6 +53,38 @@ const Layout = ({ children, title, isPublicRoute, redirectIfAuth }) => {
       document.title = `${title} | StatusScout`
     }
   });
+
+  // init gtag
+  useEffect(() => {
+    if (!import.meta.env.VITE_GTM_ID) return;
+
+    const script = document.createElement('script');
+    script.src = `https://www.googletagmanager.com/gtag/js?id=${import.meta.env.VITE_GTM_ID}`;
+    script.async = true;
+    document.head.appendChild(script);
+
+    // Initialize gtag
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { window.dataLayer.push(arguments); }
+    window.gtag = gtag;
+
+    gtag('js', new Date());
+    gtag('config', import.meta.env.VITE_GTM_ID);
+
+    return () => {
+      // optional cleanup if you want to remove it later
+      document.head.removeChild(script);
+    };
+  }, []);
+
+  // handle gtag location changes
+  useEffect(() => {
+    if (window.gtag) {
+      window.gtag('config', import.meta.env.VITE_GTM_ID, {
+        page_path: window.location.pathname,
+      });
+    }
+  }, [location.pathname]);
 
   useEffect(() => {
     if (redirectIfAuth) {

@@ -23,7 +23,6 @@
     "mjml": "^4.16.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-gtm-module": "^2.0.11",
     "react-helmet-async": "^2.0.5",
     "react-markdown": "^10.1.0",
     "react-router-dom": "^7.6.3",

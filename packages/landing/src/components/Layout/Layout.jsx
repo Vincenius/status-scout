@@ -5,10 +5,12 @@ import { Link } from 'react-router-dom';
 import ColorSchemeToggle from './ColorSchemeToggle.jsx';
 import { useEffect, useState } from 'react';
 import InlineLink from '@/components/InlineLink/InlineLink.jsx';
+import { useLocation } from 'react-router-dom';
 
 const Layout = ({ children, title }) => {
   const isAnalyticsEnabled = import.meta.env.VITE_ENABLE_ANALYTICS === 'true' || import.meta.env.VITE_ENABLE_ANALYTICS === true;
   const [opened, setOpened] = useState(false);
+  const location = useLocation();
 
   // set head info on initial load
   useEffect(() => {
@@ -23,6 +25,38 @@ const Layout = ({ children, title }) => {
       document.title = `${title} | StatusScout`
     }
   });
+
+  // gtag
+  useEffect(() => {
+    if (!import.meta.env.VITE_GTM_ID) return;
+
+    const script = document.createElement('script');
+    script.src = `https://www.googletagmanager.com/gtag/js?id=${import.meta.env.VITE_GTM_ID}`;
+    script.async = true;
+    document.head.appendChild(script);
+
+    // Initialize gtag
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { window.dataLayer.push(arguments); }
+    window.gtag = gtag;
+
+    gtag('js', new Date());
+    gtag('config', import.meta.env.VITE_GTM_ID);
+
+    return () => {
+      // optional cleanup if you want to remove it later
+      document.head.removeChild(script);
+    };
+  }, []);
+
+  // handle gtag location changes
+  useEffect(() => {
+    if (window.gtag) {
+      window.gtag('config', import.meta.env.VITE_GTM_ID, {
+        page_path: window.location.pathname,
+      });
+    }
+  }, [location.pathname]);
 
   return <>
     <Helmet>

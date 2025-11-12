@@ -78,6 +78,7 @@ services:
         VITE_ENABLE_ANALYTICS: ${VITE_ENABLE_ANALYTICS:-}
         VITE_STRIPE_PUBLISHABLE_KEY: ${VITE_STRIPE_PUBLISHABLE_KEY:-}
         VITE_GTM_ID: ${GTM_ID:-}
+        VITE_GTM_CONVERSION: ${GTM_CONVERSION:-}
     container_name: statusscout-frontend
     restart: always
     ports:
