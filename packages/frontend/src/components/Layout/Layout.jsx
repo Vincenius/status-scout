@@ -58,13 +58,13 @@ const Layout = ({ children, title, isPublicRoute, redirectIfAuth }) => {
   useEffect(() => {
     if (!import.meta.env.VITE_GTM_ID) return;
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const gclid = urlParams.get('gclid');
+    // const urlParams = new URLSearchParams(window.location.search);
+    // const gclid = urlParams.get('gclid');
 
     // only load gtag if gclid is present or cookie consent has been given
-    if (!gclid && !document.cookie.includes('CookieConsent')) {
-      return;
-    }
+    // if (!gclid && !document.cookie.includes('CookieConsent')) {
+    //   return;
+    // }
 
     const script = document.createElement('script');
     script.src = `https://www.googletagmanager.com/gtag/js?id=${import.meta.env.VITE_GTM_ID}`;
