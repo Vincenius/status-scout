@@ -11,7 +11,7 @@ const Privacy = () => {
         I am using a self-hosted version of <a href="https://umami.is/" target="_blank" rel="noopener">umami</a> for the only purpose of knowing how many people are visiting this website.
       </p>
       <p>
-        If you came to this page through a Google Ad, I'm also including Google Tag Manager to be able to track conversions.
+        I'm using Google Tag Manager to be able to track conversions for people that came through Google Ads.
       </p>
       <p>
         <b>If you enable &quot;Do Not Track&quot; in your browser I won&apos;t track you</b>.
@@ -27,7 +27,7 @@ const Privacy = () => {
 
       <Title order={2} my="md">Version for my legal safety</Title>
       <p>Effective date: August 05, 2025</p>
-      {/* <p>Updated date: August 11, 2025</p> */}
+      <p>Updated date: November 13, 2025</p>
       <p>
         Vincent Will (&apos;us&apos;, &apos;we&apos;, or &apos;our&apos;) operates the
         https://statusscout.dev website (hereinafter referred to
