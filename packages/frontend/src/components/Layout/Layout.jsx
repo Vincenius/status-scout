@@ -9,8 +9,10 @@ import { useAuthSWR } from '@/utils/useAuthSWR'
 import FeedbackButton from '@/components/FeedbackButton/FeedbackButton.jsx';
 import InlineLink from '@/components/InlineLink/InlineLink.jsx';
 import { useLocation } from 'react-router-dom';
+import { useCookieConsent } from "react-cookie-manager";
 
 const Layout = ({ children, title, isPublicRoute, redirectIfAuth }) => {
+  const { detailedConsent } = useCookieConsent();
   const [opened, { toggle }] = useDisclosure();
   const [menuOpened, setMenuOpened] = useState(false);
   const [logoutLoading, setLogoutLoading] = useState(false);
@@ -57,26 +59,15 @@ const Layout = ({ children, title, isPublicRoute, redirectIfAuth }) => {
   // init gtag
   useEffect(() => {
     if (!import.meta.env.VITE_GTM_ID) return;
-
-    // const urlParams = new URLSearchParams(window.location.search);
-    // const gclid = urlParams.get('gclid');
-
-    // only load gtag if gclid is present or cookie consent has been given
-    // if (!gclid && !document.cookie.includes('CookieConsent')) {
-    //   return;
-    // }
+    if (!detailedConsent?.Analytics?.consented) return;
+    if (window.gtag) {
+      return;
+    }
 
     const script = document.createElement('script');
     script.src = `https://www.googletagmanager.com/gtag/js?id=${import.meta.env.VITE_GTM_ID}`;
     script.async = true;
     document.head.appendChild(script);
-
-    // const cookieScript = document.createElement('script');
-    // cookieScript.src = 'https://consent.cookiebot.com/uc.js';
-    // cookieScript.setAttribute('data-cbid', import.meta.env.VITE_COOKIEBOT_ID);
-    // cookieScript.type = 'text/javascript';
-    // cookieScript.async = true;
-    // document.head.appendChild(cookieScript);
 
     // Initialize gtag
     window.dataLayer = window.dataLayer || [];

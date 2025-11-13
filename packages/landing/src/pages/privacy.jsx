@@ -88,11 +88,6 @@ const Privacy = () => {
         information.
       </p>
       <p>
-        We use Cookiebot by Usercentrics as a Consent Management Platform (CMP) to obtain and store user cookie preferences.
-        Cookiebot may set a small cookie to remember your consent choices and to ensure that only allowed tags/scripts run based on your selections.
-        See <a href="https://www.usercentrics.com/products/cookiebot/" target="_blank" rel="noopener">Cookiebot by Usercentrics</a> for details.
-      </p>
-      <p>
         Cookies are files with small amount of data which may
         include an anonymous unique identifier. Cookies are sent
         to your browser from a website and stored on your

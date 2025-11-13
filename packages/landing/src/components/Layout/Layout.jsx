@@ -6,8 +6,10 @@ import ColorSchemeToggle from './ColorSchemeToggle.jsx';
 import { useEffect, useState } from 'react';
 import InlineLink from '@/components/InlineLink/InlineLink.jsx';
 import { useLocation } from 'react-router-dom';
+import { useCookieConsent } from "react-cookie-manager";
 
 const Layout = ({ children, title }) => {
+  const { detailedConsent } = useCookieConsent();
   const isAnalyticsEnabled = import.meta.env.VITE_ENABLE_ANALYTICS === 'true' || import.meta.env.VITE_ENABLE_ANALYTICS === true;
   const [opened, setOpened] = useState(false);
   const location = useLocation();
@@ -29,12 +31,8 @@ const Layout = ({ children, title }) => {
   // gtag
   useEffect(() => {
     if (!import.meta.env.VITE_GTM_ID) return;
-
-    const urlParams = new URLSearchParams(window.location.search);
-    const gclid = urlParams.get('gclid');
-
-    // only load gtag if gclid is present or cookie consent has been given
-    if (!gclid && !document.cookie.includes('CookieConsent')) {
+    if (!detailedConsent?.Analytics?.consented) return;
+    if (window.gtag) {
       return;
     }
 
@@ -42,13 +40,6 @@ const Layout = ({ children, title }) => {
     script.src = `https://www.googletagmanager.com/gtag/js?id=${import.meta.env.VITE_GTM_ID}`;
     script.async = true;
     document.head.appendChild(script);
-
-    const cookieScript = document.createElement('script');
-    cookieScript.src = 'https://consent.cookiebot.com/uc.js';
-    cookieScript.setAttribute('data-cbid', import.meta.env.VITE_COOKIEBOT_ID);
-    cookieScript.type = 'text/javascript';
-    cookieScript.async = true;
-    document.head.appendChild(cookieScript);
 
     // Initialize gtag
     window.dataLayer = window.dataLayer || [];
@@ -62,7 +53,7 @@ const Layout = ({ children, title }) => {
       // optional cleanup if you want to remove it later
       document.head.removeChild(script);
     };
-  }, []);
+  }, [detailedConsent]);
 
   // handle gtag location changes
   useEffect(() => {
