@@ -30,30 +30,57 @@ const Layout = ({ children, title }) => {
 
   // gtag
   useEffect(() => {
-    if (!import.meta.env.VITE_GTM_ID) return;
-    if (!detailedConsent?.Analytics?.consented) return;
-    if (window.gtag) {
-      return;
-    }
+    const GTM_ID = import.meta.env.VITE_GTM_ID;
+    if (!GTM_ID) return;
+
+    const inline = document.createElement('script');
+    inline.innerHTML = `
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      window.gtag = gtag;
+
+      gtag('consent', 'default', {
+        ad_storage: 'denied',
+        analytics_storage: 'denied',
+        ad_personalization: 'denied',
+        wait_for_update: 500
+      });
+    `;
+    document.head.appendChild(inline);
 
     const script = document.createElement('script');
-    script.src = `https://www.googletagmanager.com/gtag/js?id=${import.meta.env.VITE_GTM_ID}`;
+    script.src = `https://www.googletagmanager.com/gtag/js?id=${GTM_ID}`;
     script.async = true;
     document.head.appendChild(script);
 
-    // Initialize gtag
-    window.dataLayer = window.dataLayer || [];
-    function gtag() { window.dataLayer.push(arguments); }
-    window.gtag = gtag;
-
-    gtag('js', new Date());
-    gtag('config', import.meta.env.VITE_GTM_ID);
-
     return () => {
-      // optional cleanup if you want to remove it later
       document.head.removeChild(script);
+      document.head.removeChild(inline);
     };
-  }, [detailedConsent]);
+  }, []);
+
+  useEffect(() => {
+    if (!window.gtag) return;
+
+    const analyticsAllowed = detailedConsent?.Analytics?.consented;
+    const adsAllowed = detailedConsent?.Advertising?.consented;
+
+    // Update consent
+    window.gtag('consent', 'update', {
+      analytics_storage: analyticsAllowed ? 'granted' : 'denied',
+      ad_storage: adsAllowed ? 'granted' : 'denied',
+      ad_personalization: adsAllowed ? 'granted' : 'denied'
+    });
+
+    // Fire GA config only if analytics is allowed
+    if (analyticsAllowed) {
+      window.gtag('js', new Date());
+      window.gtag('config', import.meta.env.VITE_GTM_ID, {
+        send_page_view: true
+      });
+    }
+
+  }, [detailedConsent, window.gtag]);
 
   // handle gtag location changes
   useEffect(() => {

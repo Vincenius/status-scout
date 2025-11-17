@@ -29,7 +29,6 @@ RUN mkdir -p packages/frontend && \
     echo "VITE_GTM_ID=${VITE_GTM_ID}" >> packages/frontend/.env.production && \
     echo "VITE_GTM_CONVERSION=${VITE_GTM_CONVERSION}" >> packages/frontend/.env.production && \
     echo "VITE_GTM_REGISTER=${VITE_GTM_REGISTER}" >> packages/frontend/.env.production && \
-    echo "VITE_COOKIEBOT_ID=${VITE_COOKIEBOT_ID}" >> .env.production && \
     echo "VITE_STRIPE_PUBLISHABLE_KEY=${VITE_STRIPE_PUBLISHABLE_KEY}" >> packages/frontend/.env.production
 
 # Build the frontend from the workspace

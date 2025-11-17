@@ -80,7 +80,6 @@ services:
         VITE_GTM_ID: ${VITE_GTM_ID:-}
         VITE_GTM_CONVERSION: ${VITE_GTM_CONVERSION:-}
         VITE_GTM_REGISTER: ${VITE_GTM_REGISTER:-}
-        VITE_COOKIEBOT_ID: ${VITE_COOKIEBOT_ID:-}
     container_name: statusscout-frontend
     restart: always
     ports:
