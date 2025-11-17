@@ -3,6 +3,26 @@ import path from 'path'
 import pLimit from 'p-limit';
 import { createCheckResult } from '../db.js'
 
+function get404ProbabilityAdvanced(html) {
+  if (!html || !html.trim()) return 1;
+
+  const text = html.toLowerCase();
+
+  let score = 0;
+
+  // 1. keyword signals
+  const signals = ["404", "not found", "page not found", "error", "oops", "we can't find", "can't be found", "doesn't exist"];
+  for (const s of signals) {
+    if (text.includes(s)) score += 0.3;
+  }
+
+  // 3. Title contains 404
+  const title = text.match(/<title[^>]*>(.*?)<\/title>/);
+  if (title && title[1].includes("404")) score += 0.5;
+
+  return Math.min(1, score);
+}
+
 export const runFuzzCheck = async ({ uri, id, db, websiteId, createdAt, type, quickcheckId }) => {
   console.log(`Running fuzz check for ${uri}`)
   const [prevCheck] = await db.collection('checks')
@@ -28,7 +48,12 @@ export const runFuzzCheck = async ({ uri, id, db, websiteId, createdAt, type, qu
         if (res.status === 200) {
           const contentRes = await fetch(`${uri}/${filename}`);
           const text = await contentRes.text();
-          return { status: 200, file, hasContent: text.trim().length > 0 };
+          return {
+            status: 200,
+            file,
+            hasContent: text.trim().length > 0,
+            probability404: get404ProbabilityAdvanced(text)
+          };
         }
         return { status: res.status, file };
       } catch (err) {
@@ -39,7 +64,7 @@ export const runFuzzCheck = async ({ uri, id, db, websiteId, createdAt, type, qu
 
   const results = await Promise.all(promises);
 
-  const filesWithContent = results.filter(sc => sc.status === 200 && sc.hasContent);
+  const filesWithContent = results.filter(sc => sc.status === 200 && sc.hasContent && sc.probability404 < 0.5);
   const result = {
     status: filesWithContent.length === 0 ? 'success' : 'fail',
     details: {

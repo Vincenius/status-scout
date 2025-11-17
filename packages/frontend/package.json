@@ -31,6 +31,7 @@
     "recharts": "2",
     "sortablejs": "^1.15.6",
     "swr": "^2.3.4",
+    "vite-plugin-image-optimizer": "^2.0.3",
     "zustand": "^5.0.7"
   },
   "devDependencies": {
@@ -40,6 +41,8 @@
     "postcss": "^8.5.5",
     "postcss-preset-mantine": "1.17.0",
     "postcss-simple-vars": "^7.0.1",
+    "sharp": "^0.34.5",
+    "svgo": "^4.0.0",
     "typescript": "^5.8.3",
     "vite": "^6.3.5",
     "vite-plugin-pages": "^0.33.1"
