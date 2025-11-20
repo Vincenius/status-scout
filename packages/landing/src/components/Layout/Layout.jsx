@@ -95,6 +95,7 @@ const Layout = ({ children, title }) => {
     <Helmet>
       <title>{`${title} | StatusScout`}</title>
       {isAnalyticsEnabled && (<script defer src="https://analytics.vincentwill.com/script.js" data-website-id="a807669d-6eda-4c1c-9b36-2247d2caf318"></script>)}
+      <script defer data-url="https://devhunt.org/tool/statusscout" src="https://cdn.jsdelivr.net/gh/sidiDev/devhunt-banner/indexV0.js"></script>
     </Helmet>
 
     <Flex align="center" justify="space-between" h="100%" gap="lg" maw={1200} mx="auto" py="xs" px="xl">
