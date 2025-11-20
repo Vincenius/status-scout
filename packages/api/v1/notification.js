@@ -2,6 +2,7 @@ import { sendSms } from "../utils/bird.js";
 import { sendEmail, getHtml } from "../utils/email.js"
 import template from '../utils/templates/notificationEmail.js'
 import trialNotification from '../utils/templates/trialNotification.js'
+import feedbackTemplate from '../utils/templates/feedbackTemplate.js'
 import { getNotificationMessage } from "@statusscout/shared"
 
 const capitalize = str => str.charAt(0).toUpperCase() + str.slice(1);
@@ -68,4 +69,30 @@ export default async function notificationRoutes(fastify, opts) {
       return reply.code(401).send({ message: 'Unauthorized' })
     }
   })
+
+  fastify.post('/feedback', { config: { auth: false } }, async (request, reply) => {
+    if (request.headers['x-api-key'] === process.env.API_KEY) {
+      const body = request.body || {}
+      const { users } = body
+
+      for (const user of users) {
+        const emailMjml = feedbackTemplate({ userId: user._id.toString() })
+        const emailHtml = getHtml(emailMjml)
+
+        await sendEmail({
+          to: user.email,
+          subject: `Would love your feedback on StatusScout!`,
+          html: emailHtml
+        })
+
+        console.log(`Sent feedback request to ${user.email}`)
+      }
+
+      return { message: 'OK' }
+    } else {
+      return reply.code(401).send({ message: 'Unauthorized' })
+    }
+  })
+
+  // todo: feedback email
 }

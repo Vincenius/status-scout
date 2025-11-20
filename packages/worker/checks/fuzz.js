@@ -3,7 +3,7 @@ import path from 'path'
 import pLimit from 'p-limit';
 import { createCheckResult } from '../db.js'
 
-function get404ProbabilityAdvanced(html) {
+function get404Probability(html) {
   if (!html || !html.trim()) return 1;
 
   const text = html.toLowerCase();
@@ -52,7 +52,8 @@ export const runFuzzCheck = async ({ uri, id, db, websiteId, createdAt, type, qu
             status: 200,
             file,
             hasContent: text.trim().length > 0,
-            probability404: get404ProbabilityAdvanced(text)
+            probability404: get404Probability(text)
+            // todo compare with landing page to see if landing is rendered as fallback 
           };
         }
         return { status: res.status, file };

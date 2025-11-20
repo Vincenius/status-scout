@@ -63,6 +63,7 @@ services:
       - REDIS_PORT=${REDIS_PORT}
       - API_KEY=${API_KEY}
       - API_URL=${API_URL}
+      - SEND_EMAILS=${SEND_EMAILS:-}
     depends_on:
       - statusscout-mongodb
       - statusscout-redis

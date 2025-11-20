@@ -149,6 +149,42 @@ async function runTrialCheck() {
   }
 }
 
+async function runFeedbackCheck() {
+  try {
+    const db = await connectDB()
+    // three days after signup
+    const threeDaysAgo = new Date()
+    threeDaysAgo.setDate(threeDaysAgo.getDate() - 3)
+    threeDaysAgo.setHours(0, 0, 0, 0)
+    const startOfThreeDaysAgo = new Date(threeDaysAgo)
+    const endOfThreeDaysAgo = new Date(threeDaysAgo)
+    endOfThreeDaysAgo.setHours(23, 59, 59, 999)
+
+    const users = await db.collection('users').find({
+      confirmed: true,
+      'createdAt': { $gte: startOfThreeDaysAgo, $lte: endOfThreeDaysAgo },
+      'unsubscribed': { $ne: true }
+    }).toArray()
+
+    console.log('checking for users  three days after signup, found', users.length)
+
+    if (users.length > 0) {
+      await fetch(`${process.env.API_URL}/v1/notification/feedback`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': process.env.API_KEY
+        },
+        body: JSON.stringify({ users })
+      })
+    }
+  } catch (e) {
+    console.error('error on trial check', e)
+  } finally {
+    await disconnectDB()
+  }
+}
+
 // once a day at 03:00:00
 cron.schedule('0 0 3 * * *', () => cleanUp())
 
@@ -159,7 +195,12 @@ cron.schedule('0 0 4 * * *', () => tryRun('full'))
 cron.schedule('0 0 5 * * *', () => runNotifications())
 
 // once a day at 10:00:00 — daily
-cron.schedule('0 0 10 * * *', () => runTrialCheck())
+cron.schedule('0 0 10 * * *', () => {
+  if (process.env.SEND_EMAILS === 'true' || process.env.SEND_EMAILS === true) {
+    runTrialCheck()
+    runFeedbackCheck()
+  }
+})
 
 // every 2 hours at :00:10 — extended
 cron.schedule('10 0 */2 * * *', () => tryRun('extended'))
@@ -171,4 +212,5 @@ cron.schedule('20 */10 * * * *', () => tryRun('quick'))
 // tryRun('quick')
 // cleanUp()
 // runNotifications()
-runTrialCheck()
+// runTrialCheck()
+// runFeedbackCheck()
