@@ -5,27 +5,27 @@ import dns from 'dns/promises';
 
 const dkimSelectors = [
   // Generic / common
-  "default", "selector", "selector1", "selector2", "selector3", "selector4",
-  "mail", "email", "smtp", "mx", "s1", "s2",
+  "default", "selector",
+  "mail", "email", "smtp", "mx",
   // Google Workspace
-  "google", "google._domainkey",
+  "google",
   // Microsoft 365 / Exchange
-  "selector1", "selector2", "selector3", "selector4",
+  "selector",
   // Amazon SES
   "amazonses", "dkim", "ses",
   // SendGrid
   "sendgrid", "sg", "sendgrid.net",
   // Mailchimp / Mandrill
-  "k1", "k2", "mailchimp", "mandrill",
+  "k", "mailchimp", "mandrill",
   // Zoho
-  "zoho", "zoho._domainkey",
+  "zoho",
   // Fastmail
-  "fm1", "fm2", "fm3",
+  "fm",
   // Proton
-  "protonmail", "pm1", "pm2",
+  "protonmail", "pm",
   // Other transactional email services
   "mailgun", "mg", "sparkpost", "postmark", "hubspot", "sendinblue", "brevo", "campaignmonitor"
-];
+].map(s => [s, `${s}1`, `${s}2`, `${s}3`, `${s}4`]).flat();
 
 const checkSubdomains = async (subs) => {
   const promises = subs.map(async (sub) => {
@@ -116,7 +116,7 @@ export const runDnsCheck = async ({ uri, id, websiteId, createdAt, quickcheckId,
   for (const s of dkimSelectors) {
     const record = `${s}._domainkey.${domain}`;
     const dkim = await checkTxtRecords(record);
-    if (dkim.includes("v=DKIM1")) {
+    if (dkim) {
       dkimSelector = record;
       break;
     }
