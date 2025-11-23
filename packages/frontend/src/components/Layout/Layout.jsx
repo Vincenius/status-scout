@@ -9,10 +9,10 @@ import { useAuthSWR } from '@/utils/useAuthSWR'
 import FeedbackButton from '@/components/FeedbackButton/FeedbackButton.jsx';
 import InlineLink from '@/components/InlineLink/InlineLink.jsx';
 import { useLocation } from 'react-router-dom';
-import { useCookieConsent } from "react-cookie-manager";
+// import { useCookieConsent } from "react-cookie-manager";
 
 const Layout = ({ children, title, isPublicRoute, redirectIfAuth }) => {
-  const { detailedConsent } = useCookieConsent();
+  // const { detailedConsent } = useCookieConsent();
   const [opened, { toggle }] = useDisclosure();
   const [menuOpened, setMenuOpened] = useState(false);
   const [logoutLoading, setLogoutLoading] = useState(false);
@@ -57,65 +57,65 @@ const Layout = ({ children, title, isPublicRoute, redirectIfAuth }) => {
   });
 
   // gtag
-  useEffect(() => {
-    const GTM_ID = import.meta.env.VITE_GTM_ID;
-    if (!GTM_ID) return;
+  // useEffect(() => {
+  //   const GTM_ID = import.meta.env.VITE_GTM_ID;
+  //   if (!GTM_ID) return;
 
-    const inline = document.createElement('script');
-    inline.innerHTML = `
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      window.gtag = gtag;
+  //   const inline = document.createElement('script');
+  //   inline.innerHTML = `
+  //     window.dataLayer = window.dataLayer || [];
+  //     function gtag(){dataLayer.push(arguments);}
+  //     window.gtag = gtag;
 
-      gtag('consent', 'default', {
-        ad_storage: 'denied',
-        analytics_storage: 'denied',
-        ad_personalization: 'denied',
-        wait_for_update: 500
-      });
-    `;
-    document.head.appendChild(inline);
+  //     gtag('consent', 'default', {
+  //       ad_storage: 'denied',
+  //       analytics_storage: 'denied',
+  //       ad_personalization: 'denied',
+  //       wait_for_update: 500
+  //     });
+  //   `;
+  //   document.head.appendChild(inline);
 
-    const script = document.createElement('script');
-    script.src = `https://www.googletagmanager.com/gtag/js?id=${GTM_ID}`;
-    script.async = true;
-    document.head.appendChild(script);
+  //   const script = document.createElement('script');
+  //   script.src = `https://www.googletagmanager.com/gtag/js?id=${GTM_ID}`;
+  //   script.async = true;
+  //   document.head.appendChild(script);
 
-    return () => {
-      document.head.removeChild(script);
-      document.head.removeChild(inline);
-    };
-  }, []);
+  //   return () => {
+  //     document.head.removeChild(script);
+  //     document.head.removeChild(inline);
+  //   };
+  // }, []);
 
-  useEffect(() => {
-    if (!window.gtag) return;
+  // useEffect(() => {
+  //   if (!window.gtag) return;
 
-    const analyticsAllowed = detailedConsent?.Analytics?.consented;
-    const adsAllowed = detailedConsent?.Advertising?.consented;
+  //   const analyticsAllowed = detailedConsent?.Analytics?.consented;
+  //   const adsAllowed = detailedConsent?.Advertising?.consented;
 
-    window.gtag('consent', 'update', {
-      analytics_storage: analyticsAllowed ? 'granted' : 'denied',
-      ad_storage: adsAllowed ? 'granted' : 'denied',
-      ad_personalization: adsAllowed ? 'granted' : 'denied'
-    });
+  //   window.gtag('consent', 'update', {
+  //     analytics_storage: analyticsAllowed ? 'granted' : 'denied',
+  //     ad_storage: adsAllowed ? 'granted' : 'denied',
+  //     ad_personalization: adsAllowed ? 'granted' : 'denied'
+  //   });
 
-    if (analyticsAllowed) {
-      window.gtag('js', new Date());
-      window.gtag('config', import.meta.env.VITE_GTM_ID, {
-        send_page_view: true
-      });
-    }
+  //   if (analyticsAllowed) {
+  //     window.gtag('js', new Date());
+  //     window.gtag('config', import.meta.env.VITE_GTM_ID, {
+  //       send_page_view: true
+  //     });
+  //   }
 
-  }, [detailedConsent, window.gtag]);
+  // }, [detailedConsent, window.gtag]);
 
-  // handle gtag location changes
-  useEffect(() => {
-    if (window.gtag) {
-      window.gtag('config', import.meta.env.VITE_GTM_ID, {
-        page_path: window.location.pathname,
-      });
-    }
-  }, [location.pathname]);
+  // // handle gtag location changes
+  // useEffect(() => {
+  //   if (window.gtag) {
+  //     window.gtag('config', import.meta.env.VITE_GTM_ID, {
+  //       page_path: window.location.pathname,
+  //     });
+  //   }
+  // }, [location.pathname]);
 
   useEffect(() => {
     if (redirectIfAuth) {

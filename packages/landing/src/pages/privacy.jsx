@@ -10,9 +10,9 @@ const Privacy = () => {
         I try to keep this website as privacy friendly as possible.
         I am using a self-hosted version of <a href="https://umami.is/" target="_blank" rel="noopener">umami</a> for the only purpose of knowing how many people are visiting this website.
       </p>
-      <p>
+      {/* <p>
         I'm using Google Tag Manager to be able to track conversions for people that came through Google Ads.
-      </p>
+      </p> */}
       <p>
         <b>If you enable &quot;Do Not Track&quot; in your browser I won&apos;t track you</b>.
         Also AdBlockers will work for blocking the tracking. I&apos;d recomment <i>uBlock Origin</i> for that.
@@ -227,7 +227,7 @@ const Privacy = () => {
             It does not collect any personally identifiable information and anonymizes all data collected.
           </p>
         </li>
-        <li>
+        {/* <li>
           <p><strong>Google Tag Manager</strong></p>
           <p>
             Google Tag Manager (GTM) is a tag management system that allows us to deploy tracking
@@ -236,19 +236,10 @@ const Privacy = () => {
             For details on how Google handles data, see Google’s privacy policy:
             <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google Privacy Policy</a>.
           </p>
-        </li>
-        <li>
-          <p><strong>Cookiebot (by Usercentrics)</strong></p>
-          <p>
-            Cookiebot is a Consent Management Platform (CMP) that helps manage user consent for cookies and tracking scripts.
-            It may set a cookie to store your consent preferences and will prevent non-consented tags from loading.
-            For details on how Cookiebot processes data, see
-            <a href="https://www.usercentrics.com/legal/privacy-policy/" target="_blank" rel="noopener">Usercentrics / Cookiebot Privacy Policy</a>.
-          </p>
-        </li>
+        </li> */}
       </ul>
 
-      <Title order={3} my="md">Advertising</Title>
+      {/* <Title order={3} my="md">Advertising</Title>
       <p>
         We use Google Ads to manage advertising and remarketing. Google Ads may use cookies,
         device identifiers and similar technologies to collect information about your visits to this
@@ -267,7 +258,7 @@ const Privacy = () => {
         and by adjusting your ad settings at the link above. Browser-level controls like
         "Do Not Track" and ad-blockers (for example uBlock Origin) may also prevent advertising
         and tracking scripts from running.
-      </p>
+      </p> */}
 
       <Title order={2} my="md">Links To Other Sites</Title>
       <p>

@@ -6,10 +6,10 @@ import ColorSchemeToggle from './ColorSchemeToggle.jsx';
 import { useEffect, useState } from 'react';
 import InlineLink from '@/components/InlineLink/InlineLink.jsx';
 import { useLocation } from 'react-router-dom';
-import { useCookieConsent } from "react-cookie-manager";
+// import { useCookieConsent } from "react-cookie-manager";
 
 const Layout = ({ children, title }) => {
-  const { detailedConsent } = useCookieConsent();
+  // const { detailedConsent } = useCookieConsent();
   const isAnalyticsEnabled = import.meta.env.VITE_ENABLE_ANALYTICS === 'true' || import.meta.env.VITE_ENABLE_ANALYTICS === true;
   const [opened, setOpened] = useState(false);
   const location = useLocation();
@@ -29,58 +29,58 @@ const Layout = ({ children, title }) => {
   });
 
   // gtag
-  useEffect(() => {
-    const GTM_ID = import.meta.env.VITE_GTM_ID;
-    if (!GTM_ID) return;
+  // useEffect(() => {
+  //   const GTM_ID = import.meta.env.VITE_GTM_ID;
+  //   if (!GTM_ID) return;
 
-    const inline = document.createElement('script');
-    inline.innerHTML = `
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      window.gtag = gtag;
+  //   const inline = document.createElement('script');
+  //   inline.innerHTML = `
+  //     window.dataLayer = window.dataLayer || [];
+  //     function gtag(){dataLayer.push(arguments);}
+  //     window.gtag = gtag;
 
-      gtag('consent', 'default', {
-        ad_storage: 'denied',
-        analytics_storage: 'denied',
-        ad_personalization: 'denied',
-        wait_for_update: 500
-      });
-    `;
-    document.head.appendChild(inline);
+  //     gtag('consent', 'default', {
+  //       ad_storage: 'denied',
+  //       analytics_storage: 'denied',
+  //       ad_personalization: 'denied',
+  //       wait_for_update: 500
+  //     });
+  //   `;
+  //   document.head.appendChild(inline);
 
-    const script = document.createElement('script');
-    script.src = `https://www.googletagmanager.com/gtag/js?id=${GTM_ID}`;
-    script.async = true;
-    document.head.appendChild(script);
+  //   const script = document.createElement('script');
+  //   script.src = `https://www.googletagmanager.com/gtag/js?id=${GTM_ID}`;
+  //   script.async = true;
+  //   document.head.appendChild(script);
 
-    return () => {
-      document.head.removeChild(script);
-      document.head.removeChild(inline);
-    };
-  }, []);
+  //   return () => {
+  //     document.head.removeChild(script);
+  //     document.head.removeChild(inline);
+  //   };
+  // }, []);
 
-  useEffect(() => {
-    if (!window.gtag) return;
+  // useEffect(() => {
+  //   if (!window.gtag) return;
 
-    const analyticsAllowed = detailedConsent?.Analytics?.consented;
-    const adsAllowed = detailedConsent?.Advertising?.consented;
+  //   const analyticsAllowed = detailedConsent?.Analytics?.consented;
+  //   const adsAllowed = detailedConsent?.Advertising?.consented;
 
-    // Update consent
-    window.gtag('consent', 'update', {
-      analytics_storage: analyticsAllowed ? 'granted' : 'denied',
-      ad_storage: adsAllowed ? 'granted' : 'denied',
-      ad_personalization: adsAllowed ? 'granted' : 'denied'
-    });
+  //   // Update consent
+  //   window.gtag('consent', 'update', {
+  //     analytics_storage: analyticsAllowed ? 'granted' : 'denied',
+  //     ad_storage: adsAllowed ? 'granted' : 'denied',
+  //     ad_personalization: adsAllowed ? 'granted' : 'denied'
+  //   });
 
-    // Fire GA config only if analytics is allowed
-    if (analyticsAllowed) {
-      window.gtag('js', new Date());
-      window.gtag('config', import.meta.env.VITE_GTM_ID, {
-        send_page_view: true
-      });
-    }
+  //   // Fire GA config only if analytics is allowed
+  //   if (analyticsAllowed) {
+  //     window.gtag('js', new Date());
+  //     window.gtag('config', import.meta.env.VITE_GTM_ID, {
+  //       send_page_view: true
+  //     });
+  //   }
 
-  }, [detailedConsent, window.gtag]);
+  // }, [detailedConsent, window.gtag]);
 
   // handle gtag location changes
   useEffect(() => {
