@@ -127,7 +127,8 @@ async function runTrialCheck() {
       confirmed: true,
       'subscription.plan': 'trial',
       'subscription.expiresAt': { $gte: startOfTomorrow, $lte: endOfTomorrow },
-      'unsubscribed': { $ne: true }
+      'unsubscribed': { $ne: true },
+      'confirmed': true
     }).toArray()
 
     console.log('checking for users with trial ending tomorrow, found', users.length)
@@ -163,7 +164,8 @@ async function runFeedbackCheck() {
     const users = await db.collection('users').find({
       confirmed: true,
       'createdAt': { $gte: startOfThreeDaysAgo, $lte: endOfThreeDaysAgo },
-      'unsubscribed': { $ne: true }
+      'unsubscribed': { $ne: true },
+      'confirmed': true
     }).toArray()
 
     console.log('checking for users  three days after signup, found', users.length)
