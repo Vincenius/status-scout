@@ -19,29 +19,29 @@ async function tryRun(type) {
       confirmed: true,
       $or: [
         { 'subscription.expiresAt': { $gt: now } },
-        { 'subscription.expiresAt': { $exists: false } },
+        { 'subscription.expiresAt': { $exists: false } }
       ],
-      $or: [
-        { 'subscription.plan': 'pro' },
-        { 'subscription.plan': 'trial' }
-      ]
-    }).toArray()
+      'subscription.plan': { $in: ['pro', 'trial'] }
+    }).toArray();
 
-    for (const user of users) {
-      const websites = await db.collection('websites').find({
-        userId: user._id,
-        deleted: { $ne: true }
-      }).toArray()
 
-      for (const website of websites) {
-        const jobData = {
-          type,
-          websiteId: website._id,
-        }
-        const job = await queue.add('cron-triggered-job', jobData)
-        console.log(`Enqueued ${type} for domain ${website.domain}, job: ${job.id}`)
-      }
-    }
+    console.log('found', users, 'users for daily notifications')
+
+    // for (const user of users) {
+    //   const websites = await db.collection('websites').find({
+    //     userId: user._id,
+    //     deleted: { $ne: true }
+    //   }).toArray()
+
+    //   for (const website of websites) {
+    //     const jobData = {
+    //       type,
+    //       websiteId: website._id,
+    //     }
+    //     const job = await queue.add('cron-triggered-job', jobData)
+    //     console.log(`Enqueued ${type} for domain ${website.domain}, job: ${job.id}`)
+    //   }
+    // }
   } catch (e) {
     console.error(e)
   } finally {
@@ -57,13 +57,10 @@ async function runNotifications() {
       confirmed: true,
       $or: [
         { 'subscription.expiresAt': { $gt: now } },
-        { 'subscription.expiresAt': { $exists: false } },
+        { 'subscription.expiresAt': { $exists: false } }
       ],
-      $or: [
-        { 'subscription.plan': 'pro' },
-        { 'subscription.plan': 'trial' }
-      ]
-    }).toArray()
+      'subscription.plan': { $in: ['pro', 'trial'] }
+    }).toArray();
 
     for (const user of users) {
       const websites = await db.collection('websites').find({
@@ -211,7 +208,7 @@ cron.schedule('10 0 */2 * * *', () => tryRun('extended'))
 cron.schedule('20 */10 * * * *', () => tryRun('quick'))
 
 // run once immediately
-// tryRun('quick')
+tryRun('quick')
 // cleanUp()
 // runNotifications()
 // runTrialCheck()
