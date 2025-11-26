@@ -208,7 +208,7 @@ cron.schedule('10 0 */2 * * *', () => tryRun('extended'))
 cron.schedule('20 */10 * * * *', () => tryRun('quick'))
 
 // run once immediately
-tryRun('quick')
+// tryRun('quick')
 // cleanUp()
 // runNotifications()
 // runTrialCheck()
