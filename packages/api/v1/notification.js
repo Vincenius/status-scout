@@ -60,8 +60,6 @@ export default async function notificationRoutes(fastify, opts) {
           subject: `[StatusScout] Your Trial is Ending Soon`,
           html: emailHtml
         })
-
-        console.log(`Sent trial ending notification to ${user.email}`)
       }
 
       return { message: 'OK' }
@@ -84,8 +82,6 @@ export default async function notificationRoutes(fastify, opts) {
           subject: `Would love your feedback on StatusScout!`,
           html: emailHtml
         })
-
-        console.log(`Sent feedback request to ${user.email}`)
       }
 
       return { message: 'OK' }

@@ -16,6 +16,8 @@ export const getHtml = (mjml) => {
 }
 
 export const sendEmail = async ({ to, subject, html }) => {
+  console.log(`Sending email to ${to} with subject "${subject}"`);
+
   const transporter = nodemailer.createTransport({
     SES: { sesClient, SendEmailCommand },
   });
