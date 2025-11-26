@@ -24,24 +24,21 @@ async function tryRun(type) {
       'subscription.plan': { $in: ['pro', 'trial'] }
     }).toArray();
 
+    for (const user of users) {
+      const websites = await db.collection('websites').find({
+        userId: user._id,
+        deleted: { $ne: true }
+      }).toArray()
 
-    console.log('found', users, 'users for daily notifications')
-
-    // for (const user of users) {
-    //   const websites = await db.collection('websites').find({
-    //     userId: user._id,
-    //     deleted: { $ne: true }
-    //   }).toArray()
-
-    //   for (const website of websites) {
-    //     const jobData = {
-    //       type,
-    //       websiteId: website._id,
-    //     }
-    //     const job = await queue.add('cron-triggered-job', jobData)
-    //     console.log(`Enqueued ${type} for domain ${website.domain}, job: ${job.id}`)
-    //   }
-    // }
+      for (const website of websites) {
+        const jobData = {
+          type,
+          websiteId: website._id,
+        }
+        const job = await queue.add('cron-triggered-job', jobData)
+        console.log(`Enqueued ${type} for domain ${website.domain}, job: ${job.id}`)
+      }
+    }
   } catch (e) {
     console.error(e)
   } finally {
@@ -201,14 +198,14 @@ cron.schedule('0 0 10 * * *', () => {
   }
 })
 
-// every 2 hours at :00:10 — extended
-cron.schedule('10 0 */2 * * *', () => tryRun('extended'))
+// every 6 hours at :00:10 — extended
+cron.schedule('10 0 */6 * * *', () => tryRun('extended'))
 
-// every 10 minutes at :00:20 — quick
-cron.schedule('20 */10 * * * *', () => tryRun('quick'))
+// every 5 minutes at :00:20 — quick
+cron.schedule('20 */5 * * * *', () => tryRun('quick'))
 
 // run once immediately
-// tryRun('quick')
+// tryRun('extended')
 // cleanUp()
 // runNotifications()
 // runTrialCheck()

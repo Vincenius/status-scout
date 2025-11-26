@@ -33,4 +33,6 @@ export const runUptimeCheck = async ({ uri, id, websiteId, createdAt, quickcheck
   }
 
   await createCheckResult({ id, websiteId, createdAt, check: 'uptime', result, quickcheckId, type })
+
+  return result.status;
 }

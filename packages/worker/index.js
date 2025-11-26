@@ -28,33 +28,43 @@ export const run = async ({ id, triggerName, type = 'quick', websiteId, quickche
     const baseParams = { id, uri: website.domain, db, websiteId: website._id, quickcheckId, createdAt, type }
 
     const checks = [
-      runUptimeCheck(baseParams),
-      runHeaderCheck(baseParams),
-      runSslCheck(baseParams),
+      () => runHeaderCheck(baseParams),
+      () => runSslCheck(baseParams),
     ]
 
     if (type === 'extended' || type === 'full' || type === 'free') {
       checks.push(
-        runFuzzCheck(baseParams),
-        runDnsCheck(baseParams),
+        () => runFuzzCheck(baseParams),
+        () => runDnsCheck(baseParams),
       )
     }
 
     if (type === 'full' || type === 'extended') {
       checks.push(
-        runCustomChecks(baseParams)
+        () => runCustomChecks(baseParams)
       )
     }
 
     if (type === 'full' || type === 'free') {
       checks.push(
-        runLighthouseCheck(baseParams),
-        runPerformanceCheck(baseParams),
-        runBrokenLinkCheck(baseParams)
+        () => runLighthouseCheck(baseParams),
+        () => runPerformanceCheck(baseParams),
+        () => runBrokenLinkCheck(baseParams)
       )
     }
 
-    await Promise.all(checks)
+    let uptimeResult = await runUptimeCheck(baseParams)
+
+    // Retry once if uptime check failed
+    if (uptimeResult === 'fail') {
+      console.log('Uptime check failed, retrying once...')
+      await new Promise(resolve => setTimeout(resolve, 5000))
+      uptimeResult = await runUptimeCheck(baseParams)
+    }
+
+    if (uptimeResult !== 'fail') {
+      await Promise.all(checks.map(checkFn => checkFn()))
+    }
 
     console.log('finished all checks')
 
